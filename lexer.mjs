@@ -2,12 +2,31 @@ import Token from "./token.mjs";
 import TokenType from "./token-type.mjs";
 
 class Lexer {
+  keyword = new Map([
+    ["and", TokenType.AND],
+    ["class", TokenType.CLASS],
+    ["else", TokenType.ELSE],
+    ["false", TokenType.FALSE],
+    ["for", TokenType.FOR],
+    ["fun", TokenType.FUN],
+    ["if", TokenType.IF],
+    ["nil", TokenType.NIL],
+    ["or", TokenType.OR],
+    ["print", TokenType.PRINT],
+    ["return", TokenType.RETURN],
+    ["super", TokenType.SUPER],
+    ["this", TokenType.THIS],
+    ["true", TokenType.TRUE],
+    ["var", TokenType.VAR],
+    ["while", TokenType.WHILE],
+  ]);
+
   constructor(source) {
     this.source = source;
     this.tokens = [];
     this.start = 0;
     this.current = 0;
-    this.line = 1;
+    this.line = 0;
   }
 
   scan() {
@@ -15,6 +34,8 @@ class Lexer {
       this.start = this.current;
       this.#scanToken();
     }
+
+    this.#addToken(TokenType.EOF);
 
     return this.tokens;
   }
@@ -94,9 +115,40 @@ class Lexer {
       default: {
         if (this.#isDigit(char)) {
           this.#number();
+        } else if (this.#isAlpha(char)) {
+          this.#identifier();
+        } else {
+          throw new Error("Unexpected character.");
         }
       }
     }
+  }
+
+  #identifier() {
+    while (this.#isAlphaNumeric(this.#peek()) && !this.#atEnd()) {
+      this.#advance();
+    }
+
+    const text = this.source.substring(this.start, this.current);
+    let tokenType = TokenType.IDENTIFIER;
+
+    if (this.keyword.has(text)) {
+      tokenType = this.keyword.get(text);
+    }
+
+    this.#addToken(tokenType, text);
+  }
+
+  #isAlphaNumeric(char) {
+    return this.#isAlpha(char) || this.#isDigit(char);
+  }
+
+  #isAlpha(char) {
+    return (
+      (char >= "a" && char <= "z") ||
+      (char >= "A" && char <= "Z") ||
+      char === "_"
+    );
   }
 
   #number() {
@@ -112,7 +164,7 @@ class Lexer {
 
     return this.#addToken(
       TokenType.NUMBER,
-      this.source.substring(this.start, this.current)
+      parseFloat(this.source.substring(this.start, this.current))
     );
   }
 
