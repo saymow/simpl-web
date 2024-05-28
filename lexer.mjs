@@ -90,7 +90,25 @@ class Lexer {
       case "\n":
         this.line++;
         break;
+      case '"':
+        this.#string();
     }
+  }
+
+  #string() {
+    while (this.#peek() != '"' && !this.#atEnd()) {
+      if (this.#advance() === "\n") this.line++;
+    }
+
+    if (this.#atEnd()) {
+      throw new Error("Unterminated string.");
+    }
+
+    this.#advance();
+    this.#addToken(
+      TokenType.STRING,
+      this.source.substring(this.start + 1, this.current - 1)
+    );
   }
 
   #addToken(tokenType, literal) {
