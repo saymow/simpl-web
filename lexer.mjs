@@ -21,7 +21,6 @@ class Lexer {
 
   #scanToken() {
     const char = this.#advance();
-    console.log(char);
 
     switch (char) {
       case "(":
@@ -92,7 +91,33 @@ class Lexer {
         break;
       case '"':
         this.#string();
+      default: {
+        if (this.#isDigit(char)) {
+          this.#number();
+        }
+      }
     }
+  }
+
+  #number() {
+    while (this.#isDigit(this.#peek()) && !this.#atEnd()) {
+      this.#advance();
+    }
+
+    if (this.#match(".")) {
+      while (this.#isDigit(this.#peek()) && !this.#atEnd()) {
+        this.#advance();
+      }
+    }
+
+    return this.#addToken(
+      TokenType.NUMBER,
+      this.source.substring(this.start, this.current)
+    );
+  }
+
+  #isDigit(char) {
+    return char >= "0" && char <= "9";
   }
 
   #string() {
