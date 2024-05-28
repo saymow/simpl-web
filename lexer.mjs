@@ -2,7 +2,7 @@ import Token from "./token.mjs";
 import TokenType from "./token-type.mjs";
 
 class Lexer {
-  keyword = new Map([
+  static Keywords = new Map([
     ["and", TokenType.AND],
     ["class", TokenType.CLASS],
     ["else", TokenType.ELSE],
@@ -132,8 +132,8 @@ class Lexer {
     const text = this.source.substring(this.start, this.current);
     let tokenType = TokenType.IDENTIFIER;
 
-    if (this.keyword.has(text)) {
-      tokenType = this.keyword.get(text);
+    if (Lexer.Keywords.has(text)) {
+      tokenType = Lexer.Keywords.get(text);
     }
 
     this.#addToken(tokenType, text);

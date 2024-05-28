@@ -4,6 +4,8 @@ console.log(new Lexer(`
     var a = 445.55;
     var b = 445.55;
 
+    // testing comments
+    // testing comments
     if (a > b) {
         print a + b;
     } else {
