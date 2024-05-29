@@ -1,14 +1,12 @@
 import Lexer from "./lexer.mjs";
+import Parser from "./parser.mjs";
 
-console.log(new Lexer(`
-    var a = 445.55;
-    var b = 445.55;
+const source = `
+    1 * 3 + 5 - 3 > 9
+`;
+console.log(source);
+const tokens = new Lexer(source).scan();
+console.log(tokens);
+const ast = new Parser(tokens).parse();
 
-    // testing comments
-    // testing comments
-    if (a > b) {
-        print a + b;
-    } else {
-        print a - b;
-    }
-`).scan());
+console.log(ast);

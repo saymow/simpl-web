@@ -1,6 +1,6 @@
 class Token {
   constructor(tokenType, lexeme, literal, line) {
-    this.tokenType = tokenType;
+    this.type = tokenType;
     this.lexeme = lexeme;
     this.literal = literal;
     this.line = line;
