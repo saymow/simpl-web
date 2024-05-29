@@ -9,7 +9,7 @@ describe("Lexer)", () => {
     expect(tokens[0].type).toBe(TokenType.EOF);
   });
 
-  it("Shoud handle single caracter tokens propery", () => {
+  it("Shoud handle single caracter tokens properly", () => {
     const tokens = new Lexer("(){},.-+;/*").scan();
 
     expect(tokens[0].type).toBe(TokenType.LEFT_PAREN);
@@ -25,7 +25,7 @@ describe("Lexer)", () => {
     expect(tokens[10].type).toBe(TokenType.STAR);
   });
 
-  it("Shoud handle single caracter tokens propery", () => {
+  it("Shoud handle single caracter tokens properly", () => {
     const tokens = new Lexer("!!====>>=<<=").scan();
 
     expect(tokens[0].type).toBe(TokenType.BANG);
@@ -36,5 +36,19 @@ describe("Lexer)", () => {
     expect(tokens[5].type).toBe(TokenType.GREATER_EQUAL);
     expect(tokens[6].type).toBe(TokenType.LESS);
     expect(tokens[7].type).toBe(TokenType.LESS_EQUAL);
+  });
+
+  it("Shoud handle literals properly", () => {
+    const tokens = new Lexer('test "str" 77').scan();
+
+    console.log(tokens);
+
+    expect(tokens[0].type).toBe(TokenType.IDENTIFIER);
+
+    expect(tokens[1].type).toBe(TokenType.STRING);
+    expect(tokens[1].literal).toBe("str");
+
+    expect(tokens[2].type).toBe(TokenType.NUMBER);
+    expect(tokens[2].literal).toBe("77");
   });
 });
