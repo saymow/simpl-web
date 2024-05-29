@@ -33,7 +33,7 @@ class Lexer {
     this.tokens = [];
     this.start = 0;
     this.current = 0;
-    this.line = 0;
+    this.line = 1;
   }
 
   scan(): Token[] {

@@ -74,4 +74,20 @@ describe("Lexer", () => {
     expect(tokens[16].type).toBe(TokenType.ERROR);
     expect(tokens[17].type).toBe(TokenType.EOF);
   });
+
+  it("Shoud handle lines properly", () => {
+    const tokens = new Lexer(
+      `1
+       2
+       3
+       4
+       5`
+    ).scan();
+
+    expect(tokens[0].line).toBe(1);
+    expect(tokens[1].line).toBe(2);
+    expect(tokens[2].line).toBe(3);
+    expect(tokens[3].line).toBe(4);
+    expect(tokens[4].line).toBe(5);
+  });
 });
