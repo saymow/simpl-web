@@ -1,7 +1,7 @@
 import Token from "../lib/token";
 import Parser from "../lib/parser";
 import TokenType from "../lib/token-type";
-import { Binary, Literal, Unary } from "../lib/expression";
+import { Binary, Literal, Logical, Unary } from "../lib/expression";
 
 describe("Parser", () => {
   it("Should handle Literals", () => {
@@ -209,6 +209,74 @@ describe("Parser", () => {
         new Literal("test"),
         new Token(TokenType.EQUAL_EQUAL, "==", undefined, 1),
         new Literal("tset")
+      ),
+    ]);
+  });
+
+  it("Should handle logic operators", () => {
+    // 4 + 2 and 10
+    expect(
+      new Parser([
+        new Token(TokenType.NUMBER, "4", "4", 1),
+        new Token(TokenType.PLUS, "+", undefined, 1),
+        new Token(TokenType.NUMBER, "2", "2", 1),
+        new Token(TokenType.AND, "and", undefined, 1),
+        new Token(TokenType.NUMBER, "10", "10", 1),
+        new Token(TokenType.EOF, "", undefined, 2),
+      ]).parse()
+    ).toEqual([
+      new Logical(
+        new Binary(
+          new Literal("4"),
+          new Token(TokenType.PLUS, "+", undefined, 1),
+          new Literal("2")
+        ),
+        new Token(TokenType.AND, "and", undefined, 1),
+        new Literal("10")
+      ),
+    ]);
+
+    // 10 or 4 + 2
+    expect(
+      new Parser([
+        new Token(TokenType.NUMBER, "10", "10", 1),
+        new Token(TokenType.OR, "or", undefined, 1),
+        new Token(TokenType.NUMBER, "4", "4", 1),
+        new Token(TokenType.PLUS, "+", undefined, 1),
+        new Token(TokenType.NUMBER, "2", "2", 1),
+        new Token(TokenType.EOF, "", undefined, 2),
+      ]).parse()
+    ).toEqual([
+      new Logical(
+        new Literal("10"),
+        new Token(TokenType.OR, "or", undefined, 1),
+        new Binary(
+          new Literal("4"),
+          new Token(TokenType.PLUS, "+", undefined, 1),
+          new Literal("2")
+        )
+      ),
+    ]);
+
+    // 4 and 2 or 10
+    expect(
+      new Parser([
+        new Token(TokenType.NUMBER, "4", "4", 1),
+        new Token(TokenType.AND, "and", undefined, 1),
+        new Token(TokenType.NUMBER, "2", "2", 1),
+        new Token(TokenType.OR, "or", undefined, 1),
+        new Token(TokenType.NUMBER, "10", "10", 1),
+        new Token(TokenType.EOF, "", undefined, 2),
+      ]).parse()
+    ).toEqual([
+      new Logical(
+        new Logical(
+          new Literal("4"),
+          new Token(TokenType.AND, "and", undefined, 1),
+          new Literal("2")
+        ),
+        new Token(TokenType.OR, "or", undefined, 1),
+        new Literal("10"),
       ),
     ]);
   });

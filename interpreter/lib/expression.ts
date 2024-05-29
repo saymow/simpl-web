@@ -28,4 +28,10 @@ class Binary extends Expr {
   }
 }
 
-export { Expr, Literal, Variable, Unary, Binary };
+class Logical extends Expr {
+  constructor(public left: Expr, public operator: Token, public right: Expr) {
+    super();
+  }
+}
+
+export { Expr, Literal, Variable, Unary, Binary, Logical };

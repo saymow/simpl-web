@@ -1,4 +1,4 @@
-import { Binary, Expr, Literal, Unary } from "./expression";
+import { Binary, Expr, Literal, Logical, Unary } from "./expression";
 import Token from "./token";
 import TokenType from "./token-type";
 
@@ -18,10 +18,34 @@ class Parser {
     const expressions = [];
 
     while (!this.atEnd()) {
-      expressions.push(this.equality());
+      expressions.push(this.logicOr());
     }
 
     return expressions;
+  }
+
+  private logicOr(): Expr {
+    let expr = this.logicAnd();
+    
+    while (this.match(TokenType.OR)) {
+      const token = this.previous();
+      const right = this.logicAnd();
+      expr = new Logical(expr, token, right);
+    }
+
+    return expr;
+  }
+
+  private logicAnd(): Expr {
+    let expr = this.equality();
+    
+    while (this.match(TokenType.AND)) {
+      const token = this.previous();
+      const right = this.equality();
+      expr = new Logical(expr, token, right);
+    }
+
+    return expr;
   }
 
   private equality(): Expr {
