@@ -1,7 +1,7 @@
 import Token from "../lib/token";
 import Parser from "../lib/parser";
 import TokenType from "../lib/token-type";
-import { Literal } from "../lib/expression";
+import { Literal, Unary } from "../lib/expression";
 
 describe("Parser", () => {
   it("Should handle Literals", () => {
@@ -21,5 +21,33 @@ describe("Parser", () => {
       new Literal("77"),
       new Literal("some-string"),
     ]);
+  });
+
+  it("Should handle unaries", () => {
+    expect(
+      new Parser([
+        new Token(TokenType.MINUS, "MINUS", undefined, 1),
+        new Token(TokenType.NUMBER, "true", "77", 1),
+        new Token(TokenType.EOF, "", undefined, 2),
+      ]).parse()
+    ).toEqual([
+      new Unary(
+        new Token(TokenType.MINUS, "MINUS", undefined, 1),
+        new Literal("77")
+      ),
+    ]);
+
+    expect(
+        new Parser([
+          new Token(TokenType.BANG, "BANG", undefined, 1),
+          new Token(TokenType.NUMBER, "true", "77", 1),
+          new Token(TokenType.EOF, "", undefined, 2),
+        ]).parse()
+      ).toEqual([
+        new Unary(
+          new Token(TokenType.BANG, "BANG", undefined, 1),
+          new Literal("77")
+        ),
+      ]);
   });
 });
