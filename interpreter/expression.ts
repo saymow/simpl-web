@@ -1,4 +1,4 @@
-import Token from "./token.mjs";
+import Token from "./token";
 
 class Expr {}
 
@@ -70,10 +70,4 @@ class Binary extends Expr {
   }
 }
 
-export default {
-  Base: Expr,
-  Literal,
-  Variable,
-  Unary,
-  Binary,
-};
+export { Expr, Literal, Variable, Unary, Binary };
