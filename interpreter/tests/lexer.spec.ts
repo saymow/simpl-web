@@ -24,4 +24,17 @@ describe("Lexer)", () => {
     expect(tokens[9].type).toBe(TokenType.SLASH);
     expect(tokens[10].type).toBe(TokenType.STAR);
   });
+
+  it("Shoud handle single caracter tokens propery", () => {
+    const tokens = new Lexer("!!====>>=<<=").scan();
+
+    expect(tokens[0].type).toBe(TokenType.BANG);
+    expect(tokens[1].type).toBe(TokenType.BANG_EQUAL);
+    expect(tokens[2].type).toBe(TokenType.EQUAL_EQUAL);
+    expect(tokens[3].type).toBe(TokenType.EQUAL);
+    expect(tokens[4].type).toBe(TokenType.GREATER);
+    expect(tokens[5].type).toBe(TokenType.GREATER_EQUAL);
+    expect(tokens[6].type).toBe(TokenType.LESS);
+    expect(tokens[7].type).toBe(TokenType.LESS_EQUAL);
+  });
 });
