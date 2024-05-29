@@ -19,6 +19,7 @@ class Lexer {
     ["true", TokenType.TRUE],
     ["var", TokenType.VAR],
     ["while", TokenType.WHILE],
+    ["error", TokenType.ERROR],
   ]);
 
   private source: string;

@@ -1,7 +1,7 @@
 import Lexer from "../lib/lexer";
 import TokenType from "../lib/token-type";
 
-describe("Lexer)", () => {
+describe("Lexer", () => {
   it("Shoud append EOF at end", () => {
     const tokens = new Lexer("").scan();
 
@@ -41,8 +41,6 @@ describe("Lexer)", () => {
   it("Shoud handle literals properly", () => {
     const tokens = new Lexer('test "str" 77').scan();
 
-    console.log(tokens);
-
     expect(tokens[0].type).toBe(TokenType.IDENTIFIER);
 
     expect(tokens[1].type).toBe(TokenType.STRING);
@@ -50,5 +48,30 @@ describe("Lexer)", () => {
 
     expect(tokens[2].type).toBe(TokenType.NUMBER);
     expect(tokens[2].literal).toBe("77");
+  });
+
+  it("Shoud handle keywords properly", () => {
+    const tokens = new Lexer(
+      "and class else false for fun if nil or print return super this true var while error"
+    ).scan();
+
+    expect(tokens[0].type).toBe(TokenType.AND);
+    expect(tokens[1].type).toBe(TokenType.CLASS);
+    expect(tokens[2].type).toBe(TokenType.ELSE);
+    expect(tokens[3].type).toBe(TokenType.FALSE);
+    expect(tokens[4].type).toBe(TokenType.FOR);
+    expect(tokens[5].type).toBe(TokenType.FUN);
+    expect(tokens[6].type).toBe(TokenType.IF);
+    expect(tokens[7].type).toBe(TokenType.NIL);
+    expect(tokens[8].type).toBe(TokenType.OR);
+    expect(tokens[9].type).toBe(TokenType.PRINT);
+    expect(tokens[10].type).toBe(TokenType.RETURN);
+    expect(tokens[11].type).toBe(TokenType.SUPER);
+    expect(tokens[12].type).toBe(TokenType.THIS);
+    expect(tokens[13].type).toBe(TokenType.TRUE);
+    expect(tokens[14].type).toBe(TokenType.VAR);
+    expect(tokens[15].type).toBe(TokenType.WHILE);
+    expect(tokens[16].type).toBe(TokenType.ERROR);
+    expect(tokens[17].type).toBe(TokenType.EOF);
   });
 });
