@@ -18,10 +18,22 @@ class Parser {
     const expressions = [];
 
     while (!this.atEnd()) {
-      expressions.push(this.comparisson());
+      expressions.push(this.equality());
     }
 
     return expressions;
+  }
+
+  private equality(): Expr {
+    let expr = this.comparisson();
+
+    while (this.match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL)) {
+      const token = this.previous();
+      const right = this.comparisson();
+      expr = new Binary(expr, token, right);
+    }
+
+    return expr;
   }
 
   private comparisson(): Expr {

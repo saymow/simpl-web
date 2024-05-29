@@ -146,7 +146,7 @@ describe("Parser", () => {
       ),
     ]);
 
-    // 50 == 4 + 2 - 10
+    // 50 <= 4 + 2 - 10
     expect(
       new Parser([
         new Token(TokenType.NUMBER, "50", "50", 1),
@@ -171,6 +171,44 @@ describe("Parser", () => {
           new Token(TokenType.MINUS, "-", undefined, 1),
           new Literal("10")
         )
+      ),
+    ]);
+
+    // 50 != 4 + 2
+    expect(
+      new Parser([
+        new Token(TokenType.NUMBER, "50", "50", 1),
+        new Token(TokenType.BANG_EQUAL, "!=", undefined, 1),
+        new Token(TokenType.NUMBER, "4", "4", 1),
+        new Token(TokenType.PLUS, "+", undefined, 1),
+        new Token(TokenType.NUMBER, "2", "2", 1),
+        new Token(TokenType.EOF, "", undefined, 2),
+      ]).parse()
+    ).toEqual([
+      new Binary(
+        new Literal("50"),
+        new Token(TokenType.BANG_EQUAL, "!=", undefined, 1),
+        new Binary(
+          new Literal("4"),
+          new Token(TokenType.PLUS, "+", undefined, 1),
+          new Literal("2")
+        )
+      ),
+    ]);
+
+    // "test" == "tset"
+    expect(
+      new Parser([
+        new Token(TokenType.STRING, '"test"', "test", 1),
+        new Token(TokenType.EQUAL_EQUAL, "==", undefined, 1),
+        new Token(TokenType.STRING, '"tset"', "tset", 1),
+        new Token(TokenType.EOF, "", undefined, 2),
+      ]).parse()
+    ).toEqual([
+      new Binary(
+        new Literal("test"),
+        new Token(TokenType.EQUAL_EQUAL, "==", undefined, 1),
+        new Literal("tset")
       ),
     ]);
   });
