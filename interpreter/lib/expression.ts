@@ -1,72 +1,30 @@
 import Token from "./token";
 
+type Value = any;
+
 class Expr {}
 
-/**
- * @typedef {any} Value
- */
-
 class Literal extends Expr {
-  /** @type {Value} */
-  #object;
-
-  /**
-   * @param {Value} object
-   */
-  constructor(object) {
+  constructor(public object: Value) {
     super();
-    this.#object = object;
   }
 }
 
 class Variable extends Expr {
-  /** @type {Token} */
-  #name;
-
-  /**
-   * @param {Token} name
-   */
-  constructor(name) {
+  constructor(public name: Token) {
     super();
-    this.#name = name;
   }
 }
 
 class Unary extends Expr {
-  /** @type {Token} */
-  #operator;
-  /** @type {Expr} */
-  #right;
-
-  /**
-   * @param {Token} operator
-   * @param {Expr} right
-   */
-  constructor(operator, right) {
+  constructor(public operator: Token, public right: Expr) {
     super();
-    this.#operator = operator;
-    this.#right = right;
   }
 }
 
 class Binary extends Expr {
-  /** @type {Expr} */
-  #left;
-  /** @type {Token} */
-  #operator;
-  /** @type {Expr} */
-  #right;
-
-  /**
-   * @param {Expr} left
-   * @param {Token} operator
-   * @param {Expr} right
-   */
-  constructor(left, operator, right) {
+  constructor(public left: Expr, public operator: Token, public right: Expr) {
     super();
-    this.#left = left;
-    this.#operator = operator;
-    this.#right = right;
   }
 }
 
