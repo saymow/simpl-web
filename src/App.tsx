@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
-import Lexer from "../interpreter/lexer";
-import Parser from "../interpreter/parser";
+import { Lexer, Parser } from "../interpreter";
 
 const interpret = (source: string) => {
   const tokens = new Lexer(source).scan();
