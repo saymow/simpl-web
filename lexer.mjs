@@ -21,23 +21,42 @@ class Lexer {
     ["while", TokenType.WHILE],
   ]);
 
+  
+  /** @type {string} */
+  #source;
+  /** @type {Array<Token>} */
+  #tokens;
+  /** @type {number} */
+  #start;
+  /** @type {number} */
+  #current;
+  /** @type {number} */
+  #line;
+
+  /**
+   * @param {string} source
+   */
   constructor(source) {
-    this.source = source;
-    this.tokens = [];
-    this.start = 0;
-    this.current = 0;
-    this.line = 0;
+    this.#source = source;
+    this.#tokens = [];
+    this.#start = 0;
+    this.#current = 0;
+    this.#line = 0;
   }
 
+  /**
+   *
+   * @returns {Array<Token>}
+   */
   scan() {
     while (!this.#atEnd()) {
-      this.start = this.current;
+      this.#start = this.#current;
       this.#scanToken();
     }
 
     this.#addToken(TokenType.EOF);
 
-    return this.tokens;
+    return this.#tokens;
   }
 
   #scanToken() {
@@ -108,7 +127,7 @@ class Lexer {
       case "\t":
         break;
       case "\n":
-        this.line++;
+        this.#line++;
         break;
       case '"':
         this.#string();
@@ -129,7 +148,7 @@ class Lexer {
       this.#advance();
     }
 
-    const text = this.source.substring(this.start, this.current);
+    const text = this.#source.substring(this.#start, this.#current);
     let tokenType = TokenType.IDENTIFIER;
 
     if (Lexer.Keywords.has(text)) {
@@ -139,10 +158,18 @@ class Lexer {
     this.#addToken(tokenType, text);
   }
 
+  /**
+   * @param {string} char
+   * @returns {boolean}
+   */
   #isAlphaNumeric(char) {
     return this.#isAlpha(char) || this.#isDigit(char);
   }
 
+  /**
+   * @param {string} char
+   * @returns {boolean}
+   */
   #isAlpha(char) {
     return (
       (char >= "a" && char <= "z") ||
@@ -162,19 +189,23 @@ class Lexer {
       }
     }
 
-    return this.#addToken(
+    this.#addToken(
       TokenType.NUMBER,
-      parseFloat(this.source.substring(this.start, this.current))
+      parseFloat(this.#source.substring(this.#start, this.#current))
     );
   }
 
+  /**
+   * @param {string} char
+   * @returns {boolean}
+   */
   #isDigit(char) {
     return char >= "0" && char <= "9";
   }
 
   #string() {
     while (this.#peek() != '"' && !this.#atEnd()) {
-      if (this.#advance() === "\n") this.line++;
+      if (this.#advance() === "\n") this.#line++;
     }
 
     if (this.#atEnd()) {
@@ -184,35 +215,52 @@ class Lexer {
     this.#advance();
     this.#addToken(
       TokenType.STRING,
-      this.source.substring(this.start + 1, this.current - 1)
+      this.#source.substring(this.#start + 1, this.#current - 1)
     );
   }
 
+  /**
+   * @param {keyof TokenType} tokenType
+   * @param {string} literal
+   */
   #addToken(tokenType, literal) {
-    const lexeme = this.source.substring(this.start, this.current);
-    this.tokens.push(new Token(tokenType, lexeme, literal, this.line));
+    const lexeme = this.#source.substring(this.#start, this.#current);
+    this.#tokens.push(new Token(tokenType, lexeme, literal, this.#line));
   }
 
+  /**
+   * @returns {string}
+   */
   #peek() {
-    return this.source[this.current];
+    return this.#source[this.#current];
   }
 
+  /**
+   * @param {string} char
+   * @returns {boolean}
+   */
   #match(char) {
     if (this.#atEnd()) return false;
-    if (this.source[this.current] !== char) return false;
+    if (this.#source[this.#current] !== char) return false;
 
     this.#advance();
 
     return true;
   }
 
+  /**
+   * @returns {string}
+   */
   #advance() {
     if (this.#atEnd()) return;
-    return this.source[this.current++];
+    return this.#source[this.#current++];
   }
 
+  /**
+   * @returns {boolean}
+   */
   #atEnd() {
-    return this.current >= this.source.length;
+    return this.#current >= this.#source.length;
   }
 }
 
