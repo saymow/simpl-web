@@ -15,12 +15,19 @@ import {
   Value,
   VariableExpr,
 } from "./expr";
-import { BlockStmt, ExprStmt, PrintStmt, Stmt, StmtVisitor } from "./stmt";
+import {
+  BlockStmt,
+  ExprStmt,
+  PrintStmt,
+  Stmt,
+  StmtVisitor,
+  VarStmt,
+} from "./stmt";
 import { RuntimeError } from "./errors";
 import { System } from "./presentation";
 import TokenType from "./token-type";
 import Token from "./token";
-import Context from "./context";
+import Context, { VariableNotFound } from "./context";
 
 class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   private readonly context = new Context();
@@ -41,6 +48,11 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     return expr.accept(this);
   }
 
+  visitVarStmt(stmt: VarStmt): void {
+    const value = stmt.initializer ? this.evaluateExpr(stmt.initializer) : null;
+    this.context.assign(stmt.token.lexeme, value);
+  }
+
   visitExprStmt(stmt: ExprStmt): void {
     return this.evaluateExpr(stmt.expr);
   }
@@ -59,7 +71,13 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   }
 
   visitVariableExpr(expr: VariableExpr): Value {
-    return this.context.get(expr.name.lexeme);
+    try {
+      return this.context.get(expr.name.lexeme);
+    } catch (err) {
+      if (err instanceof VariableNotFound) {
+        this.sys.error("Variable not found.");
+      }
+    }
   }
 
   visitUnaryExpr(expr: UnaryExpr): Value {

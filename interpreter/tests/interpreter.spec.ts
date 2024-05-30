@@ -1,6 +1,11 @@
-import { BinaryExpr, GroupingExpr, LiteralExpr } from "../lib/expr";
+import {
+  BinaryExpr,
+  GroupingExpr,
+  LiteralExpr,
+  VariableExpr,
+} from "../lib/expr";
 import Interpreter from "../lib/interpreter";
-import { PrintStmt, Stmt } from "../lib/stmt";
+import { PrintStmt, Stmt, VarStmt } from "../lib/stmt";
 import Token from "../lib/token";
 import TokenType from "../lib/token-type";
 
@@ -76,6 +81,47 @@ describe("Interpreter", () => {
 
       expect(log).toHaveBeenCalledTimes(1);
       expect(log.mock.calls[0][0]).toBeFalsy();
+    });
+  });
+
+  describe("Variables", () => {
+    it("var myVar = 77; print myVar;", () => {
+      const { interpreter, log } = makeSut([
+        new VarStmt(
+          new Token(TokenType.IDENTIFIER, "myVar", undefined, 1),
+          new LiteralExpr(77)
+        ),
+        new PrintStmt(
+          new VariableExpr(
+            new Token(TokenType.IDENTIFIER, "myVar", undefined, 1)
+          )
+        ),
+      ]);
+
+      interpreter.interpret();
+
+      expect(log).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls[0][0]).toBe(77);
+    });
+
+    it("var myVar;", () => {
+      const { interpreter, error } = makeSut([
+        new VarStmt(new Token(TokenType.IDENTIFIER, "myVar", undefined, 1)),
+      ]);
+
+      interpreter.interpret();
+
+      expect(error).not.toHaveBeenCalled()
+    });
+
+    it("print myVar;", () => {
+      const { interpreter, error } = makeSut([
+        new PrintStmt(new VariableExpr(new Token(TokenType.IDENTIFIER, "myVar", undefined, 1))),
+      ]);
+
+      interpreter.interpret();
+
+      expect(error).toHaveBeenCalledTimes(1);
     });
   });
 });

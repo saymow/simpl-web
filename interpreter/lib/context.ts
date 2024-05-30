@@ -1,5 +1,6 @@
 import { Value } from "./expr";
-import Token from "./token";
+
+export class VariableNotFound extends Error {}
 
 class Context {
   private readonly keywords = new Map<string, Value>();
@@ -15,6 +16,7 @@ class Context {
   }
 
   get(name: string) {
+    if (!this.keywords.has(name)) throw new VariableNotFound();
     return this.keywords.get(name);
   }
 }

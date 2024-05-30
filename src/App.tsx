@@ -49,8 +49,6 @@ function App() {
     } catch (err) {}
   };
 
-  console.log(output);
-
   return (
     <main className="container">
       <header>
