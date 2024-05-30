@@ -5,7 +5,7 @@ import {
   VariableExpr,
 } from "../lib/expr";
 import Interpreter from "../lib/interpreter";
-import { PrintStmt, Stmt, VarStmt } from "../lib/stmt";
+import { BlockStmt, PrintStmt, Stmt, VarStmt } from "../lib/stmt";
 import Token from "../lib/token";
 import TokenType from "../lib/token-type";
 
@@ -111,16 +111,65 @@ describe("Interpreter", () => {
 
       interpreter.interpret();
 
-      expect(error).not.toHaveBeenCalled()
+      expect(error).not.toHaveBeenCalled();
     });
 
     it("print myVar;", () => {
       const { interpreter, error } = makeSut([
-        new PrintStmt(new VariableExpr(new Token(TokenType.IDENTIFIER, "myVar", undefined, 1))),
+        new PrintStmt(
+          new VariableExpr(
+            new Token(TokenType.IDENTIFIER, "myVar", undefined, 1)
+          )
+        ),
       ]);
 
       interpreter.interpret();
 
+      expect(error).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("Blocks", () => {
+    it("{var myVar = 5; print myVar;}", () => {
+      const { interpreter, log, error } = makeSut([
+        new BlockStmt([
+          new VarStmt(
+            new Token(TokenType.IDENTIFIER, "myVar", undefined, 1),
+            new LiteralExpr(5)
+          ),
+          new PrintStmt(
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "myVar", undefined, 1)
+            )
+          ),
+        ]),
+      ]);
+
+      interpreter.interpret();
+
+      expect(error).not.toHaveBeenCalled();
+      expect(log).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls[0][0]).toBe(5);
+    });
+
+    it("{var myVar = 5;} print myVar;", () => {
+      const { interpreter, log, error } = makeSut([
+        new BlockStmt([
+          new VarStmt(
+            new Token(TokenType.IDENTIFIER, "myVar", undefined, 1),
+            new LiteralExpr(5)
+          ),
+        ]),
+        new PrintStmt(
+          new VariableExpr(
+            new Token(TokenType.IDENTIFIER, "myVar", undefined, 1)
+          )
+        ),
+      ]);
+
+      interpreter.interpret();
+
+      expect(log).not.toHaveBeenCalled();
       expect(error).toHaveBeenCalledTimes(1);
     });
   });

@@ -30,13 +30,17 @@ import Token from "./token";
 import Context, { VariableNotFound } from "./context";
 
 class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
-  private readonly context = new Context();
+  private context = new Context();
 
   constructor(private ast: Stmt[], private sys: System) {}
 
   public interpret() {
-    for (const stmt of this.ast) {
-      this.evaluateStmt(stmt);
+    try {
+      for (const stmt of this.ast) {
+        this.evaluateStmt(stmt);
+      }
+    } catch (err) {
+      this.sys.error(err as string);
     }
   }
 
@@ -58,7 +62,21 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   }
 
   visitBlockStmt(stmt: BlockStmt): void {
-    throw new Error("Method not implemented.");
+    this.executeBlock(stmt.stmts, new Context(this.context));
+  }
+
+  private executeBlock(stmts: Stmt[], context: Context) {
+    const previous = this.context;
+
+    try {
+      this.context = context;
+
+      for (const statement of stmts) {
+        this.evaluateStmt(statement);
+      }
+    } finally {
+      this.context = previous;
+    }
   }
 
   visitPrintStmt(stmt: PrintStmt): void {
@@ -75,7 +93,7 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
       return this.context.get(expr.name.lexeme);
     } catch (err) {
       if (err instanceof VariableNotFound) {
-        this.sys.error("Variable not found.");
+        throw new Error("Variable not found.");
       }
     }
   }
