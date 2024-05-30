@@ -122,7 +122,7 @@ class Lexer {
         } else if (this.isAlpha(char!)) {
           this.identifier();
         } else {
-          throw new Error("Unexpected character.");
+          this.error(this.line, "Unexpected character.");
         }
       }
     }
@@ -182,7 +182,8 @@ class Lexer {
     }
 
     if (this.atEnd()) {
-      throw new Error("Unterminated string.");
+      this.error(this.line, "Unterminated string.");
+      return;
     }
 
     this.advance();
@@ -218,6 +219,8 @@ class Lexer {
   private atEnd() {
     return this.current >= this.source.length;
   }
+
+  private error(line: number, message: string) {}
 }
 
 export default Lexer;

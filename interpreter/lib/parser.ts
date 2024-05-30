@@ -15,6 +15,7 @@ import {
 } from "./expression";
 import Token from "./token";
 import TokenType from "./token-type";
+import ParserError from "./parserError";
 
 class Parser {
   private tokens: Token[];
@@ -52,7 +53,7 @@ class Parser {
         return new Set(expr.expr, expr.token, value);
       }
 
-      throw new Error("Invalid assignment target");
+      this.error(token, "Invalid assignment target.");
     } else if (this.match(TokenType.OR)) {
       expr = this.logicOr();
     }
@@ -175,7 +176,7 @@ class Parser {
     if (!this.check(TokenType.RIGHT_PAREN)) {
       do {
         if (args.length > 255) {
-          throw new Error("Call arguments list should not exceed 255.");
+          this.error(this.peek(), "Call arguments list should not exceed 255.");
         }
 
         args.push(this.expression());
@@ -217,12 +218,16 @@ class Parser {
       return new Grouping(expr);
     }
 
-    throw new Error("Unexpected token.");
+    throw this.error(this.peek(), "Unexpected token.");
+  }
+
+  private error(token: Token, message: string) {
+    return new ParserError();
   }
 
   private consume(tokenType: TokenType, message: string): Token {
     if (this.peek().type !== tokenType) {
-      throw new Error(message);
+      throw this.error(this.peek(), message);
     }
     return this.advance();
   }
