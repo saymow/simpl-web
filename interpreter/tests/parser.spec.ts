@@ -16,7 +16,7 @@ import {
   SetExpr,
   Expr,
 } from "../lib/expr";
-import { BlockStmt, ExprStmt, PrintStmt, VarStmt } from "../lib/stmt";
+import { BlockStmt, ExprStmt, IfStmt, PrintStmt, VarStmt } from "../lib/stmt";
 
 const WrapExpr = (expr: Expr): ExprStmt => {
   return new ExprStmt(expr);
@@ -682,6 +682,65 @@ describe("Parser", () => {
         new VarStmt(
           new Token(TokenType.IDENTIFIER, "myVar", undefined, 1),
           new LiteralExpr(5)
+        ),
+      ]);
+    });
+  });
+
+  describe("Should handle conditional statements", () => {
+    it('if (2 > 1) print "maior";', () => {
+      expect(
+        new Parser([
+          new Token(TokenType.IF, "if", undefined, 1),
+          new Token(TokenType.LEFT_PAREN, "(", undefined, 1),
+          new Token(TokenType.NUMBER, "2", 2, 1),
+          new Token(TokenType.GREATER, ">", undefined, 1),
+          new Token(TokenType.NUMBER, "1", 1, 1),
+          new Token(TokenType.RIGHT_PAREN, ")", undefined, 1),
+          new Token(TokenType.PRINT, "print", undefined, 1),
+          new Token(TokenType.STRING, '"maior"', "maior", 1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1),
+          new Token(TokenType.EOF, "", undefined, 2),
+        ]).parse()
+      ).toEqual([
+        new IfStmt(
+          new BinaryExpr(
+            new LiteralExpr(2),
+            new Token(TokenType.GREATER, ">", undefined, 1),
+            new LiteralExpr(1)
+          ),
+          new PrintStmt(new LiteralExpr("maior"))
+        ),
+      ]);
+    });
+
+    it('if (2 > 1) print "maior"; else print "menor";', () => {
+      expect(
+        new Parser([
+          new Token(TokenType.IF, "if", undefined, 1),
+          new Token(TokenType.LEFT_PAREN, "(", undefined, 1),
+          new Token(TokenType.NUMBER, "2", 2, 1),
+          new Token(TokenType.GREATER, ">", undefined, 1),
+          new Token(TokenType.NUMBER, "1", 1, 1),
+          new Token(TokenType.RIGHT_PAREN, ")", undefined, 1),
+          new Token(TokenType.PRINT, "print", undefined, 1),
+          new Token(TokenType.STRING, '"maior"', "maior", 1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1),
+          new Token(TokenType.ELSE, "else", undefined, 1),
+          new Token(TokenType.PRINT, "print", undefined, 1),
+          new Token(TokenType.STRING, '"menor"', "menor", 1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1),
+          new Token(TokenType.EOF, "", undefined, 2),
+        ]).parse()
+      ).toEqual([
+        new IfStmt(
+          new BinaryExpr(
+            new LiteralExpr(2),
+            new Token(TokenType.GREATER, ">", undefined, 1),
+            new LiteralExpr(1)
+          ),
+          new PrintStmt(new LiteralExpr("maior")),
+          new PrintStmt(new LiteralExpr("menor")),
         ),
       ]);
     });

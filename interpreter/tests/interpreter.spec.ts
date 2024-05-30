@@ -6,7 +6,14 @@ import {
   VariableExpr,
 } from "../lib/expr";
 import Interpreter from "../lib/interpreter";
-import { BlockStmt, ExprStmt, PrintStmt, Stmt, VarStmt } from "../lib/stmt";
+import {
+  BlockStmt,
+  ExprStmt,
+  IfStmt,
+  PrintStmt,
+  Stmt,
+  VarStmt,
+} from "../lib/stmt";
 import Token from "../lib/token";
 import TokenType from "../lib/token-type";
 
@@ -197,6 +204,62 @@ describe("Interpreter", () => {
 
       expect(log).not.toHaveBeenCalled();
       expect(error).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("Conditionals", () => {
+    it('if (2 > 1) print "maior";', () => {
+      const { interpreter, log } = makeSut([
+        new IfStmt(
+          new BinaryExpr(
+            new LiteralExpr(2),
+            new Token(TokenType.GREATER, ">", undefined, 1),
+            new LiteralExpr(1)
+          ),
+          new PrintStmt(new LiteralExpr("maior"))
+        ),
+      ]);
+
+      interpreter.interpret();
+
+      expect(log).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls[0][0]).toBe("maior");
+    });
+
+    it('if (2 < 1) print "maior";', () => {
+      const { interpreter, log } = makeSut([
+        new IfStmt(
+          new BinaryExpr(
+            new LiteralExpr(2),
+            new Token(TokenType.LESS, "<", undefined, 1),
+            new LiteralExpr(1)
+          ),
+          new PrintStmt(new LiteralExpr("maior"))
+        ),
+      ]);
+
+      interpreter.interpret();
+
+      expect(log).not.toHaveBeenCalled();
+    });
+
+    it('if (2 < 1) print "menor"; else print "maior";', () => {
+      const { interpreter, log } = makeSut([
+        new IfStmt(
+          new BinaryExpr(
+            new LiteralExpr(2),
+            new Token(TokenType.LESS, "<", undefined, 1),
+            new LiteralExpr(1)
+          ),
+          new PrintStmt(new LiteralExpr("menor")),
+          new PrintStmt(new LiteralExpr("maior"))
+        ),
+      ]);
+
+      interpreter.interpret();
+
+      expect(log).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls[0][0]).toBe("maior");
     });
   });
 });

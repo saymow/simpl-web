@@ -6,6 +6,7 @@ interface StmtVisitor<T> {
   visitExprStmt(stmt: ExprStmt): T;
   visitBlockStmt(stmt: BlockStmt): T;
   visitPrintStmt(stmt: PrintStmt): T;
+  visitIfStmt(stmt: IfStmt): T;
 }
 
 abstract class Stmt {
@@ -52,5 +53,15 @@ class VarStmt extends Stmt {
   }
 }
 
+class IfStmt extends Stmt {
+  public accept<T>(visitor: StmtVisitor<T>): T {
+    return visitor.visitIfStmt(this);
+  }
+
+  constructor(public expr: Expr, public thenStmt: Stmt, public elseStmt?: Stmt) {
+    super();
+  }
+}
+
 export type { StmtVisitor };
-export { Stmt, ExprStmt, BlockStmt, PrintStmt, VarStmt };
+export { Stmt, ExprStmt, BlockStmt, PrintStmt, VarStmt, IfStmt };

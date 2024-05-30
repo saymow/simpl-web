@@ -13,7 +13,7 @@ import {
   VariableExpr,
   SetExpr,
 } from "./expr";
-import { Stmt, ExprStmt, BlockStmt, PrintStmt, VarStmt } from "./stmt";
+import { Stmt, ExprStmt, BlockStmt, PrintStmt, VarStmt, IfStmt } from "./stmt";
 import Token from "./token";
 import TokenType from "./token-type";
 import { ParserError } from "./errors";
@@ -64,8 +64,25 @@ class Parser {
     if (this.match(TokenType.PRINT)) {
       return this.printStatement();
     }
+    if (this.match(TokenType.IF)) {
+      return this.ifStatement();
+    }
 
     return this.expressionStatement();
+  }
+
+  private ifStatement(): Stmt {
+    this.consume(TokenType.LEFT_PAREN, "Expect '(' after if.");
+    const expr = this.expression();
+    this.consume(TokenType.RIGHT_PAREN, "Expect ')' after if expression.");
+    const thenStmt = this.statement();
+    let elseStmt;
+
+    if (this.match(TokenType.ELSE)) {
+      elseStmt = this.statement();
+    }
+
+    return new IfStmt(expr, thenStmt, elseStmt);
   }
 
   private printStatement(): Stmt {

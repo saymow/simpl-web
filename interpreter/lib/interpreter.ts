@@ -18,6 +18,7 @@ import {
 import {
   BlockStmt,
   ExprStmt,
+  IfStmt,
   PrintStmt,
   Stmt,
   StmtVisitor,
@@ -50,6 +51,13 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
   private evaluateExpr(expr: Expr) {
     return expr.accept(this);
+  }
+
+  visitIfStmt(stmt: IfStmt): void {
+    const expr = this.evaluateExpr(stmt.expr);
+
+    if (expr) this.evaluateStmt(stmt.thenStmt);
+    if (!expr && stmt.elseStmt) this.evaluateStmt(stmt.elseStmt);
   }
 
   visitVarStmt(stmt: VarStmt): void {
