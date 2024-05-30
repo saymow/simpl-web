@@ -20,8 +20,11 @@ import { RuntimeError } from "./errors";
 import { System } from "./presentation";
 import TokenType from "./token-type";
 import Token from "./token";
+import Context from "./context";
 
 class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
+  private readonly context = new Context();
+
   constructor(private ast: Stmt[], private sys: System) {}
 
   public interpret() {
@@ -31,7 +34,6 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   }
 
   private evaluateStmt(stmt: Stmt) {
-    console.log("evaluateStmt: ", stmt);
     return stmt.accept(this);
   }
 
@@ -57,7 +59,7 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   }
 
   visitVariableExpr(expr: VariableExpr): Value {
-    throw new Error("Method not implemented.");
+    return this.context.get(expr.name.lexeme);
   }
 
   visitUnaryExpr(expr: UnaryExpr): Value {
