@@ -1,4 +1,4 @@
-import { Binary, Expr, Literal, Logical, Unary } from "./expression";
+import { Binary, Expr, Grouping, Literal, Logical, Unary } from "./expression";
 import Token from "./token";
 import TokenType from "./token-type";
 
@@ -6,9 +6,6 @@ class Parser {
   private tokens: Token[];
   private current: number;
 
-  /**
-   * @param {Token[]} tokens
-   */
   constructor(tokens: Token[]) {
     this.tokens = tokens;
     this.current = 0;
@@ -18,15 +15,19 @@ class Parser {
     const expressions = [];
 
     while (!this.atEnd()) {
-      expressions.push(this.logicOr());
+      expressions.push(this.expression());
     }
 
     return expressions;
   }
 
+  private expression(): Expr {
+    return this.logicOr();
+  }
+
   private logicOr(): Expr {
     let expr = this.logicAnd();
-    
+
     while (this.match(TokenType.OR)) {
       const token = this.previous();
       const right = this.logicAnd();
@@ -38,7 +39,7 @@ class Parser {
 
   private logicAnd(): Expr {
     let expr = this.equality();
-    
+
     while (this.match(TokenType.AND)) {
       const token = this.previous();
       const right = this.equality();
@@ -122,9 +123,20 @@ class Parser {
       return new Literal(null);
     } else if (this.match(TokenType.NUMBER, TokenType.STRING)) {
       return new Literal(this.previous().literal);
+    } else if (this.match(TokenType.LEFT_PAREN)) {
+      const expr = this.expression();
+      this.consume(TokenType.RIGHT_PAREN, "Expect ')' after group expression.");
+      return new Grouping(expr);
     }
 
     return null as any;
+  }
+
+  private consume(tokenType: TokenType, message: string) {
+    if (this.peek().type !== tokenType) {
+      throw new Error(message);
+    }
+    this.advance();
   }
 
   private advance() {

@@ -34,4 +34,10 @@ class Logical extends Expr {
   }
 }
 
-export { Expr, Literal, Variable, Unary, Binary, Logical };
+class Grouping extends Expr {
+  constructor(public expr: Expr) {
+    super();
+  }
+}
+
+export { Expr, Literal, Variable, Unary, Binary, Logical, Grouping };

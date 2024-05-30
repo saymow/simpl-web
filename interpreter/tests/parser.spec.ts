@@ -1,26 +1,52 @@
 import Token from "../lib/token";
 import Parser from "../lib/parser";
 import TokenType from "../lib/token-type";
-import { Binary, Literal, Logical, Unary } from "../lib/expression";
+import { Binary, Grouping, Literal, Logical, Unary } from "../lib/expression";
 
 describe("Parser", () => {
-  it("Should handle Literals", () => {
-    const ast = new Parser([
-      new Token(TokenType.TRUE, "true", true, 1),
-      new Token(TokenType.FALSE, "false", false, 1),
-      new Token(TokenType.NIL, "nil", null, 1),
-      new Token(TokenType.NUMBER, "true", "77", 1),
-      new Token(TokenType.STRING, "true", "some-string", 1),
-      new Token(TokenType.EOF, "", undefined, 2),
-    ]).parse();
-
-    expect(ast).toEqual([
+  it("Should handle primaries", () => {
+    expect(
+      new Parser([
+        new Token(TokenType.TRUE, "true", true, 1),
+        new Token(TokenType.FALSE, "false", false, 1),
+        new Token(TokenType.NIL, "nil", null, 1),
+        new Token(TokenType.NUMBER, "77", "77", 1),
+        new Token(TokenType.STRING, "some-thing", "some-string", 1),
+        new Token(TokenType.EOF, "", undefined, 2),
+      ]).parse()
+    ).toEqual([
       new Literal(true),
       new Literal(false),
       new Literal(null),
       new Literal("77"),
       new Literal("some-string"),
     ]);
+
+    // (3)
+    // (4)
+    expect(
+      new Parser([
+        new Token(TokenType.LEFT_PAREN, "(", undefined, 1),
+        new Token(TokenType.NUMBER, "3", "3", 1),
+        new Token(TokenType.RIGHT_PAREN, ")", undefined, 1),
+        new Token(TokenType.LEFT_PAREN, "(", undefined, 2),
+        new Token(TokenType.NUMBER, "4", "4", 2),
+        new Token(TokenType.RIGHT_PAREN, ")", undefined, 2),
+        new Token(TokenType.EOF, "", undefined, 3),
+      ]).parse()
+    ).toEqual([new Grouping(new Literal("3")), new Grouping(new Literal("4"))]);
+
+    // ((1))
+    expect(
+      new Parser([
+        new Token(TokenType.LEFT_PAREN, "(", undefined, 1),
+        new Token(TokenType.LEFT_PAREN, "(", undefined, 1),
+        new Token(TokenType.NUMBER, "1", "1", 1),
+        new Token(TokenType.RIGHT_PAREN, ")", undefined, 1),
+        new Token(TokenType.RIGHT_PAREN, ")", undefined, 1),
+        new Token(TokenType.EOF, "", undefined, 2),
+      ]).parse()
+    ).toEqual([new Grouping(new Grouping(new Literal("1")))]);
   });
 
   it("Should handle unaries", () => {
@@ -276,7 +302,7 @@ describe("Parser", () => {
           new Literal("2")
         ),
         new Token(TokenType.OR, "or", undefined, 1),
-        new Literal("10"),
+        new Literal("10")
       ),
     ]);
   });
