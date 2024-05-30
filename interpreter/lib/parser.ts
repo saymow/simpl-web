@@ -7,6 +7,7 @@ import {
   Super,
   This,
   Unary,
+  Variable,
 } from "./expression";
 import Token from "./token";
 import TokenType from "./token-type";
@@ -132,6 +133,8 @@ class Parser {
       return new Literal(null);
     } else if (this.match(TokenType.NUMBER, TokenType.STRING)) {
       return new Literal(this.previous().literal);
+    } else if (this.match(TokenType.IDENTIFIER)) {
+      return new Variable(this.previous());
     } else if (this.match(TokenType.THIS)) {
       return new This(this.previous());
     } else if (this.match(TokenType.SUPER)) {

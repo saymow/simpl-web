@@ -9,6 +9,7 @@ import {
   Super,
   This,
   Unary,
+  Variable,
 } from "../lib/expression";
 
 describe("Parser", () => {
@@ -21,10 +22,11 @@ describe("Parser", () => {
         new Token(TokenType.NUMBER, "77", "77", 1),
         new Token(TokenType.STRING, '"some-thing"', "some-string", 1),
         new Token(TokenType.THIS, "this", undefined, 2),
-        new Token(TokenType.SUPER, "super", undefined, 3),
-        new Token(TokenType.DOT, ".", undefined, 3),
-        new Token(TokenType.IDENTIFIER, "method", undefined, 3),
-        new Token(TokenType.EOF, "", undefined, 4),
+        new Token(TokenType.IDENTIFIER, "myVar", "myVar", 3),
+        new Token(TokenType.SUPER, "super", undefined, 4),
+        new Token(TokenType.DOT, ".", undefined, 4),
+        new Token(TokenType.IDENTIFIER, "method", undefined, 4),
+        new Token(TokenType.EOF, "", undefined, 5),
       ]).parse()
     ).toEqual([
       new Literal(true),
@@ -33,9 +35,10 @@ describe("Parser", () => {
       new Literal("77"),
       new Literal("some-string"),
       new This(new Token(TokenType.THIS, "this", undefined, 2)),
+      new Variable(new Token(TokenType.IDENTIFIER, "myVar", "myVar", 3)),
       new Super(
-        new Token(TokenType.SUPER, "super", undefined, 3),
-        new Token(TokenType.IDENTIFIER, "method", undefined, 3)
+        new Token(TokenType.SUPER, "super", undefined, 4),
+        new Token(TokenType.IDENTIFIER, "method", undefined, 4)
       ),
     ]);
 
