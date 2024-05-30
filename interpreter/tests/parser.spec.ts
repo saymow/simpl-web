@@ -23,7 +23,7 @@ const WrapExpr = (expr: Expr): ExprStmt => {
 };
 
 describe("Parser", () => {
-  describe("Should handle primaries", () => {
+  describe("Primaries", () => {
     it('true; false; nil; 77; "some-string"; this; myVar; super.method;', () => {
       expect(
         new Parser([
@@ -95,7 +95,7 @@ describe("Parser", () => {
     });
   });
 
-  describe("Should handle calls", () => {
+  describe("Calls", () => {
     it("myVar.property;", () => {
       expect(
         new Parser([
@@ -199,7 +199,7 @@ describe("Parser", () => {
     });
   });
 
-  describe("Should handle unaries", () => {
+  describe("Unaries", () => {
     it("-77;", () => {
       expect(
         new Parser([
@@ -237,7 +237,7 @@ describe("Parser", () => {
     });
   });
 
-  describe("Should handle binaries", () => {
+  describe("Binaries", () => {
     it("4 + 2 - 10;", () => {
       expect(
         new Parser([
@@ -427,7 +427,7 @@ describe("Parser", () => {
     });
   });
 
-  describe("Should handle logic operators", () => {
+  describe("Logic Operators", () => {
     it("4 + 2 and 10;", () => {
       expect(
         new Parser([
@@ -507,7 +507,7 @@ describe("Parser", () => {
     });
   });
 
-  describe("Should handle assignExprments", () => {
+  describe("Assigments", () => {
     it("a = 5;", () => {
       expect(
         new Parser([
@@ -576,7 +576,7 @@ describe("Parser", () => {
     });
   });
 
-  describe("Should handle block statement", () => {
+  describe("Block", () => {
     it("{ true; }", () => {
       expect(
         new Parser([
@@ -620,7 +620,7 @@ describe("Parser", () => {
     });
   });
 
-  describe("Should handle print statement", () => {
+  describe("Print", () => {
     it("print true;", () => {
       expect(
         new Parser([
@@ -654,7 +654,7 @@ describe("Parser", () => {
     });
   });
 
-  describe("Should handle var declaration", () => {
+  describe("VarDeclaration", () => {
     it("var myVar;", () => {
       expect(
         new Parser([
@@ -687,7 +687,7 @@ describe("Parser", () => {
     });
   });
 
-  describe("Should handle conditional statements", () => {
+  describe("Conditional", () => {
     it('if (2 > 1) print "maior";', () => {
       expect(
         new Parser([
