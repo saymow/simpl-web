@@ -14,4 +14,10 @@ class BlockStmt extends Stmt {
   }
 }
 
-export { Stmt, ExprStmt, BlockStmt };
+class PrintStmt extends Stmt {
+    constructor(public expr: Expr) {
+      super();
+    }
+  }
+
+export { Stmt, ExprStmt, BlockStmt, PrintStmt };

@@ -16,7 +16,7 @@ import {
   Set,
   Expr,
 } from "../lib/expression";
-import { BlockStmt, ExprStmt } from "../lib/statement";
+import { BlockStmt, ExprStmt, PrintStmt } from "../lib/statement";
 
 const WrapExpr = (expr: Expr): ExprStmt => {
   return new ExprStmt(expr);
@@ -588,7 +588,7 @@ describe("Parser", () => {
           new Token(TokenType.STRING, '"str"', "str", 1),
           new Token(TokenType.SEMICOLON, ";", undefined, 1),
           new Token(TokenType.NUMBER, "4", "4", 1),
-          new Token(TokenType.PLUS, '+', undefined, 1),
+          new Token(TokenType.PLUS, "+", undefined, 1),
           new Token(TokenType.NUMBER, "5", "5", 1),
           new Token(TokenType.SEMICOLON, ";", undefined, 1),
           new Token(TokenType.RIGHT_BRACE, "}", undefined, 1),
@@ -606,6 +606,40 @@ describe("Parser", () => {
             )
           ),
         ]),
+      ]);
+    });
+  });
+
+  describe("Should handle print statement", () => {
+    it("print true;", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.PRINT, "print", undefined, 1),
+          new Token(TokenType.TRUE, "true", true, 1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1),
+          new Token(TokenType.EOF, "", undefined, 2),
+        ]).parse()
+      ).toEqual([new PrintStmt(new Literal(true))]);
+    });
+
+    it("print 4 + 5;", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.PRINT, "print", undefined, 1),
+          new Token(TokenType.NUMBER, "4", "4", 1),
+          new Token(TokenType.PLUS, "+", undefined, 1),
+          new Token(TokenType.NUMBER, "5", "5", 1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1),
+          new Token(TokenType.EOF, "", undefined, 2),
+        ]).parse()
+      ).toEqual([
+        new PrintStmt(
+          new Binary(
+            new Literal("4"),
+            new Token(TokenType.PLUS, "+", undefined, 1),
+            new Literal("5")
+          )
+        ),
       ]);
     });
   });
