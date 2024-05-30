@@ -7,14 +7,22 @@ class Context {
 
   constructor(public enclosing?: Context) {}
 
+  define(name: string, value: Value) {
+    this.keywords.set(name, value);
+  }
+
   assign(name: string, value: Value) {
     if (this.keywords.has(name)) {
-      return false;
+      this.keywords.set(name, value);
+      return;
     }
 
-    this.keywords.set(name, value);
+    if (this.enclosing) {
+      this.enclosing.assign(name, value);
+      return;
+    }
 
-    return true;
+    throw new VariableNotFound();
   }
 
   get(name: string): Value {

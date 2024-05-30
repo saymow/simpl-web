@@ -54,7 +54,7 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
   visitVarStmt(stmt: VarStmt): void {
     const value = stmt.initializer ? this.evaluateExpr(stmt.initializer) : null;
-    this.context.assign(stmt.token.lexeme, value);
+    this.context.define(stmt.token.lexeme, value);
   }
 
   visitExprStmt(stmt: ExprStmt): void {
@@ -196,7 +196,15 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   }
 
   visitAssignExpr(expr: AssignExpr): Value {
-    throw new Error("Method not implemented.");
+    const value = this.evaluateExpr(expr.value);
+
+    try {
+      return this.context.assign(expr.name.lexeme, value);
+    } catch (err) {
+      if (err instanceof VariableNotFound) {
+        throw new Error("Variable not found.");
+      }
+    }
   }
 
   visitSetExpr(expr: SetExpr): Value {
