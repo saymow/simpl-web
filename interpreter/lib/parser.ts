@@ -1,4 +1,4 @@
-import { Binary, Expr, Grouping, Literal, Logical, Unary } from "./expression";
+import { Binary, Expr, Grouping, Literal, Logical, This, Unary } from "./expression";
 import Token from "./token";
 import TokenType from "./token-type";
 
@@ -123,6 +123,8 @@ class Parser {
       return new Literal(null);
     } else if (this.match(TokenType.NUMBER, TokenType.STRING)) {
       return new Literal(this.previous().literal);
+    } else if (this.match(TokenType.THIS)) {
+      return new This(this.previous());
     } else if (this.match(TokenType.LEFT_PAREN)) {
       const expr = this.expression();
       this.consume(TokenType.RIGHT_PAREN, "Expect ')' after group expression.");

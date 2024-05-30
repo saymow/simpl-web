@@ -40,4 +40,10 @@ class Grouping extends Expr {
   }
 }
 
-export { Expr, Literal, Variable, Unary, Binary, Logical, Grouping };
+class This extends Expr {
+  constructor(public token: Token) {
+    super();
+  }
+}
+
+export { Expr, Literal, Variable, Unary, Binary, Logical, Grouping, This };

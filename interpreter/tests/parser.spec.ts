@@ -1,7 +1,7 @@
 import Token from "../lib/token";
 import Parser from "../lib/parser";
 import TokenType from "../lib/token-type";
-import { Binary, Grouping, Literal, Logical, Unary } from "../lib/expression";
+import { Binary, Grouping, Literal, Logical, This, Unary } from "../lib/expression";
 
 describe("Parser", () => {
   it("Should handle primaries", () => {
@@ -12,7 +12,8 @@ describe("Parser", () => {
         new Token(TokenType.NIL, "nil", null, 1),
         new Token(TokenType.NUMBER, "77", "77", 1),
         new Token(TokenType.STRING, "some-thing", "some-string", 1),
-        new Token(TokenType.EOF, "", undefined, 2),
+        new Token(TokenType.THIS, 'this', undefined, 2),
+        new Token(TokenType.EOF, "", undefined, 3),
       ]).parse()
     ).toEqual([
       new Literal(true),
@@ -20,6 +21,7 @@ describe("Parser", () => {
       new Literal(null),
       new Literal("77"),
       new Literal("some-string"),
+      new This(new Token(TokenType.THIS, 'this', undefined, 2))
     ]);
 
     // (3)
