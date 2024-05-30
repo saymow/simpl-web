@@ -89,7 +89,7 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
   visitPrintStmt(stmt: PrintStmt): void {
     const expr = this.evaluateExpr(stmt.expr);
-    this.sys.log(expr);
+    this.log(expr);
   }
 
   visitLiteralExpr(expr: LiteralExpr): Value {
@@ -237,6 +237,10 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   private isEqual(a: Value, b: Value) {
     return a === b;
   }
+
+  private log(message: any) {
+    this.sys.log(message.toString());
+  } 
 }
 
 export default Interpreter;

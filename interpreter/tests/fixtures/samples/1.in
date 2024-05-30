@@ -1,0 +1,7 @@
+var a = 5;
+
+if (a > 3) {
+    print "maior";
+} else {
+    print "menor";
+}

@@ -44,7 +44,7 @@ describe("Interpreter", () => {
       interpreter.interpret();
 
       expect(log).toHaveBeenCalledTimes(1);
-      expect(log.mock.calls[0][0]).toBe(16);
+      expect(log.mock.calls[0][0]).toBe("16");
     });
 
     it('print "test" + "ab";', () => {
@@ -88,7 +88,7 @@ describe("Interpreter", () => {
       interpreter.interpret();
 
       expect(log).toHaveBeenCalledTimes(1);
-      expect(log.mock.calls[0][0]).toBeFalsy();
+      expect(log.mock.calls[0][0]).toBe("false");
     });
   });
 
@@ -109,7 +109,7 @@ describe("Interpreter", () => {
       interpreter.interpret();
 
       expect(log).toHaveBeenCalledTimes(1);
-      expect(log.mock.calls[0][0]).toBe(77);
+      expect(log.mock.calls[0][0]).toBe("77");
     });
 
     it("var myVar = 77; myVar = 5; print myVar;", () => {
@@ -134,7 +134,7 @@ describe("Interpreter", () => {
       interpreter.interpret();
 
       expect(log).toHaveBeenCalledTimes(1);
-      expect(log.mock.calls[0][0]).toBe(5);
+      expect(log.mock.calls[0][0]).toBe("5");
     });
 
     it("var myVar;", () => {
@@ -182,7 +182,7 @@ describe("Interpreter", () => {
 
       expect(error).not.toHaveBeenCalled();
       expect(log).toHaveBeenCalledTimes(1);
-      expect(log.mock.calls[0][0]).toBe(5);
+      expect(log.mock.calls[0][0]).toBe("5");
     });
 
     it("{var myVar = 5;} print myVar;", () => {
