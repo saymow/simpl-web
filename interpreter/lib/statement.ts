@@ -8,4 +8,10 @@ class ExprStmt extends Stmt {
   }
 }
 
-export { Stmt, ExprStmt };
+class BlockStmt extends Stmt {
+  constructor(public stmts: Stmt[]) {
+    super();
+  }
+}
+
+export { Stmt, ExprStmt, BlockStmt };

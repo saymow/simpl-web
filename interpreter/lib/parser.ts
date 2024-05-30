@@ -13,7 +13,7 @@ import {
   Variable,
   Set,
 } from "./expression";
-import { Stmt, ExprStmt } from "./statement";
+import { Stmt, ExprStmt, BlockStmt } from "./statement";
 import Token from "./token";
 import TokenType from "./token-type";
 import ParserError from "./parserError";
@@ -31,14 +31,34 @@ class Parser {
     const expressions = [];
 
     while (!this.atEnd()) {
-      expressions.push(this.statement());
+      expressions.push(this.declaration());
     }
 
     return expressions;
   }
 
-  private statement(): Expr {
+  private declaration(): Stmt {
+    return this.statement();
+  }
+
+  private statement(): Stmt {
+    if (this.match(TokenType.LEFT_BRACE)) {
+      return new BlockStmt(this.block());
+    }
+
     return this.expressionStatement();
+  }
+
+  private block() {
+    const stmts = [];
+
+    while (!this.check(TokenType.RIGHT_BRACE) && !this.atEnd()) {
+      stmts.push(this.declaration());
+    }
+
+    this.consume(TokenType.RIGHT_BRACE, "Expect '}' after block.");
+
+    return stmts;
   }
 
   private expressionStatement(): Stmt {

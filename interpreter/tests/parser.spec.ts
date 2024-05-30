@@ -16,9 +16,9 @@ import {
   Set,
   Expr,
 } from "../lib/expression";
-import { ExprStmt } from "../lib/statement";
+import { BlockStmt, ExprStmt } from "../lib/statement";
 
-const WrapExpr = (expr: Expr) => {
+const WrapExpr = (expr: Expr): ExprStmt => {
   return new ExprStmt(expr);
 };
 
@@ -562,6 +562,50 @@ describe("Parser", () => {
             new Literal("5")
           )
         ),
+      ]);
+    });
+  });
+
+  describe("Should handle block statement", () => {
+    it("{ true; }", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.LEFT_BRACE, "{", undefined, 1),
+          new Token(TokenType.TRUE, "true", true, 1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1),
+          new Token(TokenType.RIGHT_BRACE, "}", undefined, 1),
+          new Token(TokenType.EOF, "", undefined, 2),
+        ]).parse()
+      ).toEqual([new BlockStmt([new ExprStmt(new Literal(true))])]);
+    });
+
+    it('{ true; "str"; 4 + 5; }', () => {
+      expect(
+        new Parser([
+          new Token(TokenType.LEFT_BRACE, "{", undefined, 1),
+          new Token(TokenType.TRUE, "true", true, 1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1),
+          new Token(TokenType.STRING, '"str"', "str", 1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1),
+          new Token(TokenType.NUMBER, "4", "4", 1),
+          new Token(TokenType.PLUS, '+', undefined, 1),
+          new Token(TokenType.NUMBER, "5", "5", 1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1),
+          new Token(TokenType.RIGHT_BRACE, "}", undefined, 1),
+          new Token(TokenType.EOF, "", undefined, 2),
+        ]).parse()
+      ).toEqual([
+        new BlockStmt([
+          new ExprStmt(new Literal(true)),
+          new ExprStmt(new Literal("str")),
+          new ExprStmt(
+            new Binary(
+              new Literal("4"),
+              new Token(TokenType.PLUS, "+", undefined, 1),
+              new Literal("5")
+            )
+          ),
+        ]),
       ]);
     });
   });
