@@ -1,4 +1,5 @@
 import {
+  Assign,
   Binary,
   Call,
   Expr,
@@ -10,6 +11,7 @@ import {
   This,
   Unary,
   Variable,
+  Set,
 } from "./expression";
 import Token from "./token";
 import TokenType from "./token-type";
@@ -34,7 +36,28 @@ class Parser {
   }
 
   private expression(): Expr {
-    return this.logicOr();
+    return this.assignment();
+  }
+
+  private assignment(): Expr {
+    let expr = this.logicOr();
+
+    if (this.match(TokenType.EQUAL)) {
+      const token = this.previous();
+      const value = this.assignment();
+
+      if (expr instanceof Variable) {
+        return new Assign(expr.name, value);
+      } else if (expr instanceof Get) {
+        return new Set(expr.expr, expr.token, value);
+      }
+
+      throw new Error("Invalid assignment target");
+    } else if (this.match(TokenType.OR)) {
+      expr = this.logicOr();
+    }
+
+    return expr;
   }
 
   private logicOr(): Expr {

@@ -64,6 +64,18 @@ class Call extends Expr {
   }
 }
 
+class Assign extends Expr {
+  constructor(public name: Token, public value: Expr) {
+    super();
+  }
+}
+
+class Set extends Expr {
+  constructor(public object: Expr, public property: Token, public value: Expr) {
+    super();
+  }
+}
+
 export {
   Expr,
   Literal,
@@ -76,4 +88,6 @@ export {
   Super,
   Get,
   Call,
+  Assign,
+  Set
 };

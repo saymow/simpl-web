@@ -2,6 +2,7 @@ import Token from "../lib/token";
 import Parser from "../lib/parser";
 import TokenType from "../lib/token-type";
 import {
+  Assign,
   Binary,
   Call,
   Get,
@@ -12,6 +13,7 @@ import {
   This,
   Unary,
   Variable,
+  Set,
 } from "../lib/expression";
 
 describe("Parser", () => {
@@ -401,7 +403,7 @@ describe("Parser", () => {
       ]);
     });
 
-    it("4 and 2 or 10\n test \n test2", () => {
+    it("4 and 2 or 10", () => {
       expect(
         new Parser([
           new Token(TokenType.NUMBER, "4", "4", 1),
@@ -420,6 +422,64 @@ describe("Parser", () => {
           ),
           new Token(TokenType.OR, "or", undefined, 1),
           new Literal("10")
+        ),
+      ]);
+    });
+  });
+
+  describe("Should handle assignments", () => {
+    it("a = 5", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.IDENTIFIER, "a", "a", 1),
+          new Token(TokenType.EQUAL, "=", undefined, 1),
+          new Token(TokenType.NUMBER, "5", "5", 1),
+          new Token(TokenType.EOF, "", undefined, 2),
+        ]).parse()
+      ).toEqual([
+        new Assign(
+          new Token(TokenType.IDENTIFIER, "a", "a", 1),
+          new Literal("5")
+        ),
+      ]);
+    });
+
+    it("a = b = 5", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.IDENTIFIER, "a", "a", 1),
+          new Token(TokenType.EQUAL, "=", undefined, 1),
+          new Token(TokenType.IDENTIFIER, "b", "b", 1),
+          new Token(TokenType.EQUAL, "=", undefined, 1),
+          new Token(TokenType.NUMBER, "5", "5", 1),
+          new Token(TokenType.EOF, "", undefined, 2),
+        ]).parse()
+      ).toEqual([
+        new Assign(
+          new Token(TokenType.IDENTIFIER, "a", "a", 1),
+          new Assign(
+            new Token(TokenType.IDENTIFIER, "b", "b", 1),
+            new Literal("5")
+          )
+        ),
+      ]);
+    });
+
+    it("object.prop = 5", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.IDENTIFIER, "object", "object", 1),
+          new Token(TokenType.DOT, ".", undefined, 1),
+          new Token(TokenType.IDENTIFIER, "prop", "prop", 1),
+          new Token(TokenType.EQUAL, "=", undefined, 1),
+          new Token(TokenType.NUMBER, "5", "5", 1),
+          new Token(TokenType.EOF, "", undefined, 2),
+        ]).parse()
+      ).toEqual([
+        new Set(
+          new Variable(new Token(TokenType.IDENTIFIER, "object", "object", 1)),
+          new Token(TokenType.IDENTIFIER, "prop", "prop", 1),
+          new Literal("5")
         ),
       ]);
     });
