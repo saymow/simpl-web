@@ -1,6 +1,6 @@
-import { BinaryExpr, GroupingExpr, LiteralExpr } from "../lib/expression";
+import { BinaryExpr, GroupingExpr, LiteralExpr } from "../lib/expr";
 import Interpreter from "../lib/interpreter";
-import { PrintStmt, Stmt } from "../lib/statement";
+import { PrintStmt, Stmt } from "../lib/stmt";
 import Token from "../lib/token";
 import TokenType from "../lib/token-type";
 

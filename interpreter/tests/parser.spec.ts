@@ -15,8 +15,8 @@ import {
   VariableExpr,
   SetExpr,
   Expr,
-} from "../lib/expression";
-import { BlockStmt, ExprStmt, PrintStmt } from "../lib/statement";
+} from "../lib/expr";
+import { BlockStmt, ExprStmt, PrintStmt, VarStmt } from "../lib/stmt";
 
 const WrapExpr = (expr: Expr): ExprStmt => {
   return new ExprStmt(expr);
@@ -649,6 +649,39 @@ describe("Parser", () => {
             new Token(TokenType.PLUS, "+", undefined, 1),
             new LiteralExpr("5")
           )
+        ),
+      ]);
+    });
+  });
+
+  describe("Should handle var declaration", () => {
+    it("var myVar;", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.VAR, "var", undefined, 1),
+          new Token(TokenType.IDENTIFIER, "myVar", undefined, 1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1),
+          new Token(TokenType.EOF, "", undefined, 2),
+        ]).parse()
+      ).toEqual([
+        new VarStmt(new Token(TokenType.IDENTIFIER, "myVar", undefined, 1)),
+      ]);
+    });
+
+    it("var myVar = 5;", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.VAR, "var", undefined, 1),
+          new Token(TokenType.IDENTIFIER, "myVar", undefined, 1),
+          new Token(TokenType.EQUAL, "=", undefined, 1),
+          new Token(TokenType.NUMBER, "5", 5, 1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1),
+          new Token(TokenType.EOF, "", undefined, 2),
+        ]).parse()
+      ).toEqual([
+        new VarStmt(
+          new Token(TokenType.IDENTIFIER, "myVar", undefined, 1),
+          new LiteralExpr(5)
         ),
       ]);
     });

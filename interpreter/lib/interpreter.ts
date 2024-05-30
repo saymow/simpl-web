@@ -14,8 +14,8 @@ import {
   UnaryExpr,
   Value,
   VariableExpr,
-} from "./expression";
-import { BlockStmt, ExprStmt, PrintStmt, Stmt, StmtVisitor } from "./statement";
+} from "./expr";
+import { BlockStmt, ExprStmt, PrintStmt, Stmt, StmtVisitor } from "./stmt";
 import { RuntimeError } from "./errors";
 import { System } from "./presentation";
 import TokenType from "./token-type";

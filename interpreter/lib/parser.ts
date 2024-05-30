@@ -12,8 +12,8 @@ import {
   UnaryExpr,
   VariableExpr,
   SetExpr,
-} from "./expression";
-import { Stmt, ExprStmt, BlockStmt, PrintStmt } from "./statement";
+} from "./expr";
+import { Stmt, ExprStmt, BlockStmt, PrintStmt, VarStmt } from "./stmt";
 import Token from "./token";
 import TokenType from "./token-type";
 import { ParserError } from "./errors";
@@ -38,7 +38,23 @@ class Parser {
   }
 
   private declaration(): Stmt {
+    if (this.match(TokenType.VAR)) {
+      return this.varDeclaration();
+    }
+
     return this.statement();
+  }
+
+  private varDeclaration(): Stmt {
+    const name = this.consume(TokenType.IDENTIFIER, "Expect name after var.");
+    let expr;
+
+    if (this.match(TokenType.EQUAL)) {
+      expr = this.expression();
+    }
+
+    this.consume(TokenType.SEMICOLON, "Expect ';' after var declaration.");
+    return new VarStmt(name, expr);
   }
 
   private statement(): Stmt {

@@ -1,6 +1,8 @@
-import { Expr } from "./expression";
+import { Expr } from "./expr";
+import Token from "./token";
 
 interface StmtVisitor<T> {
+  visitVarStmt(stmt: VarStmt): T;
   visitExprStmt(stmt: ExprStmt): T;
   visitBlockStmt(stmt: BlockStmt): T;
   visitPrintStmt(stmt: PrintStmt): T;
@@ -24,7 +26,7 @@ class BlockStmt extends Stmt {
   public accept<T>(visitor: StmtVisitor<T>): T {
     return visitor.visitBlockStmt(this);
   }
-  
+
   constructor(public stmts: Stmt[]) {
     super();
   }
@@ -34,11 +36,21 @@ class PrintStmt extends Stmt {
   public accept<T>(visitor: StmtVisitor<T>): T {
     return visitor.visitPrintStmt(this);
   }
-  
+
   constructor(public expr: Expr) {
     super();
   }
 }
 
+class VarStmt extends Stmt {
+  public accept<T>(visitor: StmtVisitor<T>): T {
+    return visitor.visitVarStmt(this);
+  }
+
+  constructor(public token: Token, public initializer?: Expr) {
+    super();
+  }
+}
+
 export type { StmtVisitor };
-export { Stmt, ExprStmt, BlockStmt, PrintStmt };
+export { Stmt, ExprStmt, BlockStmt, PrintStmt, VarStmt };
