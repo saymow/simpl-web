@@ -13,6 +13,7 @@ import {
   Variable,
   Set,
 } from "./expression";
+import { Stmt, ExprStmt } from "./statement";
 import Token from "./token";
 import TokenType from "./token-type";
 import ParserError from "./parserError";
@@ -30,10 +31,20 @@ class Parser {
     const expressions = [];
 
     while (!this.atEnd()) {
-      expressions.push(this.expression());
+      expressions.push(this.statement());
     }
 
     return expressions;
+  }
+
+  private statement(): Expr {
+    return this.expressionStatement();
+  }
+
+  private expressionStatement(): Stmt {
+    const expr = this.expression();
+    this.consume(TokenType.SEMICOLON, "Expect ';' after expression.");
+    return new ExprStmt(expr);
   }
 
   private expression(): Expr {
