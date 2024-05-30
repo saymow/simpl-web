@@ -1,4 +1,13 @@
-import { Binary, Expr, Grouping, Literal, Logical, This, Unary } from "./expression";
+import {
+  Binary,
+  Expr,
+  Grouping,
+  Literal,
+  Logical,
+  Super,
+  This,
+  Unary,
+} from "./expression";
 import Token from "./token";
 import TokenType from "./token-type";
 
@@ -125,6 +134,14 @@ class Parser {
       return new Literal(this.previous().literal);
     } else if (this.match(TokenType.THIS)) {
       return new This(this.previous());
+    } else if (this.match(TokenType.SUPER)) {
+      const token = this.previous();
+      this.consume(TokenType.DOT, "Expect '.' after 'super' keyword.");
+      const identifier = this.consume(
+        TokenType.IDENTIFIER,
+        "Expect identifier after super keyword."
+      );
+      return new Super(token, identifier);
     } else if (this.match(TokenType.LEFT_PAREN)) {
       const expr = this.expression();
       this.consume(TokenType.RIGHT_PAREN, "Expect ')' after group expression.");
@@ -134,16 +151,18 @@ class Parser {
     return null as any;
   }
 
-  private consume(tokenType: TokenType, message: string) {
+  private consume(tokenType: TokenType, message: string): Token {
     if (this.peek().type !== tokenType) {
       throw new Error(message);
     }
-    this.advance();
+    return this.advance();
   }
 
-  private advance() {
-    if (this.atEnd()) return;
-    this.current++;
+  private advance(): Token {
+    if (!this.atEnd()) {
+      this.current++;
+    }
+    return this.previous();
   }
 
   private match(...tokenTypes: TokenType[]) {
@@ -159,7 +178,7 @@ class Parser {
     return this.peek().type === tokenType;
   }
 
-  private previous() {
+  private previous(): Token {
     return this.tokens[this.current - 1];
   }
 

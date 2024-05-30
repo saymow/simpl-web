@@ -46,4 +46,20 @@ class This extends Expr {
   }
 }
 
-export { Expr, Literal, Variable, Unary, Binary, Logical, Grouping, This };
+class Super extends Expr {
+  constructor(public token: Token, public method: Token) {
+    super();
+  }
+}
+
+export {
+  Expr,
+  Literal,
+  Variable,
+  Unary,
+  Binary,
+  Logical,
+  Grouping,
+  This,
+  Super,
+};
