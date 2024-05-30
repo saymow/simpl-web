@@ -3,6 +3,8 @@ import Parser from "../lib/parser";
 import TokenType from "../lib/token-type";
 import {
   Binary,
+  Call,
+  Get,
   Grouping,
   Literal,
   Logical,
@@ -43,18 +45,14 @@ describe("Parser", () => {
     ]);
 
     // (3)
-    // (4)
     expect(
       new Parser([
         new Token(TokenType.LEFT_PAREN, "(", undefined, 1),
         new Token(TokenType.NUMBER, "3", "3", 1),
         new Token(TokenType.RIGHT_PAREN, ")", undefined, 1),
-        new Token(TokenType.LEFT_PAREN, "(", undefined, 2),
-        new Token(TokenType.NUMBER, "4", "4", 2),
-        new Token(TokenType.RIGHT_PAREN, ")", undefined, 2),
         new Token(TokenType.EOF, "", undefined, 3),
       ]).parse()
-    ).toEqual([new Grouping(new Literal("3")), new Grouping(new Literal("4"))]);
+    ).toEqual([new Grouping(new Literal("3"))]);
 
     // ((1))
     expect(
@@ -67,6 +65,84 @@ describe("Parser", () => {
         new Token(TokenType.EOF, "", undefined, 2),
       ]).parse()
     ).toEqual([new Grouping(new Grouping(new Literal("1")))]);
+  });
+
+  it("Should handle calls", () => {
+    // myVar.property
+    expect(
+      new Parser([
+        new Token(TokenType.IDENTIFIER, "myVar", "myVar", 1),
+        new Token(TokenType.DOT, ".", ".", 1),
+        new Token(TokenType.IDENTIFIER, "property", "property", 1),
+        new Token(TokenType.EOF, "", undefined, 2),
+      ]).parse()
+    ).toEqual([
+      new Get(
+        new Variable(new Token(TokenType.IDENTIFIER, "myVar", "myVar", 1)),
+        new Token(TokenType.IDENTIFIER, "property", "property", 1)
+      ),
+    ]);
+
+    // myVar.property.other
+    expect(
+      new Parser([
+        new Token(TokenType.IDENTIFIER, "myVar", "myVar", 1),
+        new Token(TokenType.DOT, ".", ".", 1),
+        new Token(TokenType.IDENTIFIER, "property", "property", 1),
+        new Token(TokenType.DOT, ".", ".", 1),
+        new Token(TokenType.IDENTIFIER, "other", "other", 1),
+        new Token(TokenType.EOF, "", undefined, 2),
+      ]).parse()
+    ).toEqual([
+      new Get(
+        new Get(
+          new Variable(new Token(TokenType.IDENTIFIER, "myVar", "myVar", 1)),
+          new Token(TokenType.IDENTIFIER, "property", "property", 1)
+        ),
+        new Token(TokenType.IDENTIFIER, "other", "other", 1)
+      ),
+    ]);
+
+    // myVar()
+    expect(
+      new Parser([
+        new Token(TokenType.IDENTIFIER, "myVar", "myVar", 1),
+        new Token(TokenType.LEFT_PAREN, "(", undefined, 1),
+        new Token(TokenType.RIGHT_PAREN, ")", undefined, 1),
+        new Token(TokenType.EOF, "", undefined, 2),
+      ]).parse()
+    ).toEqual([
+      new Call(
+        new Variable(new Token(TokenType.IDENTIFIER, "myVar", "myVar", 1)),
+        new Token(TokenType.RIGHT_PAREN, ")", undefined, 1),
+        []
+      ),
+    ]);
+
+    // myVar(arg1, "str", 77)
+    expect(
+      new Parser([
+        new Token(TokenType.IDENTIFIER, "myVar", "myVar", 1),
+        new Token(TokenType.LEFT_PAREN, "(", undefined, 1),
+        new Token(TokenType.IDENTIFIER, "arg1", "arg1v", 1),
+        new Token(TokenType.COMMA, ",", undefined, 1),
+        new Token(TokenType.STRING, '"str"', "str", 1),
+        new Token(TokenType.COMMA, ",", undefined, 1),
+        new Token(TokenType.NUMBER, "77", "77", 1),
+        new Token(TokenType.RIGHT_PAREN, ")", undefined, 1),
+        new Token(TokenType.EOF, "", undefined, 2),
+      ]).parse()
+    ).toEqual([
+      new Call(
+        new Variable(new Token(TokenType.IDENTIFIER, "myVar", "myVar", 1)),
+        new Token(TokenType.RIGHT_PAREN, ")", undefined, 1),
+        [
+          new Variable(new Token(TokenType.IDENTIFIER, "arg1", "arg1v", 1)),
+          new Literal("str"),
+          new Literal("77"),
+        ]
+      ),
+    ]);
   });
 
   it("Should handle unaries", () => {

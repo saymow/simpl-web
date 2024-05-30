@@ -52,6 +52,18 @@ class Super extends Expr {
   }
 }
 
+class Get extends Expr {
+  constructor(public expr: Expr, public token: Token) {
+    super();
+  }
+}
+
+class Call extends Expr {
+  constructor(public callee: Expr, public paren: Token, public args: Expr[]) {
+    super();
+  }
+}
+
 export {
   Expr,
   Literal,
@@ -62,4 +74,6 @@ export {
   Grouping,
   This,
   Super,
+  Get,
+  Call,
 };

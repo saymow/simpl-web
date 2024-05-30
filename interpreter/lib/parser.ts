@@ -1,6 +1,8 @@
 import {
   Binary,
+  Call,
   Expr,
+  Get,
   Grouping,
   Literal,
   Logical,
@@ -121,7 +123,48 @@ class Parser {
       return new Unary(operator, right);
     }
 
-    return this.primary();
+    return this.call();
+  }
+
+  private call(): Expr {
+    let expr = this.primary();
+
+    while (true) {
+      if (this.match(TokenType.LEFT_PAREN)) {
+        expr = this.finishCall(expr);
+      } else if (this.match(TokenType.DOT)) {
+        const identifier = this.consume(
+          TokenType.IDENTIFIER,
+          "Expect property name after '.'."
+        );
+        expr = new Get(expr, identifier);
+      } else {
+        break;
+      }
+    }
+
+    return expr;
+  }
+
+  private finishCall(callee: Expr): Expr {
+    const args = [];
+
+    if (!this.check(TokenType.RIGHT_PAREN)) {
+      do {
+        if (args.length > 255) {
+          throw new Error("Call arguments list should not exceed 255.");
+        }
+
+        args.push(this.expression());
+      } while (this.match(TokenType.COMMA));
+    }
+
+    const paren = this.consume(
+      TokenType.RIGHT_PAREN,
+      "Expect ')' after arguments list."
+    );
+
+    return new Call(callee, paren, args);
   }
 
   private primary(): Expr {
@@ -151,7 +194,7 @@ class Parser {
       return new Grouping(expr);
     }
 
-    return null as any;
+    throw new Error("Unexpected token.");
   }
 
   private consume(tokenType: TokenType, message: string): Token {
