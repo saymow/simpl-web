@@ -2,18 +2,18 @@ import Token from "../lib/token";
 import Parser from "../lib/parser";
 import TokenType from "../lib/token-type";
 import {
-  Assign,
-  Binary,
-  Call,
-  Get,
-  Grouping,
-  Literal,
-  Logical,
-  Super,
-  This,
-  Unary,
-  Variable,
-  Set,
+  AssignExpr,
+  BinaryExpr,
+  CallExpr,
+  GetExpr,
+  GroupingExpr,
+  LiteralExpr,
+  LogicalExpr,
+  SuperExpr,
+  ThisExpr,
+  UnaryExpr,
+  VariableExpr,
+  SetExpr,
   Expr,
 } from "../lib/expression";
 import { BlockStmt, ExprStmt, PrintStmt } from "../lib/statement";
@@ -48,17 +48,17 @@ describe("Parser", () => {
           new Token(TokenType.EOF, "", undefined, 5),
         ]).parse()
       ).toEqual([
-        WrapExpr(new Literal(true)),
-        WrapExpr(new Literal(false)),
-        WrapExpr(new Literal(null)),
-        WrapExpr(new Literal("77")),
-        WrapExpr(new Literal("some-string")),
-        WrapExpr(new This(new Token(TokenType.THIS, "this", undefined, 2))),
+        WrapExpr(new LiteralExpr(true)),
+        WrapExpr(new LiteralExpr(false)),
+        WrapExpr(new LiteralExpr(null)),
+        WrapExpr(new LiteralExpr("77")),
+        WrapExpr(new LiteralExpr("some-string")),
+        WrapExpr(new ThisExpr(new Token(TokenType.THIS, "this", undefined, 2))),
         WrapExpr(
-          new Variable(new Token(TokenType.IDENTIFIER, "myVar", "myVar", 3))
+          new VariableExpr(new Token(TokenType.IDENTIFIER, "myVar", "myVar", 3))
         ),
         WrapExpr(
-          new Super(
+          new SuperExpr(
             new Token(TokenType.SUPER, "super", undefined, 4),
             new Token(TokenType.IDENTIFIER, "method", undefined, 4)
           )
@@ -75,7 +75,7 @@ describe("Parser", () => {
           new Token(TokenType.SEMICOLON, ";", undefined, 1),
           new Token(TokenType.EOF, "", undefined, 3),
         ]).parse()
-      ).toEqual([WrapExpr(new Grouping(new Literal("3")))]);
+      ).toEqual([WrapExpr(new GroupingExpr(new LiteralExpr("3")))]);
     });
 
     it("((1));", () => {
@@ -89,7 +89,9 @@ describe("Parser", () => {
           new Token(TokenType.SEMICOLON, ";", undefined, 1),
           new Token(TokenType.EOF, "", undefined, 2),
         ]).parse()
-      ).toEqual([WrapExpr(new Grouping(new Grouping(new Literal("1"))))]);
+      ).toEqual([
+        WrapExpr(new GroupingExpr(new GroupingExpr(new LiteralExpr("1")))),
+      ]);
     });
   });
 
@@ -105,8 +107,10 @@ describe("Parser", () => {
         ]).parse()
       ).toEqual([
         WrapExpr(
-          new Get(
-            new Variable(new Token(TokenType.IDENTIFIER, "myVar", "myVar", 1)),
+          new GetExpr(
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "myVar", "myVar", 1)
+            ),
             new Token(TokenType.IDENTIFIER, "property", "property", 1)
           )
         ),
@@ -126,9 +130,9 @@ describe("Parser", () => {
         ]).parse()
       ).toEqual([
         WrapExpr(
-          new Get(
-            new Get(
-              new Variable(
+          new GetExpr(
+            new GetExpr(
+              new VariableExpr(
                 new Token(TokenType.IDENTIFIER, "myVar", "myVar", 1)
               ),
               new Token(TokenType.IDENTIFIER, "property", "property", 1)
@@ -150,8 +154,10 @@ describe("Parser", () => {
         ]).parse()
       ).toEqual([
         WrapExpr(
-          new Call(
-            new Variable(new Token(TokenType.IDENTIFIER, "myVar", "myVar", 1)),
+          new CallExpr(
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "myVar", "myVar", 1)
+            ),
             new Token(TokenType.RIGHT_PAREN, ")", undefined, 1),
             []
           )
@@ -175,13 +181,17 @@ describe("Parser", () => {
         ]).parse()
       ).toEqual([
         WrapExpr(
-          new Call(
-            new Variable(new Token(TokenType.IDENTIFIER, "myVar", "myVar", 1)),
+          new CallExpr(
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "myVar", "myVar", 1)
+            ),
             new Token(TokenType.RIGHT_PAREN, ")", undefined, 1),
             [
-              new Variable(new Token(TokenType.IDENTIFIER, "arg1", "arg1v", 1)),
-              new Literal("str"),
-              new Literal("77"),
+              new VariableExpr(
+                new Token(TokenType.IDENTIFIER, "arg1", "arg1v", 1)
+              ),
+              new LiteralExpr("str"),
+              new LiteralExpr("77"),
             ]
           )
         ),
@@ -200,9 +210,9 @@ describe("Parser", () => {
         ]).parse()
       ).toEqual([
         WrapExpr(
-          new Unary(
+          new UnaryExpr(
             new Token(TokenType.MINUS, "MINUS", undefined, 1),
-            new Literal("77")
+            new LiteralExpr("77")
           )
         ),
       ]);
@@ -218,9 +228,9 @@ describe("Parser", () => {
         ]).parse()
       ).toEqual([
         WrapExpr(
-          new Unary(
+          new UnaryExpr(
             new Token(TokenType.BANG, "BANG", undefined, 1),
-            new Literal("77")
+            new LiteralExpr("77")
           )
         ),
       ]);
@@ -241,14 +251,14 @@ describe("Parser", () => {
         ]).parse()
       ).toEqual([
         WrapExpr(
-          new Binary(
-            new Binary(
-              new Literal("4"),
+          new BinaryExpr(
+            new BinaryExpr(
+              new LiteralExpr("4"),
               new Token(TokenType.PLUS, "+", undefined, 1),
-              new Literal("2")
+              new LiteralExpr("2")
             ),
             new Token(TokenType.MINUS, "-", undefined, 1),
-            new Literal("10")
+            new LiteralExpr("10")
           )
         ),
       ]);
@@ -267,14 +277,14 @@ describe("Parser", () => {
         ]).parse()
       ).toEqual([
         WrapExpr(
-          new Binary(
-            new Binary(
-              new Literal("4"),
+          new BinaryExpr(
+            new BinaryExpr(
+              new LiteralExpr("4"),
               new Token(TokenType.SLASH, "/", undefined, 1),
-              new Literal("2")
+              new LiteralExpr("2")
             ),
             new Token(TokenType.PLUS, "+", undefined, 1),
-            new Literal("10")
+            new LiteralExpr("10")
           )
         ),
       ]);
@@ -293,13 +303,13 @@ describe("Parser", () => {
         ]).parse()
       ).toEqual([
         WrapExpr(
-          new Binary(
-            new Literal("10"),
+          new BinaryExpr(
+            new LiteralExpr("10"),
             new Token(TokenType.PLUS, "+", undefined, 1),
-            new Binary(
-              new Literal("4"),
+            new BinaryExpr(
+              new LiteralExpr("4"),
               new Token(TokenType.STAR, "*", undefined, 1),
-              new Literal("2")
+              new LiteralExpr("2")
             )
           )
         ),
@@ -321,18 +331,18 @@ describe("Parser", () => {
         ]).parse()
       ).toEqual([
         WrapExpr(
-          new Binary(
-            new Binary(
-              new Binary(
-                new Literal("4"),
+          new BinaryExpr(
+            new BinaryExpr(
+              new BinaryExpr(
+                new LiteralExpr("4"),
                 new Token(TokenType.PLUS, "+", undefined, 1),
-                new Literal("2")
+                new LiteralExpr("2")
               ),
               new Token(TokenType.MINUS, "-", undefined, 1),
-              new Literal("10")
+              new LiteralExpr("10")
             ),
             new Token(TokenType.GREATER_EQUAL, ">=", undefined, 1),
-            new Literal("50")
+            new LiteralExpr("50")
           )
         ),
       ]);
@@ -353,17 +363,17 @@ describe("Parser", () => {
         ]).parse()
       ).toEqual([
         WrapExpr(
-          new Binary(
-            new Literal("50"),
+          new BinaryExpr(
+            new LiteralExpr("50"),
             new Token(TokenType.LESS_EQUAL, "<=", undefined, 1),
-            new Binary(
-              new Binary(
-                new Literal("4"),
+            new BinaryExpr(
+              new BinaryExpr(
+                new LiteralExpr("4"),
                 new Token(TokenType.PLUS, "+", undefined, 1),
-                new Literal("2")
+                new LiteralExpr("2")
               ),
               new Token(TokenType.MINUS, "-", undefined, 1),
-              new Literal("10")
+              new LiteralExpr("10")
             )
           )
         ),
@@ -383,13 +393,13 @@ describe("Parser", () => {
         ]).parse()
       ).toEqual([
         WrapExpr(
-          new Binary(
-            new Literal("50"),
+          new BinaryExpr(
+            new LiteralExpr("50"),
             new Token(TokenType.BANG_EQUAL, "!=", undefined, 1),
-            new Binary(
-              new Literal("4"),
+            new BinaryExpr(
+              new LiteralExpr("4"),
               new Token(TokenType.PLUS, "+", undefined, 1),
-              new Literal("2")
+              new LiteralExpr("2")
             )
           )
         ),
@@ -407,10 +417,10 @@ describe("Parser", () => {
         ]).parse()
       ).toEqual([
         WrapExpr(
-          new Binary(
-            new Literal("test"),
+          new BinaryExpr(
+            new LiteralExpr("test"),
             new Token(TokenType.EQUAL_EQUAL, "==", undefined, 1),
-            new Literal("tset")
+            new LiteralExpr("tset")
           )
         ),
       ]);
@@ -431,14 +441,14 @@ describe("Parser", () => {
         ]).parse()
       ).toEqual([
         WrapExpr(
-          new Logical(
-            new Binary(
-              new Literal("4"),
+          new LogicalExpr(
+            new BinaryExpr(
+              new LiteralExpr("4"),
               new Token(TokenType.PLUS, "+", undefined, 1),
-              new Literal("2")
+              new LiteralExpr("2")
             ),
             new Token(TokenType.AND, "and", undefined, 1),
-            new Literal("10")
+            new LiteralExpr("10")
           )
         ),
       ]);
@@ -457,13 +467,13 @@ describe("Parser", () => {
         ]).parse()
       ).toEqual([
         WrapExpr(
-          new Logical(
-            new Literal("10"),
+          new LogicalExpr(
+            new LiteralExpr("10"),
             new Token(TokenType.OR, "or", undefined, 1),
-            new Binary(
-              new Literal("4"),
+            new BinaryExpr(
+              new LiteralExpr("4"),
               new Token(TokenType.PLUS, "+", undefined, 1),
-              new Literal("2")
+              new LiteralExpr("2")
             )
           )
         ),
@@ -483,21 +493,21 @@ describe("Parser", () => {
         ]).parse()
       ).toEqual([
         WrapExpr(
-          new Logical(
-            new Logical(
-              new Literal("4"),
+          new LogicalExpr(
+            new LogicalExpr(
+              new LiteralExpr("4"),
               new Token(TokenType.AND, "and", undefined, 1),
-              new Literal("2")
+              new LiteralExpr("2")
             ),
             new Token(TokenType.OR, "or", undefined, 1),
-            new Literal("10")
+            new LiteralExpr("10")
           )
         ),
       ]);
     });
   });
 
-  describe("Should handle assignments", () => {
+  describe("Should handle assignExprments", () => {
     it("a = 5;", () => {
       expect(
         new Parser([
@@ -509,9 +519,9 @@ describe("Parser", () => {
         ]).parse()
       ).toEqual([
         WrapExpr(
-          new Assign(
+          new AssignExpr(
             new Token(TokenType.IDENTIFIER, "a", "a", 1),
-            new Literal("5")
+            new LiteralExpr("5")
           )
         ),
       ]);
@@ -530,11 +540,11 @@ describe("Parser", () => {
         ]).parse()
       ).toEqual([
         WrapExpr(
-          new Assign(
+          new AssignExpr(
             new Token(TokenType.IDENTIFIER, "a", "a", 1),
-            new Assign(
+            new AssignExpr(
               new Token(TokenType.IDENTIFIER, "b", "b", 1),
-              new Literal("5")
+              new LiteralExpr("5")
             )
           )
         ),
@@ -554,12 +564,12 @@ describe("Parser", () => {
         ]).parse()
       ).toEqual([
         WrapExpr(
-          new Set(
-            new Variable(
+          new SetExpr(
+            new VariableExpr(
               new Token(TokenType.IDENTIFIER, "object", "object", 1)
             ),
             new Token(TokenType.IDENTIFIER, "prop", "prop", 1),
-            new Literal("5")
+            new LiteralExpr("5")
           )
         ),
       ]);
@@ -576,7 +586,7 @@ describe("Parser", () => {
           new Token(TokenType.RIGHT_BRACE, "}", undefined, 1),
           new Token(TokenType.EOF, "", undefined, 2),
         ]).parse()
-      ).toEqual([new BlockStmt([new ExprStmt(new Literal(true))])]);
+      ).toEqual([new BlockStmt([new ExprStmt(new LiteralExpr(true))])]);
     });
 
     it('{ true; "str"; 4 + 5; }', () => {
@@ -596,13 +606,13 @@ describe("Parser", () => {
         ]).parse()
       ).toEqual([
         new BlockStmt([
-          new ExprStmt(new Literal(true)),
-          new ExprStmt(new Literal("str")),
+          new ExprStmt(new LiteralExpr(true)),
+          new ExprStmt(new LiteralExpr("str")),
           new ExprStmt(
-            new Binary(
-              new Literal("4"),
+            new BinaryExpr(
+              new LiteralExpr("4"),
               new Token(TokenType.PLUS, "+", undefined, 1),
-              new Literal("5")
+              new LiteralExpr("5")
             )
           ),
         ]),
@@ -619,7 +629,7 @@ describe("Parser", () => {
           new Token(TokenType.SEMICOLON, ";", undefined, 1),
           new Token(TokenType.EOF, "", undefined, 2),
         ]).parse()
-      ).toEqual([new PrintStmt(new Literal(true))]);
+      ).toEqual([new PrintStmt(new LiteralExpr(true))]);
     });
 
     it("print 4 + 5;", () => {
@@ -634,10 +644,10 @@ describe("Parser", () => {
         ]).parse()
       ).toEqual([
         new PrintStmt(
-          new Binary(
-            new Literal("4"),
+          new BinaryExpr(
+            new LiteralExpr("4"),
             new Token(TokenType.PLUS, "+", undefined, 1),
-            new Literal("5")
+            new LiteralExpr("5")
           )
         ),
       ]);

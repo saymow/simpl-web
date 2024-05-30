@@ -47,7 +47,7 @@ describe("Lexer", () => {
     expect(tokens[1].literal).toBe("str");
 
     expect(tokens[2].type).toBe(TokenType.NUMBER);
-    expect(tokens[2].literal).toBe("77");
+    expect(tokens[2].literal).toBe(77);
   });
 
   it("Shoud handle keywords properly", () => {

@@ -1,49 +1,70 @@
 import { useEffect, useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
-import { Lexer, Parser } from "../interpreter";
+import { Lexer, Parser, Stmt, Token, Interpreter } from "../interpreter";
 
-const interpret = (source: string) => {
-  const tokens = new Lexer(source).scan();
-  console.log(tokens);
-  const ast = new Parser(tokens).parse();
+const interpret = (
+  ast: Stmt[],
+  log: (message: string) => void,
+  error: (message: string) => void
+) => {
+  const interpreter = new Interpreter(ast, {
+    log,
+    error,
+  });
 
-  console.log(ast);
+  interpreter.interpret();
 };
 
 function App() {
-  const [count, setCount] = useState(0);
+  const [source, setSource] = useState("");
+  const [output, setOutput] = useState("");
+  const [tokens, setTokens] = useState<Token[]>([]);
+  const [ast, setAst] = useState<Stmt[]>([]);
 
   useEffect(() => {
-    interpret(`
-    1 * 3 + 5 - 3 > 9
-`);
-  });
+    try {
+      setTokens(new Lexer(source).scan());
+    } catch (err) {
+      console.error("Lexer error: ", err);
+    }
+  }, [source]);
+
+  useEffect(() => {
+    try {
+      if (tokens.length === 0) return;
+      setAst(new Parser(tokens).parse());
+    } catch (err) {
+      console.error("Parser error: ");
+    }
+  }, [tokens]);
+
+  const appendOutputLine = (message: string) => {
+    setOutput((prev) => prev.concat(message + "\n"));
+  };
+
+  const handleRun = () => {
+    try {
+      setOutput("");
+      interpret(ast, appendOutputLine, () => {});
+    } catch (err) {}
+  };
+
+  console.log(output);
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <main className="container">
+      <header>
+        <button onClick={handleRun}>Run</button>
+      </header>
+      <section className="editor">
+        <textarea
+          value={source}
+          onChange={(e) => setSource(e.target.value)}
+          className="input"
+        ></textarea>
+        <section className="output">{output}</section>
+      </section>
+    </main>
   );
 }
 

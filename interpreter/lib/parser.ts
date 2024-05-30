@@ -1,22 +1,22 @@
 import {
-  Assign,
-  Binary,
-  Call,
+  AssignExpr,
+  BinaryExpr,
+  CallExpr,
   Expr,
-  Get,
-  Grouping,
-  Literal,
-  Logical,
-  Super,
-  This,
-  Unary,
-  Variable,
-  Set,
+  GetExpr,
+  GroupingExpr,
+  LiteralExpr,
+  LogicalExpr,
+  SuperExpr,
+  ThisExpr,
+  UnaryExpr,
+  VariableExpr,
+  SetExpr,
 } from "./expression";
 import { Stmt, ExprStmt, BlockStmt, PrintStmt } from "./statement";
 import Token from "./token";
 import TokenType from "./token-type";
-import ParserError from "./parserError";
+import { ParserError } from "./errors";
 
 class Parser {
   private tokens: Token[];
@@ -27,7 +27,7 @@ class Parser {
     this.current = 0;
   }
 
-  parse(): Expr[] {
+  parse(): Stmt[] {
     const expressions = [];
 
     while (!this.atEnd()) {
@@ -87,10 +87,10 @@ class Parser {
       const token = this.previous();
       const value = this.assignment();
 
-      if (expr instanceof Variable) {
-        return new Assign(expr.name, value);
-      } else if (expr instanceof Get) {
-        return new Set(expr.expr, expr.token, value);
+      if (expr instanceof VariableExpr) {
+        return new AssignExpr(expr.name, value);
+      } else if (expr instanceof GetExpr) {
+        return new SetExpr(expr.expr, expr.token, value);
       }
 
       this.error(token, "Invalid assignment target.");
@@ -107,7 +107,7 @@ class Parser {
     while (this.match(TokenType.OR)) {
       const token = this.previous();
       const right = this.logicAnd();
-      expr = new Logical(expr, token, right);
+      expr = new LogicalExpr(expr, token, right);
     }
 
     return expr;
@@ -119,7 +119,7 @@ class Parser {
     while (this.match(TokenType.AND)) {
       const token = this.previous();
       const right = this.equality();
-      expr = new Logical(expr, token, right);
+      expr = new LogicalExpr(expr, token, right);
     }
 
     return expr;
@@ -131,7 +131,7 @@ class Parser {
     while (this.match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL)) {
       const token = this.previous();
       const right = this.comparisson();
-      expr = new Binary(expr, token, right);
+      expr = new BinaryExpr(expr, token, right);
     }
 
     return expr;
@@ -150,7 +150,7 @@ class Parser {
     ) {
       const operator = this.previous();
       const right = this.term();
-      expr = new Binary(expr, operator, right);
+      expr = new BinaryExpr(expr, operator, right);
     }
 
     return expr;
@@ -162,7 +162,7 @@ class Parser {
     while (this.match(TokenType.MINUS, TokenType.PLUS)) {
       const operator = this.previous();
       const right = this.factor();
-      expr = new Binary(expr, operator, right);
+      expr = new BinaryExpr(expr, operator, right);
     }
 
     return expr;
@@ -174,7 +174,7 @@ class Parser {
     while (this.match(TokenType.SLASH, TokenType.STAR)) {
       const operator = this.previous();
       const right = this.unary();
-      expr = new Binary(expr, operator, right);
+      expr = new BinaryExpr(expr, operator, right);
     }
 
     return expr;
@@ -184,7 +184,7 @@ class Parser {
     if (this.match(TokenType.BANG, TokenType.MINUS)) {
       const operator = this.previous();
       const right = this.unary();
-      return new Unary(operator, right);
+      return new UnaryExpr(operator, right);
     }
 
     return this.call();
@@ -201,7 +201,7 @@ class Parser {
           TokenType.IDENTIFIER,
           "Expect property name after '.'."
         );
-        expr = new Get(expr, identifier);
+        expr = new GetExpr(expr, identifier);
       } else {
         break;
       }
@@ -228,22 +228,22 @@ class Parser {
       "Expect ')' after arguments list."
     );
 
-    return new Call(callee, paren, args);
+    return new CallExpr(callee, paren, args);
   }
 
   private primary(): Expr {
     if (this.match(TokenType.TRUE)) {
-      return new Literal(true);
+      return new LiteralExpr(true);
     } else if (this.match(TokenType.FALSE)) {
-      return new Literal(false);
+      return new LiteralExpr(false);
     } else if (this.match(TokenType.NIL)) {
-      return new Literal(null);
+      return new LiteralExpr(null);
     } else if (this.match(TokenType.NUMBER, TokenType.STRING)) {
-      return new Literal(this.previous().literal);
+      return new LiteralExpr(this.previous().literal);
     } else if (this.match(TokenType.IDENTIFIER)) {
-      return new Variable(this.previous());
+      return new VariableExpr(this.previous());
     } else if (this.match(TokenType.THIS)) {
-      return new This(this.previous());
+      return new ThisExpr(this.previous());
     } else if (this.match(TokenType.SUPER)) {
       const token = this.previous();
       this.consume(TokenType.DOT, "Expect '.' after 'super' keyword.");
@@ -251,11 +251,11 @@ class Parser {
         TokenType.IDENTIFIER,
         "Expect identifier after super keyword."
       );
-      return new Super(token, identifier);
+      return new SuperExpr(token, identifier);
     } else if (this.match(TokenType.LEFT_PAREN)) {
       const expr = this.expression();
       this.consume(TokenType.RIGHT_PAREN, "Expect ')' after group expression.");
-      return new Grouping(expr);
+      return new GroupingExpr(expr);
     }
 
     throw this.error(this.peek(), "Unexpected token.");

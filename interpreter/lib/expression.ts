@@ -2,92 +2,159 @@ import Token from "./token";
 
 type Value = any;
 
-class Expr {}
+interface ExprVisitor<T> {
+  visitLiteralExpr(expr: LiteralExpr): T;
+  visitVariableExpr(expr: VariableExpr): T;
+  visitUnaryExpr(expr: UnaryExpr): T;
+  visitBinaryExpr(expr: BinaryExpr): T;
+  visitLogicalExpr(expr: LogicalExpr): T;
+  visitGroupingExpr(expr: GroupingExpr): T;
+  visitThisExpr(expr: ThisExpr): T;
+  visitSuperExpr(expr: SuperExpr): T;
+  visitGetExpr(expr: GetExpr): T;
+  visitCallExpr(expr: CallExpr): T;
+  visitAssignExpr(expr: AssignExpr): T;
+  visitSetExpr(expr: SetExpr): T;
+}
 
-class Literal extends Expr {
+abstract class Expr {
+  public abstract accept<T>(visitor: ExprVisitor<T>): T;
+}
+
+class LiteralExpr extends Expr {
+  public accept<T>(visitor: ExprVisitor<T>): T {
+    return visitor.visitLiteralExpr(this);
+  }
+
   constructor(public object: Value) {
     super();
   }
 }
 
-class Variable extends Expr {
+class VariableExpr extends Expr {
+  public accept<T>(visitor: ExprVisitor<T>): T {
+    return visitor.visitVariableExpr(this);
+  }
+
   constructor(public name: Token) {
     super();
   }
 }
 
-class Unary extends Expr {
+class UnaryExpr extends Expr {
+  public accept<T>(visitor: ExprVisitor<T>): T {
+    return visitor.visitUnaryExpr(this);
+  }
+
   constructor(public operator: Token, public right: Expr) {
     super();
   }
 }
 
-class Binary extends Expr {
+class BinaryExpr extends Expr {
+  public accept<T>(visitor: ExprVisitor<T>): T {
+    return visitor.visitBinaryExpr(this);
+  }
+
   constructor(public left: Expr, public operator: Token, public right: Expr) {
     super();
   }
 }
 
-class Logical extends Expr {
+class LogicalExpr extends Expr {
+  public accept<T>(visitor: ExprVisitor<T>): T {
+    return visitor.visitLogicalExpr(this);
+  }
+
   constructor(public left: Expr, public operator: Token, public right: Expr) {
     super();
   }
 }
 
-class Grouping extends Expr {
+class GroupingExpr extends Expr {
+  public accept<T>(visitor: ExprVisitor<T>): T {
+    return visitor.visitGroupingExpr(this);
+  }
+
   constructor(public expr: Expr) {
     super();
   }
 }
 
-class This extends Expr {
+class ThisExpr extends Expr {
+  public accept<T>(visitor: ExprVisitor<T>): T {
+    return visitor.visitThisExpr(this);
+  }
+
   constructor(public token: Token) {
     super();
   }
 }
 
-class Super extends Expr {
+class SuperExpr extends Expr {
+  public accept<T>(visitor: ExprVisitor<T>): T {
+    return visitor.visitSuperExpr(this);
+  }
+
   constructor(public token: Token, public method: Token) {
     super();
   }
 }
 
-class Get extends Expr {
+class GetExpr extends Expr {
+  public accept<T>(visitor: ExprVisitor<T>): T {
+    return visitor.visitGetExpr(this);
+  }
+
   constructor(public expr: Expr, public token: Token) {
     super();
   }
 }
 
-class Call extends Expr {
+class CallExpr extends Expr {
+  public accept<T>(visitor: ExprVisitor<T>): T {
+    return visitor.visitCallExpr(this);
+  }
+
   constructor(public callee: Expr, public paren: Token, public args: Expr[]) {
     super();
   }
 }
 
-class Assign extends Expr {
+class AssignExpr extends Expr {
+  public accept<T>(visitor: ExprVisitor<T>): T {
+    return visitor.visitAssignExpr(this);
+  }
+
   constructor(public name: Token, public value: Expr) {
     super();
   }
 }
 
-class Set extends Expr {
+class SetExpr extends Expr {
+  public accept<T>(visitor: ExprVisitor<T>): T {
+    return visitor.visitSetExpr(this);
+  }
+
   constructor(public object: Expr, public property: Token, public value: Expr) {
     super();
   }
 }
 
+export type { Value, ExprVisitor };
+
 export {
   Expr,
-  Literal,
-  Variable,
-  Unary,
-  Binary,
-  Logical,
-  Grouping,
-  This,
-  Super,
-  Get,
-  Call,
-  Assign,
-  Set
+  LiteralExpr,
+  VariableExpr,
+  UnaryExpr,
+  BinaryExpr,
+  LogicalExpr,
+  GroupingExpr,
+  ThisExpr,
+  SuperExpr,
+  GetExpr,
+  CallExpr,
+  AssignExpr,
+  SetExpr,
 };

@@ -168,7 +168,7 @@ class Lexer {
 
     this.addToken(
       TokenType.NUMBER,
-      parseFloat(this.source.substring(this.start, this.current)).toString()
+      parseFloat(this.source.substring(this.start, this.current))
     );
   }
 
@@ -193,7 +193,7 @@ class Lexer {
     );
   }
 
-  private addToken(tokenType: TokenType, literal?: string) {
+  private addToken(tokenType: TokenType, literal?: any) {
     const lexeme = this.source.substring(this.start, this.current);
     this.tokens.push(new Token(tokenType, lexeme, literal, this.line));
   }
@@ -220,7 +220,9 @@ class Lexer {
     return this.current >= this.source.length;
   }
 
-  private error(line: number, message: string) {}
+  private error(line: number, message: string) {
+    throw new Error(`[line ${line} ] ${message}`);
+  }
 }
 
 export default Lexer;
