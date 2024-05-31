@@ -13,7 +13,15 @@ import {
   VariableExpr,
   SetExpr,
 } from "./expr";
-import { Stmt, ExprStmt, BlockStmt, PrintStmt, VarStmt, IfStmt, WhileStmt } from "./stmt";
+import {
+  Stmt,
+  ExprStmt,
+  BlockStmt,
+  PrintStmt,
+  VarStmt,
+  IfStmt,
+  WhileStmt,
+} from "./stmt";
 import Token from "./token";
 import TokenType from "./token-type";
 import { ParserError } from "./errors";
@@ -70,8 +78,62 @@ class Parser {
     if (this.match(TokenType.WHILE)) {
       return this.whileStatement();
     }
+    if (this.match(TokenType.FOR)) {
+      return this.forStatement();
+    }
 
     return this.expressionStatement();
+  }
+
+  private forStatement(): Stmt {
+    let initializer;
+    let comparisson;
+    let increment;
+    let stmt;
+    let innerBlock;
+    let outerBlock;
+
+    this.consume(TokenType.LEFT_PAREN, "Expect '(' after for.");
+    if (!this.match(TokenType.SEMICOLON)) {
+      initializer = this.declaration();
+
+      if (
+        !(initializer instanceof VarStmt || initializer instanceof ExprStmt)
+      ) {
+        throw this.error(
+          this.peek(),
+          "Expect var declartion or expression after '('"
+        );
+      }
+    }
+    if (!this.match(TokenType.SEMICOLON)) {
+      comparisson = this.expression();
+      this.consume(TokenType.SEMICOLON, "Expect ';' after for comparisson.");
+    }
+    if (!this.match(TokenType.RIGHT_PAREN)) {
+      increment = this.expression();
+      this.consume(TokenType.RIGHT_PAREN, "Expect ')' after for increment.");
+    }
+
+    stmt = this.statement();
+
+    innerBlock = new BlockStmt([stmt]);
+
+    if (increment) {
+      innerBlock.stmts.push(new ExprStmt(increment));
+    }
+
+    if (!comparisson) {
+      comparisson = new LiteralExpr(true);
+    }
+
+    outerBlock = new BlockStmt([new WhileStmt(comparisson, innerBlock)]);
+
+    if (initializer) {
+      outerBlock.stmts.unshift(initializer);
+    }
+
+    return outerBlock;
   }
 
   private whileStatement(): Stmt {

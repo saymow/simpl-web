@@ -838,5 +838,251 @@ describe("Parser", () => {
         ),
       ]);
     });
+
+    it("for (var i = 0; i < 5; i = i + 1) print i;", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.FOR, "for", undefined, 1),
+          new Token(TokenType.LEFT_PAREN, "(", undefined, 1),
+          new Token(TokenType.VAR, "var", undefined, 1),
+          new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+          new Token(TokenType.EQUAL, "=", undefined, 1),
+          new Token(TokenType.NUMBER, "0", 0, 1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1),
+          new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+          new Token(TokenType.LESS, "<", undefined, 1),
+          new Token(TokenType.NUMBER, "5", 5, 1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1),
+          new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+          new Token(TokenType.EQUAL, "=", undefined, 1),
+          new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+          new Token(TokenType.PLUS, "+", undefined, 1),
+          new Token(TokenType.NUMBER, "1", 1, 1),
+          new Token(TokenType.RIGHT_PAREN, ")", undefined, 1),
+          new Token(TokenType.PRINT, "print", undefined, 1),
+          new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1),
+          new Token(TokenType.EOF, "", undefined, 2),
+        ]).parse()
+      ).toEqual([
+        new BlockStmt([
+          new VarStmt(
+            new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+            new LiteralExpr(0)
+          ),
+          new WhileStmt(
+            new BinaryExpr(
+              new VariableExpr(new Token(TokenType.IDENTIFIER, '"i"', "i", 1)),
+              new Token(TokenType.LESS, "<", undefined, 1),
+              new LiteralExpr(5)
+            ),
+            new BlockStmt([
+              new PrintStmt(
+                new VariableExpr(new Token(TokenType.IDENTIFIER, '"i"', "i", 1))
+              ),
+              new ExprStmt(
+                new AssignExpr(
+                  new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+                  new BinaryExpr(
+                    new VariableExpr(
+                      new Token(TokenType.IDENTIFIER, '"i"', "i", 1)
+                    ),
+                    new Token(TokenType.PLUS, "+", undefined, 1),
+                    new LiteralExpr(1)
+                  )
+                )
+              ),
+            ])
+          ),
+        ]),
+      ]);
+    });
+
+    it("var i = 0; for (; i < 5; i = i + 1) print i;", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.VAR, "var", undefined, 1),
+          new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+          new Token(TokenType.EQUAL, "=", undefined, 1),
+          new Token(TokenType.NUMBER, "0", 0, 1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1),
+          new Token(TokenType.FOR, "for", undefined, 1),
+          new Token(TokenType.LEFT_PAREN, "(", undefined, 1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1),
+          new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+          new Token(TokenType.LESS, "<", undefined, 1),
+          new Token(TokenType.NUMBER, "5", 5, 1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1),
+          new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+          new Token(TokenType.EQUAL, "=", undefined, 1),
+          new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+          new Token(TokenType.PLUS, "+", undefined, 1),
+          new Token(TokenType.NUMBER, "1", 1, 1),
+          new Token(TokenType.RIGHT_PAREN, ")", undefined, 1),
+          new Token(TokenType.PRINT, "print", undefined, 1),
+          new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1),
+          new Token(TokenType.EOF, "", undefined, 2),
+        ]).parse()
+      ).toEqual([
+        new VarStmt(
+          new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+          new LiteralExpr(0)
+        ),
+        new BlockStmt([
+          new WhileStmt(
+            new BinaryExpr(
+              new VariableExpr(new Token(TokenType.IDENTIFIER, '"i"', "i", 1)),
+              new Token(TokenType.LESS, "<", undefined, 1),
+              new LiteralExpr(5)
+            ),
+            new BlockStmt([
+              new PrintStmt(
+                new VariableExpr(new Token(TokenType.IDENTIFIER, '"i"', "i", 1))
+              ),
+              new ExprStmt(
+                new AssignExpr(
+                  new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+                  new BinaryExpr(
+                    new VariableExpr(
+                      new Token(TokenType.IDENTIFIER, '"i"', "i", 1)
+                    ),
+                    new Token(TokenType.PLUS, "+", undefined, 1),
+                    new LiteralExpr(1)
+                  )
+                )
+              ),
+            ])
+          ),
+        ]),
+      ]);
+    });
+
+    it("var i = 0; for (;i < 5;) { print i; i = i + 1; }", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.VAR, "var", undefined, 1),
+          new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+          new Token(TokenType.EQUAL, "=", undefined, 1),
+          new Token(TokenType.NUMBER, "0", 0, 1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1),
+          new Token(TokenType.FOR, "for", undefined, 1),
+          new Token(TokenType.LEFT_PAREN, "(", undefined, 1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1),
+          new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+          new Token(TokenType.LESS, "<", undefined, 1),
+          new Token(TokenType.NUMBER, "5", 5, 1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1),
+          new Token(TokenType.RIGHT_PAREN, ")", undefined, 1),
+          new Token(TokenType.LEFT_BRACE, "{", undefined, 1),
+          new Token(TokenType.PRINT, "print", undefined, 1),
+          new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1),
+          new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+          new Token(TokenType.EQUAL, "=", undefined, 1),
+          new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+          new Token(TokenType.PLUS, "+", undefined, 1),
+          new Token(TokenType.NUMBER, "1", 1, 1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1),
+          new Token(TokenType.RIGHT_BRACE, "}", undefined, 1),
+          new Token(TokenType.EOF, "", undefined, 2),
+        ]).parse()
+      ).toEqual([
+        new VarStmt(
+          new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+          new LiteralExpr(0)
+        ),
+        new BlockStmt([
+          new WhileStmt(
+            new BinaryExpr(
+              new VariableExpr(new Token(TokenType.IDENTIFIER, '"i"', "i", 1)),
+              new Token(TokenType.LESS, "<", undefined, 1),
+              new LiteralExpr(5)
+            ),
+            new BlockStmt([
+              new BlockStmt([
+                new PrintStmt(
+                  new VariableExpr(
+                    new Token(TokenType.IDENTIFIER, '"i"', "i", 1)
+                  )
+                ),
+                new ExprStmt(
+                  new AssignExpr(
+                    new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+                    new BinaryExpr(
+                      new VariableExpr(
+                        new Token(TokenType.IDENTIFIER, '"i"', "i", 1)
+                      ),
+                      new Token(TokenType.PLUS, "+", undefined, 1),
+                      new LiteralExpr(1)
+                    )
+                  )
+                ),
+              ]),
+            ])
+          ),
+        ]),
+      ]);
+    });
+
+    it("var i = 0; for (;;) { print i; i = i + 1; }", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.VAR, "var", undefined, 1),
+          new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+          new Token(TokenType.EQUAL, "=", undefined, 1),
+          new Token(TokenType.NUMBER, "0", 0, 1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1),
+          new Token(TokenType.FOR, "for", undefined, 1),
+          new Token(TokenType.LEFT_PAREN, "(", undefined, 1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1),
+          new Token(TokenType.RIGHT_PAREN, ")", undefined, 1),
+          new Token(TokenType.LEFT_BRACE, "{", undefined, 1),
+          new Token(TokenType.PRINT, "print", undefined, 1),
+          new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1),
+          new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+          new Token(TokenType.EQUAL, "=", undefined, 1),
+          new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+          new Token(TokenType.PLUS, "+", undefined, 1),
+          new Token(TokenType.NUMBER, "1", 1, 1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1),
+          new Token(TokenType.RIGHT_BRACE, "}", undefined, 1),
+          new Token(TokenType.EOF, "", undefined, 2),
+        ]).parse()
+      ).toEqual([
+        new VarStmt(
+          new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+          new LiteralExpr(0)
+        ),
+        new BlockStmt([
+          new WhileStmt(
+            new LiteralExpr(true),
+            new BlockStmt([
+              new BlockStmt([
+                new PrintStmt(
+                  new VariableExpr(
+                    new Token(TokenType.IDENTIFIER, '"i"', "i", 1)
+                  )
+                ),
+                new ExprStmt(
+                  new AssignExpr(
+                    new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+                    new BinaryExpr(
+                      new VariableExpr(
+                        new Token(TokenType.IDENTIFIER, '"i"', "i", 1)
+                      ),
+                      new Token(TokenType.PLUS, "+", undefined, 1),
+                      new LiteralExpr(1)
+                    )
+                  )
+                ),
+              ]),
+            ])
+          ),
+        ]),
+      ]);
+    });
   });
 });

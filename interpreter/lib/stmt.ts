@@ -59,7 +59,11 @@ class IfStmt extends Stmt {
     return visitor.visitIfStmt(this);
   }
 
-  constructor(public expr: Expr, public thenStmt: Stmt, public elseStmt?: Stmt) {
+  constructor(
+    public expr: Expr,
+    public thenStmt: Stmt,
+    public elseStmt?: Stmt
+  ) {
     super();
   }
 }
