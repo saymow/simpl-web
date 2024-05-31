@@ -283,7 +283,7 @@ describe("Interpreter", () => {
       expect(error).not.toHaveBeenCalled();
     });
 
-    it('var i = 0; while (i < 5) { print i; i = i + 1; }', () => {
+    it("var i = 0; while (i < 5) { print i; i = i + 1; }", () => {
       const { interpreter, log, error } = makeSut([
         new VarStmt(
           new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
@@ -313,6 +313,145 @@ describe("Interpreter", () => {
             ),
           ])
         ),
+      ]);
+
+      interpreter.interpret();
+
+      expect(error).not.toHaveBeenCalled();
+      expect(log).toHaveBeenCalledTimes(5);
+      expect(log.mock.calls[0][0]).toBe("0");
+      expect(log.mock.calls[1][0]).toBe("1");
+      expect(log.mock.calls[2][0]).toBe("2");
+      expect(log.mock.calls[3][0]).toBe("3");
+      expect(log.mock.calls[4][0]).toBe("4");
+    });
+
+    it("for (var i = 0; i < 5; i = i + 1) print i;", () => {
+      const { interpreter, log, error } = makeSut([
+        new BlockStmt([
+          new VarStmt(
+            new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+            new LiteralExpr(0)
+          ),
+          new WhileStmt(
+            new BinaryExpr(
+              new VariableExpr(new Token(TokenType.IDENTIFIER, '"i"', "i", 1)),
+              new Token(TokenType.LESS, "<", undefined, 1),
+              new LiteralExpr(5)
+            ),
+            new BlockStmt([
+              new PrintStmt(
+                new VariableExpr(new Token(TokenType.IDENTIFIER, '"i"', "i", 1))
+              ),
+              new ExprStmt(
+                new AssignExpr(
+                  new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+                  new BinaryExpr(
+                    new VariableExpr(
+                      new Token(TokenType.IDENTIFIER, '"i"', "i", 1)
+                    ),
+                    new Token(TokenType.PLUS, "+", undefined, 1),
+                    new LiteralExpr(1)
+                  )
+                )
+              ),
+            ])
+          ),
+        ]),
+      ]);
+
+      interpreter.interpret();
+
+      expect(error).not.toHaveBeenCalled();
+      expect(log).toHaveBeenCalledTimes(5);
+      expect(log.mock.calls[0][0]).toBe("0");
+      expect(log.mock.calls[1][0]).toBe("1");
+      expect(log.mock.calls[2][0]).toBe("2");
+      expect(log.mock.calls[3][0]).toBe("3");
+      expect(log.mock.calls[4][0]).toBe("4");
+    });
+
+    it("var i = 0; for (; i < 5; i = i + 1) print i;", () => {
+      const { interpreter, log, error } = makeSut([
+        new VarStmt(
+          new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+          new LiteralExpr(0)
+        ),
+        new BlockStmt([
+          new WhileStmt(
+            new BinaryExpr(
+              new VariableExpr(new Token(TokenType.IDENTIFIER, '"i"', "i", 1)),
+              new Token(TokenType.LESS, "<", undefined, 1),
+              new LiteralExpr(5)
+            ),
+            new BlockStmt([
+              new PrintStmt(
+                new VariableExpr(new Token(TokenType.IDENTIFIER, '"i"', "i", 1))
+              ),
+              new ExprStmt(
+                new AssignExpr(
+                  new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+                  new BinaryExpr(
+                    new VariableExpr(
+                      new Token(TokenType.IDENTIFIER, '"i"', "i", 1)
+                    ),
+                    new Token(TokenType.PLUS, "+", undefined, 1),
+                    new LiteralExpr(1)
+                  )
+                )
+              ),
+            ])
+          ),
+        ]),
+      ]);
+
+      interpreter.interpret();
+
+      expect(error).not.toHaveBeenCalled();
+      expect(log).toHaveBeenCalledTimes(5);
+      expect(log.mock.calls[0][0]).toBe("0");
+      expect(log.mock.calls[1][0]).toBe("1");
+      expect(log.mock.calls[2][0]).toBe("2");
+      expect(log.mock.calls[3][0]).toBe("3");
+      expect(log.mock.calls[4][0]).toBe("4");
+    });
+
+    it("var i = 0; for (;i < 5;) { print i; i = i + 1; }", () => {
+      const { interpreter, log, error } = makeSut([
+        new VarStmt(
+          new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+          new LiteralExpr(0)
+        ),
+        new BlockStmt([
+          new WhileStmt(
+            new BinaryExpr(
+              new VariableExpr(new Token(TokenType.IDENTIFIER, '"i"', "i", 1)),
+              new Token(TokenType.LESS, "<", undefined, 1),
+              new LiteralExpr(5)
+            ),
+            new BlockStmt([
+              new BlockStmt([
+                new PrintStmt(
+                  new VariableExpr(
+                    new Token(TokenType.IDENTIFIER, '"i"', "i", 1)
+                  )
+                ),
+                new ExprStmt(
+                  new AssignExpr(
+                    new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+                    new BinaryExpr(
+                      new VariableExpr(
+                        new Token(TokenType.IDENTIFIER, '"i"', "i", 1)
+                      ),
+                      new Token(TokenType.PLUS, "+", undefined, 1),
+                      new LiteralExpr(1)
+                    )
+                  )
+                ),
+              ]),
+            ])
+          ),
+        ]),
       ]);
 
       interpreter.interpret();

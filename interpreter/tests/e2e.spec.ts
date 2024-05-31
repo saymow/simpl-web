@@ -48,4 +48,40 @@ describe("E2e", () => {
     expect(log.mock.calls[3][0]).toBe("3");
     expect(log.mock.calls[4][0]).toBe("4");
   });
+
+  it("5.in", async () => {
+    const { log, error } = await makeSut("5.in");
+
+    expect(error).not.toHaveBeenCalled();
+    expect(log).toHaveBeenCalledTimes(5);
+    expect(log.mock.calls[0][0]).toBe("0");
+    expect(log.mock.calls[1][0]).toBe("1");
+    expect(log.mock.calls[2][0]).toBe("2");
+    expect(log.mock.calls[3][0]).toBe("3");
+    expect(log.mock.calls[4][0]).toBe("4");
+  });
+
+  it("6.in", async () => {
+    const { log, error } = await makeSut("6.in");
+
+    expect(error).not.toHaveBeenCalled();
+    expect(log).toHaveBeenCalledTimes(5);
+    expect(log.mock.calls[0][0]).toBe("0");
+    expect(log.mock.calls[1][0]).toBe("1");
+    expect(log.mock.calls[2][0]).toBe("2");
+    expect(log.mock.calls[3][0]).toBe("3");
+    expect(log.mock.calls[4][0]).toBe("4");
+  });
+
+  it("7.in", async () => {
+    const { log, error } = await makeSut("7.in");
+
+    expect(error).not.toHaveBeenCalled();
+    expect(log).toHaveBeenCalledTimes(5);
+    expect(log.mock.calls[0][0]).toBe("0");
+    expect(log.mock.calls[1][0]).toBe("1");
+    expect(log.mock.calls[2][0]).toBe("2");
+    expect(log.mock.calls[3][0]).toBe("3");
+    expect(log.mock.calls[4][0]).toBe("4");
+  });
 });
