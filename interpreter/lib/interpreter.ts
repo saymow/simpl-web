@@ -33,11 +33,14 @@ import TokenType from "./token-type";
 import Token from "./token";
 import Context, { VariableNotFound } from "./context";
 import Function, { ReturnValue } from "./function";
+import * as lib from "./lib";
 
 class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   private context = new Context<Value>();
 
-  constructor(private ast: Stmt[], private sys: System) {}
+  constructor(private ast: Stmt[], private sys: System) {
+    this.context.define("now", new lib.Now());
+  }
 
   public interpret() {
     try {

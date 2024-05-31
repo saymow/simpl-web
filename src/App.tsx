@@ -46,7 +46,9 @@ function App() {
     try {
       setOutput("");
       interpret(ast, appendOutputLine, () => {});
-    } catch (err) {}
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
