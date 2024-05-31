@@ -25,7 +25,7 @@ describe("Lexer", () => {
     expect(tokens[10].type).toBe(TokenType.STAR);
   });
 
-  it("Shoud handle single caracter tokens properly", () => {
+  it("Shoud handle double caracter tokens properly", () => {
     const tokens = new Lexer("!!====>>=<<=").scan();
 
     expect(tokens[0].type).toBe(TokenType.BANG);
