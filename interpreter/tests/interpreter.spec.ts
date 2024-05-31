@@ -1,6 +1,7 @@
 import {
   AssignExpr,
   BinaryExpr,
+  CallExpr,
   GroupingExpr,
   LiteralExpr,
   VariableExpr,
@@ -9,6 +10,7 @@ import Interpreter from "../lib/interpreter";
 import {
   BlockStmt,
   ExprStmt,
+  FunctionStmt,
   IfStmt,
   PrintStmt,
   Stmt,
@@ -463,6 +465,109 @@ describe("Interpreter", () => {
       expect(log.mock.calls[2][0]).toBe("2");
       expect(log.mock.calls[3][0]).toBe("3");
       expect(log.mock.calls[4][0]).toBe("4");
+    });
+  });
+
+  describe("Functions", () => {
+    it('fun fn (arg1, arg2) { print arg2; } fn("_", "test");', () => {
+      const { log, interpreter } = makeSut([
+        new FunctionStmt(
+          new Token(TokenType.IDENTIFIER, '"fn"', "fn", 1),
+          [
+            new Token(TokenType.IDENTIFIER, '"arg1"', "arg1", 1),
+            new Token(TokenType.IDENTIFIER, '"arg2"', "arg2", 1),
+          ],
+          [
+            new PrintStmt(
+              new VariableExpr(
+                new Token(TokenType.IDENTIFIER, '"arg2"', "arg2", 1)
+              )
+            ),
+          ]
+        ),
+        new ExprStmt(
+          new CallExpr(
+            new VariableExpr(new Token(TokenType.IDENTIFIER, '"fn"', "fn", 1)),
+            new Token(TokenType.RIGHT_PAREN, ")", undefined, 1),
+            [new LiteralExpr("_"), new LiteralExpr("test")]
+          )
+        ),
+      ]);
+
+      interpreter.interpret();
+
+      expect(log).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls[0][0]).toBe("test");
+    });
+
+    it("fun sum (a, b) { print a + b; } sum(3, 4);", () => {
+      const { log, interpreter } = makeSut([
+        new FunctionStmt(
+          new Token(TokenType.IDENTIFIER, '"sum"', "sum", 1),
+          [
+            new Token(TokenType.IDENTIFIER, '"a"', "a", 1),
+            new Token(TokenType.IDENTIFIER, '"b"', "b", 1),
+          ],
+          [
+            new PrintStmt(
+              new BinaryExpr(
+                new VariableExpr(
+                  new Token(TokenType.IDENTIFIER, '"a"', "a", 1)
+                ),
+                new Token(TokenType.PLUS, "+", undefined, 1),
+                new VariableExpr(new Token(TokenType.IDENTIFIER, '"b"', "b", 1))
+              )
+            ),
+          ]
+        ),
+        new ExprStmt(
+          new CallExpr(
+            new VariableExpr(new Token(TokenType.IDENTIFIER, '"sum"', "sum", 1)),
+            new Token(TokenType.RIGHT_PAREN, ")", undefined, 1),
+            [new LiteralExpr(3), new LiteralExpr(4)]
+          )
+        ),
+      ]);
+
+      interpreter.interpret();
+
+      expect(log).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls[0][0]).toBe("7");
+    });
+
+    it("fun multiply (a, b) { print a + b; } multiply(3, 4);", () => {
+      const { log, interpreter } = makeSut([
+        new FunctionStmt(
+          new Token(TokenType.IDENTIFIER, '"multiply"', "multiply", 1),
+          [
+            new Token(TokenType.IDENTIFIER, '"a"', "a", 1),
+            new Token(TokenType.IDENTIFIER, '"b"', "b", 1),
+          ],
+          [
+            new PrintStmt(
+              new BinaryExpr(
+                new VariableExpr(
+                  new Token(TokenType.IDENTIFIER, '"a"', "a", 1)
+                ),
+                new Token(TokenType.STAR, "*", undefined, 1),
+                new VariableExpr(new Token(TokenType.IDENTIFIER, '"b"', "b", 1))
+              )
+            ),
+          ]
+        ),
+        new ExprStmt(
+          new CallExpr(
+            new VariableExpr(new Token(TokenType.IDENTIFIER, '"multiply"', "multiply", 1)),
+            new Token(TokenType.RIGHT_PAREN, ")", undefined, 1),
+            [new LiteralExpr(3), new LiteralExpr(4)]
+          )
+        ),
+      ]);
+
+      interpreter.interpret();
+
+      expect(log).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls[0][0]).toBe("12");
     });
   });
 });

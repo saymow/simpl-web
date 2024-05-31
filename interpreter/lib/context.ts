@@ -2,10 +2,10 @@ import { Value } from "./expr";
 
 export class VariableNotFound extends Error {}
 
-class Context {
-  private readonly keywords = new Map<string, Value>();
+class Context<T> {
+  private readonly keywords = new Map<string, T>();
 
-  constructor(public enclosing?: Context) {}
+  constructor(public enclosing?: Context<T>) {}
 
   define(name: string, value: Value) {
     this.keywords.set(name, value);

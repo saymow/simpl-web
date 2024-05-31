@@ -84,4 +84,20 @@ describe("E2e", () => {
     expect(log.mock.calls[3][0]).toBe("3");
     expect(log.mock.calls[4][0]).toBe("4");
   });
+
+  it("8.in", async () => {
+    const { log, error } = await makeSut("8.in");
+
+    expect(error).not.toHaveBeenCalled();
+    expect(log).toHaveBeenCalledTimes(1);
+    expect(log.mock.calls[0][0]).toBe("7");
+  });
+
+  it("9.in", async () => {
+    const { log, error } = await makeSut("9.in");
+
+    expect(error).not.toHaveBeenCalled();
+    expect(log).toHaveBeenCalledTimes(1);
+    expect(log.mock.calls[0][0]).toBe("12");
+  });
 });

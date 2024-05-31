@@ -18,6 +18,7 @@ import {
 import {
   BlockStmt,
   ExprStmt,
+  FunctionStmt,
   IfStmt,
   PrintStmt,
   Stmt,
@@ -26,13 +27,14 @@ import {
   WhileStmt,
 } from "./stmt";
 import { RuntimeError } from "./errors";
-import { System } from "./presentation";
+import { Callable, System } from "./interfaces";
 import TokenType from "./token-type";
 import Token from "./token";
 import Context, { VariableNotFound } from "./context";
+import Function from "./function";
 
 class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
-  private context = new Context();
+  private context = new Context<Value>();
 
   constructor(private ast: Stmt[], private sys: System) {}
 
@@ -54,6 +56,11 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     return expr.accept(this);
   }
 
+  visitFunctionStmt(stmt: FunctionStmt): void {
+    const handler = new Function(this.context, stmt);
+    this.context.define(stmt.name.literal, handler);
+  }
+
   visitWhileStmt(stmt: WhileStmt): void {
     while (this.evaluateExpr(stmt.expr)) {
       this.evaluateStmt(stmt.stmt);
@@ -69,7 +76,7 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
   visitVarStmt(stmt: VarStmt): void {
     const value = stmt.initializer ? this.evaluateExpr(stmt.initializer) : null;
-    this.context.define(stmt.token.lexeme, value);
+    this.context.define(stmt.token.literal, value);
   }
 
   visitExprStmt(stmt: ExprStmt): void {
@@ -80,7 +87,7 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     this.executeBlock(stmt.stmts, new Context(this.context));
   }
 
-  private executeBlock(stmts: Stmt[], context: Context) {
+  executeBlock<T>(stmts: Stmt[], context: Context<T>) {
     const previous = this.context;
 
     try {
@@ -105,10 +112,10 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
   visitVariableExpr(expr: VariableExpr): Value {
     try {
-      return this.context.get(expr.name.lexeme);
+      return this.context.get(expr.name.literal);
     } catch (err) {
       if (err instanceof VariableNotFound) {
-        throw new Error("Variable not found.");
+        throw new RuntimeError(expr.name, "Variable not found.");
       }
     }
   }
@@ -207,14 +214,31 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   }
 
   visitCallExpr(expr: CallExpr): Value {
-    throw new Error("Method not implemented.");
+    const callee = this.evaluateExpr(expr.callee) as Callable;
+    const args = [];
+
+    if (!(callee instanceof Callable)) {
+      throw new RuntimeError(expr.paren, "Can only call functions.");
+    }
+    if (callee.arity() !== expr.args.length) {
+      throw new RuntimeError(
+        expr.paren,
+        `Expected ${callee.arity()} arguments but received ${expr.args.length}.`
+      );
+    }
+
+    for (const argExpr of expr.args) {
+      args.push(this.evaluateExpr(argExpr));
+    }
+
+    callee.call(this, args);
   }
 
   visitAssignExpr(expr: AssignExpr): Value {
     const value = this.evaluateExpr(expr.value);
 
     try {
-      return this.context.assign(expr.name.lexeme, value);
+      return this.context.assign(expr.name.literal, value);
     } catch (err) {
       if (err instanceof VariableNotFound) {
         throw new Error("Variable not found.");
