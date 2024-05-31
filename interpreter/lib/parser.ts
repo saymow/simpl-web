@@ -13,7 +13,7 @@ import {
   VariableExpr,
   SetExpr,
 } from "./expr";
-import { Stmt, ExprStmt, BlockStmt, PrintStmt, VarStmt, IfStmt } from "./stmt";
+import { Stmt, ExprStmt, BlockStmt, PrintStmt, VarStmt, IfStmt, WhileStmt } from "./stmt";
 import Token from "./token";
 import TokenType from "./token-type";
 import { ParserError } from "./errors";
@@ -67,8 +67,20 @@ class Parser {
     if (this.match(TokenType.IF)) {
       return this.ifStatement();
     }
+    if (this.match(TokenType.WHILE)) {
+      return this.whileStatement();
+    }
 
     return this.expressionStatement();
+  }
+
+  private whileStatement(): Stmt {
+    this.consume(TokenType.LEFT_PAREN, "Expect '(' after while.");
+    const expr = this.expression();
+    this.consume(TokenType.RIGHT_PAREN, "Expect ')' after while expression.");
+    const stmt = this.statement();
+
+    return new WhileStmt(expr, stmt);
   }
 
   private ifStatement(): Stmt {

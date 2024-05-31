@@ -16,7 +16,14 @@ import {
   SetExpr,
   Expr,
 } from "../lib/expr";
-import { BlockStmt, ExprStmt, IfStmt, PrintStmt, VarStmt } from "../lib/stmt";
+import {
+  BlockStmt,
+  ExprStmt,
+  IfStmt,
+  PrintStmt,
+  VarStmt,
+  WhileStmt,
+} from "../lib/stmt";
 
 const WrapExpr = (expr: Expr): ExprStmt => {
   return new ExprStmt(expr);
@@ -740,7 +747,94 @@ describe("Parser", () => {
             new LiteralExpr(1)
           ),
           new PrintStmt(new LiteralExpr("maior")),
-          new PrintStmt(new LiteralExpr("menor")),
+          new PrintStmt(new LiteralExpr("menor"))
+        ),
+      ]);
+    });
+  });
+
+  describe("Loop", () => {
+    it('while (2 < 1) print "never";', () => {
+      expect(
+        new Parser([
+          new Token(TokenType.WHILE, "while", undefined, 1),
+          new Token(TokenType.LEFT_PAREN, "(", undefined, 1),
+          new Token(TokenType.NUMBER, "2", 2, 1),
+          new Token(TokenType.LESS, "<", undefined, 1),
+          new Token(TokenType.NUMBER, "1", 1, 1),
+          new Token(TokenType.RIGHT_PAREN, ")", undefined, 1),
+          new Token(TokenType.PRINT, "print", undefined, 1),
+          new Token(TokenType.STRING, '"never"', "never", 1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1),
+          new Token(TokenType.EOF, "", undefined, 2),
+        ]).parse()
+      ).toEqual([
+        new WhileStmt(
+          new BinaryExpr(
+            new LiteralExpr(2),
+            new Token(TokenType.LESS, "<", undefined, 1),
+            new LiteralExpr(1)
+          ),
+          new PrintStmt(new LiteralExpr("never"))
+        ),
+      ]);
+    });
+
+    it("var i = 0; while (i < 5) { print i; i = i + 1; }", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.VAR, "var", undefined, 1),
+          new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+          new Token(TokenType.EQUAL, "=", undefined, 1),
+          new Token(TokenType.NUMBER, "0", 0, 1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1),
+          new Token(TokenType.WHILE, "while", undefined, 1),
+          new Token(TokenType.LEFT_PAREN, "(", undefined, 1),
+          new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+          new Token(TokenType.LESS, "<", undefined, 1),
+          new Token(TokenType.NUMBER, "5", 5, 1),
+          new Token(TokenType.RIGHT_PAREN, ")", undefined, 1),
+          new Token(TokenType.LEFT_BRACE, "{", undefined, 1),
+          new Token(TokenType.PRINT, "print", undefined, 1),
+          new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1),
+          new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+          new Token(TokenType.EQUAL, "=", undefined, 1),
+          new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+          new Token(TokenType.PLUS, "+", undefined, 1),
+          new Token(TokenType.NUMBER, "1", 1, 1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1),
+          new Token(TokenType.RIGHT_BRACE, "}", undefined, 1),
+          new Token(TokenType.EOF, "", undefined, 2),
+        ]).parse()
+      ).toEqual([
+        new VarStmt(
+          new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+          new LiteralExpr(0)
+        ),
+        new WhileStmt(
+          new BinaryExpr(
+            new VariableExpr(new Token(TokenType.IDENTIFIER, '"i"', "i", 1)),
+            new Token(TokenType.LESS, "<", undefined, 1),
+            new LiteralExpr(5)
+          ),
+          new BlockStmt([
+            new PrintStmt(
+              new VariableExpr(new Token(TokenType.IDENTIFIER, '"i"', "i", 1))
+            ),
+            new ExprStmt(
+              new AssignExpr(
+                new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+                new BinaryExpr(
+                  new VariableExpr(
+                    new Token(TokenType.IDENTIFIER, '"i"', "i", 1)
+                  ),
+                  new Token(TokenType.PLUS, "+", undefined, 1),
+                  new LiteralExpr(1)
+                )
+              )
+            ),
+          ])
         ),
       ]);
     });
