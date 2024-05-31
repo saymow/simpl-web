@@ -21,6 +21,7 @@ import {
   FunctionStmt,
   IfStmt,
   PrintStmt,
+  ReturnStmt,
   Stmt,
   StmtVisitor,
   VarStmt,
@@ -31,7 +32,7 @@ import { Callable, System } from "./interfaces";
 import TokenType from "./token-type";
 import Token from "./token";
 import Context, { VariableNotFound } from "./context";
-import Function from "./function";
+import Function, { ReturnValue } from "./function";
 
 class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   private context = new Context<Value>();
@@ -54,6 +55,11 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
   private evaluateExpr(expr: Expr) {
     return expr.accept(this);
+  }
+
+  visitReturnStmt(stmt: ReturnStmt): void {
+    const value = stmt.expr ? this.evaluateExpr(stmt.expr) : null;
+    throw new ReturnValue(value);
   }
 
   visitFunctionStmt(stmt: FunctionStmt): void {
@@ -231,7 +237,7 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
       args.push(this.evaluateExpr(argExpr));
     }
 
-    callee.call(this, args);
+    return callee.call(this, args);
   }
 
   visitAssignExpr(expr: AssignExpr): Value {

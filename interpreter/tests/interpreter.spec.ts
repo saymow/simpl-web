@@ -13,6 +13,7 @@ import {
   FunctionStmt,
   IfStmt,
   PrintStmt,
+  ReturnStmt,
   Stmt,
   VarStmt,
   WhileStmt,
@@ -522,7 +523,9 @@ describe("Interpreter", () => {
         ),
         new ExprStmt(
           new CallExpr(
-            new VariableExpr(new Token(TokenType.IDENTIFIER, '"sum"', "sum", 1)),
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, '"sum"', "sum", 1)
+            ),
             new Token(TokenType.RIGHT_PAREN, ")", undefined, 1),
             [new LiteralExpr(3), new LiteralExpr(4)]
           )
@@ -557,7 +560,9 @@ describe("Interpreter", () => {
         ),
         new ExprStmt(
           new CallExpr(
-            new VariableExpr(new Token(TokenType.IDENTIFIER, '"multiply"', "multiply", 1)),
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, '"multiply"', "multiply", 1)
+            ),
             new Token(TokenType.RIGHT_PAREN, ")", undefined, 1),
             [new LiteralExpr(3), new LiteralExpr(4)]
           )
@@ -568,6 +573,105 @@ describe("Interpreter", () => {
 
       expect(log).toHaveBeenCalledTimes(1);
       expect(log.mock.calls[0][0]).toBe("12");
+    });
+
+    it("fun division (a, b) { return a + b; } print division(12, 4);", () => {
+      const { log, interpreter } = makeSut([
+        new FunctionStmt(
+          new Token(TokenType.IDENTIFIER, '"division"', "division", 1),
+          [
+            new Token(TokenType.IDENTIFIER, '"a"', "a", 1),
+            new Token(TokenType.IDENTIFIER, '"b"', "b", 1),
+          ],
+          [
+            new ReturnStmt(
+              new Token(TokenType.RETURN, "return", undefined, 1),
+              new BinaryExpr(
+                new VariableExpr(
+                  new Token(TokenType.IDENTIFIER, '"a"', "a", 1)
+                ),
+                new Token(TokenType.SLASH, "/", undefined, 1),
+                new VariableExpr(new Token(TokenType.IDENTIFIER, '"b"', "b", 1))
+              )
+            ),
+          ]
+        ),
+        new PrintStmt(
+          new CallExpr(
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, '"division"', "division", 1)
+            ),
+            new Token(TokenType.RIGHT_PAREN, ")", undefined, 1),
+            [new LiteralExpr(12), new LiteralExpr(4)]
+          )
+        ),
+      ]);
+
+      interpreter.interpret();
+
+      expect(log).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls[0][0]).toBe("3");
+    });
+
+    it("fun diff (a, b) { if (a > b) return a - b; else return b - a; } print diff(12, 4);", () => {
+      const { log, error, interpreter } = makeSut([
+        new FunctionStmt(
+          new Token(TokenType.IDENTIFIER, '"diff"', "diff", 1),
+          [
+            new Token(TokenType.IDENTIFIER, '"a"', "a", 1),
+            new Token(TokenType.IDENTIFIER, '"b"', "b", 1),
+          ],
+          [
+            new IfStmt(
+              new BinaryExpr(
+                new VariableExpr(
+                  new Token(TokenType.IDENTIFIER, '"a"', "a", 1)
+                ),
+                new Token(TokenType.GREATER, ">", undefined, 1),
+                new VariableExpr(new Token(TokenType.IDENTIFIER, '"b"', "b", 1))
+              ),
+              new ReturnStmt(
+                new Token(TokenType.RETURN, "return", undefined, 1),
+                new BinaryExpr(
+                  new VariableExpr(
+                    new Token(TokenType.IDENTIFIER, '"a"', "a", 1)
+                  ),
+                  new Token(TokenType.MINUS, "-", undefined, 1),
+                  new VariableExpr(
+                    new Token(TokenType.IDENTIFIER, '"b"', "b", 1)
+                  )
+                )
+              ),
+              new ReturnStmt(
+                new Token(TokenType.RETURN, "return", undefined, 1),
+                new BinaryExpr(
+                  new VariableExpr(
+                    new Token(TokenType.IDENTIFIER, '"b"', "b", 1)
+                  ),
+                  new Token(TokenType.MINUS, "-", undefined, 1),
+                  new VariableExpr(
+                    new Token(TokenType.IDENTIFIER, '"a"', "a", 1)
+                  )
+                )
+              )
+            ),
+          ]
+        ),
+        new PrintStmt(
+          new CallExpr(
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, '"diff"', "diff", 1)
+            ),
+            new Token(TokenType.RIGHT_PAREN, ")", undefined, 1),
+            [new LiteralExpr(12), new LiteralExpr(4)]
+          )
+        ),
+      ]);
+
+      interpreter.interpret();
+
+      expect(error).not.toHaveBeenCalled();
+      expect(log.mock.calls[0][0]).toBe("8");
     });
   });
 });

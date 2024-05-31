@@ -2,6 +2,10 @@ import { Callable } from "./interfaces";
 import { FunctionStmt } from "./stmt";
 import Context from "./context";
 
+export class ReturnValue<T> {
+  constructor(public value: T) {}
+}
+
 class Function<T> extends Callable {
   constructor(public closure: Context<T>, public declaration: FunctionStmt) {
     super();
@@ -18,7 +22,15 @@ class Function<T> extends Callable {
       context.define(this.declaration.parameters[idx].literal, args[idx]);
     }
 
-    interpreter.executeBlock(this.declaration.body, context);
+    try {
+      interpreter.executeBlock(this.declaration.body, context);
+    } catch (errOrReturnValue) {
+      if (errOrReturnValue instanceof ReturnValue) {
+        return errOrReturnValue.value;
+      }
+
+      throw errOrReturnValue;
+    }
   }
 }
 

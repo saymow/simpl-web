@@ -13,7 +13,7 @@ const makeSut = async (filename: string) => {
   return { log, error };
 };
 
-describe("E2e", () => {
+describe("e2e", () => {
   it("1.in", async () => {
     const { log, error } = await makeSut("1.in");
 
@@ -99,5 +99,13 @@ describe("E2e", () => {
     expect(error).not.toHaveBeenCalled();
     expect(log).toHaveBeenCalledTimes(1);
     expect(log.mock.calls[0][0]).toBe("12");
+  });
+
+  it("10.in", async () => {
+    const { log, error } = await makeSut("10.in");
+
+    expect(error).not.toHaveBeenCalled();
+    expect(log).toHaveBeenCalledTimes(1);
+    expect(log.mock.calls[0][0]).toBe("8");
   });
 });
