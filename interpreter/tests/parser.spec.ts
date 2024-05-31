@@ -22,6 +22,7 @@ import {
   FunctionStmt,
   IfStmt,
   PrintStmt,
+  ReturnStmt,
   VarStmt,
   WhileStmt,
 } from "../lib/stmt";
@@ -1136,6 +1137,50 @@ describe("Parser", () => {
             new PrintStmt(
               new VariableExpr(
                 new Token(TokenType.IDENTIFIER, '"arg2"', "arg2", 1)
+              )
+            ),
+          ]
+        ),
+      ]);
+    });
+
+    it("fun sum (a, b) { return a + b; }", () => {
+      
+
+      expect(
+        new Parser([
+          new Token(TokenType.FUN, '"fun"', undefined, 1),
+          new Token(TokenType.IDENTIFIER, '"sum"', "sum", 1),
+          new Token(TokenType.LEFT_PAREN, "(", undefined, 1),
+          new Token(TokenType.IDENTIFIER, '"a"', "a", 1),
+          new Token(TokenType.COMMA, ",", undefined, 1),
+          new Token(TokenType.IDENTIFIER, '"b"', "b", 1),
+          new Token(TokenType.RIGHT_PAREN, ")", undefined, 1),
+          new Token(TokenType.LEFT_BRACE, "{", undefined, 1),
+          new Token(TokenType.RETURN, "return", undefined, 1),
+          new Token(TokenType.IDENTIFIER, '"a"', "a", 1),
+          new Token(TokenType.PLUS, "+", undefined, 1),
+          new Token(TokenType.IDENTIFIER, '"b"', "b", 1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1),
+          new Token(TokenType.RIGHT_BRACE, "}", undefined, 1),
+          new Token(TokenType.EOF, "", undefined, 2),
+        ]).parse()
+      ).toEqual([
+        new FunctionStmt(
+          new Token(TokenType.IDENTIFIER, '"sum"', "sum", 1),
+          [
+            new Token(TokenType.IDENTIFIER, '"a"', "a", 1),
+            new Token(TokenType.IDENTIFIER, '"b"', "b", 1),
+          ],
+          [
+            new ReturnStmt(
+              new Token(TokenType.RETURN, "return", undefined, 1),
+              new BinaryExpr(
+                new VariableExpr(
+                  new Token(TokenType.IDENTIFIER, '"a"', "a", 1)
+                ),
+                new Token(TokenType.PLUS, "+", undefined, 1),
+                new VariableExpr(new Token(TokenType.IDENTIFIER, '"b"', "b", 1))
               )
             ),
           ]

@@ -9,6 +9,7 @@ interface StmtVisitor<T> {
   visitIfStmt(stmt: IfStmt): T;
   visitWhileStmt(stmt: WhileStmt): T;
   visitFunctionStmt(stmt: FunctionStmt): T;
+  visitReturnStmt(stmt: ReturnStmt): T;
 }
 
 abstract class Stmt {
@@ -93,6 +94,16 @@ class FunctionStmt extends Stmt {
   }
 }
 
+class ReturnStmt extends Stmt {
+  public accept<T>(visitor: StmtVisitor<T>): T {
+    return visitor.visitReturnStmt(this);
+  }
+
+  constructor(public keyword: Token, public expr?: Expr) {
+    super();
+  }
+}
+
 export type { StmtVisitor };
 export {
   Stmt,
@@ -103,4 +114,5 @@ export {
   IfStmt,
   WhileStmt,
   FunctionStmt,
+  ReturnStmt,
 };

@@ -22,6 +22,7 @@ import {
   IfStmt,
   WhileStmt,
   FunctionStmt,
+  ReturnStmt,
 } from "./stmt";
 import Token from "./token";
 import TokenType from "./token-type";
@@ -116,8 +117,22 @@ class Parser {
     if (this.match(TokenType.FOR)) {
       return this.forStatement();
     }
+    if (this.match(TokenType.RETURN)) {
+      return this.returnStatement();
+    }
 
     return this.expressionStatement();
+  }
+
+  private returnStatement(): Stmt {
+    const token = this.previous();
+    let expr;
+    if (this.peek().type !== TokenType.SEMICOLON) {
+      expr = this.expression();
+    }
+    this.consume(TokenType.SEMICOLON, "Expect ';' after return.");
+
+    return new ReturnStmt(token, expr);
   }
 
   private forStatement(): Stmt {
