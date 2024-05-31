@@ -23,6 +23,7 @@ import {
   Stmt,
   StmtVisitor,
   VarStmt,
+  WhileStmt,
 } from "./stmt";
 import { RuntimeError } from "./errors";
 import { System } from "./presentation";
@@ -51,6 +52,12 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
   private evaluateExpr(expr: Expr) {
     return expr.accept(this);
+  }
+
+  visitWhileStmt(stmt: WhileStmt): void {
+    while (this.evaluateExpr(stmt.expr)) {
+      this.evaluateStmt(stmt.stmt);
+    }
   }
 
   visitIfStmt(stmt: IfStmt): void {
@@ -240,7 +247,7 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
   private log(message: any) {
     this.sys.log(message.toString());
-  } 
+  }
 }
 
 export default Interpreter;

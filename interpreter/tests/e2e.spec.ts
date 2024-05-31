@@ -29,4 +29,23 @@ describe("E2e", () => {
     expect(log).toHaveBeenCalledTimes(1);
     expect(log.mock.calls[0][0]).toBe("6");
   });
+
+  it("3.in", async () => {
+    const { log, error } = await makeSut("3.in");
+
+    expect(log).not.toHaveBeenCalled();
+    expect(error).not.toHaveBeenCalled();
+  });
+
+  it("4.in", async () => {
+    const { log, error } = await makeSut("4.in");
+
+    expect(error).not.toHaveBeenCalled();
+    expect(log).toHaveBeenCalledTimes(5);
+    expect(log.mock.calls[0][0]).toBe("0");
+    expect(log.mock.calls[1][0]).toBe("1");
+    expect(log.mock.calls[2][0]).toBe("2");
+    expect(log.mock.calls[3][0]).toBe("3");
+    expect(log.mock.calls[4][0]).toBe("4");
+  });
 });

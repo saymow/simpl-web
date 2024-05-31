@@ -13,6 +13,7 @@ import {
   PrintStmt,
   Stmt,
   VarStmt,
+  WhileStmt,
 } from "../lib/stmt";
 import Token from "../lib/token";
 import TokenType from "../lib/token-type";
@@ -260,6 +261,69 @@ describe("Interpreter", () => {
 
       expect(log).toHaveBeenCalledTimes(1);
       expect(log.mock.calls[0][0]).toBe("maior");
+    });
+  });
+
+  describe("Loops", () => {
+    it('while (2 < 1) print "never";', () => {
+      const { interpreter, log, error } = makeSut([
+        new WhileStmt(
+          new BinaryExpr(
+            new LiteralExpr(2),
+            new Token(TokenType.LESS, "<", undefined, 1),
+            new LiteralExpr(1)
+          ),
+          new PrintStmt(new LiteralExpr("never"))
+        ),
+      ]);
+
+      interpreter.interpret();
+
+      expect(log).not.toHaveBeenCalled();
+      expect(error).not.toHaveBeenCalled();
+    });
+
+    it('var i = 0; while (i < 5) { print i; i = i + 1; }', () => {
+      const { interpreter, log, error } = makeSut([
+        new VarStmt(
+          new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+          new LiteralExpr(0)
+        ),
+        new WhileStmt(
+          new BinaryExpr(
+            new VariableExpr(new Token(TokenType.IDENTIFIER, '"i"', "i", 1)),
+            new Token(TokenType.LESS, "<", undefined, 1),
+            new LiteralExpr(5)
+          ),
+          new BlockStmt([
+            new PrintStmt(
+              new VariableExpr(new Token(TokenType.IDENTIFIER, '"i"', "i", 1))
+            ),
+            new ExprStmt(
+              new AssignExpr(
+                new Token(TokenType.IDENTIFIER, '"i"', "i", 1),
+                new BinaryExpr(
+                  new VariableExpr(
+                    new Token(TokenType.IDENTIFIER, '"i"', "i", 1)
+                  ),
+                  new Token(TokenType.PLUS, "+", undefined, 1),
+                  new LiteralExpr(1)
+                )
+              )
+            ),
+          ])
+        ),
+      ]);
+
+      interpreter.interpret();
+
+      expect(error).not.toHaveBeenCalled();
+      expect(log).toHaveBeenCalledTimes(5);
+      expect(log.mock.calls[0][0]).toBe("0");
+      expect(log.mock.calls[1][0]).toBe("1");
+      expect(log.mock.calls[2][0]).toBe("2");
+      expect(log.mock.calls[3][0]).toBe("3");
+      expect(log.mock.calls[4][0]).toBe("4");
     });
   });
 });
