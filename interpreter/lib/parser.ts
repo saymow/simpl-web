@@ -21,6 +21,7 @@ import {
   VarStmt,
   IfStmt,
   WhileStmt,
+  FunctionStmt,
 } from "./stmt";
 import Token from "./token";
 import TokenType from "./token-type";
@@ -49,8 +50,42 @@ class Parser {
     if (this.match(TokenType.VAR)) {
       return this.varDeclaration();
     }
+    if (this.match(TokenType.FUN)) {
+      return this.functionDeclaration();
+    }
 
     return this.statement();
+  }
+
+  private functionDeclaration(): Stmt {
+    const identifier = this.consume(
+      TokenType.IDENTIFIER,
+      "Expect name after fun."
+    );
+    const parameters = [];
+    this.consume(TokenType.LEFT_PAREN, "Expect '(' after fun name.");
+
+    if (this.peek().type !== TokenType.RIGHT_PAREN) {
+      do {
+        if (parameters.length >= 255) {
+          this.error(
+            this.peek(),
+            "Function parameters list should not exceed 255."
+          );
+        }
+
+        parameters.push(
+          this.consume(TokenType.IDENTIFIER, "Expect function paramater")
+        );
+      } while (this.match(TokenType.COMMA));
+    }
+
+    this.consume(TokenType.RIGHT_PAREN, "Expect ')' after function name.");
+    this.consume(TokenType.LEFT_BRACE, "Expect '{' before function body.");
+
+    const body = this.block();
+
+    return new FunctionStmt(identifier, parameters, body);
   }
 
   private varDeclaration(): Stmt {

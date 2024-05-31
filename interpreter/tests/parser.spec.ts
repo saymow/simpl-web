@@ -19,6 +19,7 @@ import {
 import {
   BlockStmt,
   ExprStmt,
+  FunctionStmt,
   IfStmt,
   PrintStmt,
   VarStmt,
@@ -1082,6 +1083,63 @@ describe("Parser", () => {
             ])
           ),
         ]),
+      ]);
+    });
+  });
+
+  describe("Function", () => {
+    it("fun fn () {}", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.FUN, '"fun"', undefined, 1),
+          new Token(TokenType.IDENTIFIER, '"fn"', "fn", 1),
+          new Token(TokenType.LEFT_PAREN, "(", undefined, 1),
+          new Token(TokenType.RIGHT_PAREN, ")", undefined, 1),
+          new Token(TokenType.LEFT_BRACE, "{", undefined, 1),
+          new Token(TokenType.RIGHT_BRACE, "}", undefined, 1),
+          new Token(TokenType.EOF, "", undefined, 2),
+        ]).parse()
+      ).toEqual([
+        new FunctionStmt(
+          new Token(TokenType.IDENTIFIER, '"fn"', "fn", 1),
+          [],
+          []
+        ),
+      ]);
+    });
+
+    it("fun fn (arg1, arg2) { print arg2; }", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.FUN, '"fun"', undefined, 1),
+          new Token(TokenType.IDENTIFIER, '"fn"', "fn", 1),
+          new Token(TokenType.LEFT_PAREN, "(", undefined, 1),
+          new Token(TokenType.IDENTIFIER, '"arg1"', "arg1", 1),
+          new Token(TokenType.COMMA, ",", undefined, 1),
+          new Token(TokenType.IDENTIFIER, '"arg2"', "arg2", 1),
+          new Token(TokenType.RIGHT_PAREN, ")", undefined, 1),
+          new Token(TokenType.LEFT_BRACE, "{", undefined, 1),
+          new Token(TokenType.PRINT, "print", undefined, 1),
+          new Token(TokenType.IDENTIFIER, '"arg2"', "arg2", 1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1),
+          new Token(TokenType.RIGHT_BRACE, "}", undefined, 1),
+          new Token(TokenType.EOF, "", undefined, 2),
+        ]).parse()
+      ).toEqual([
+        new FunctionStmt(
+          new Token(TokenType.IDENTIFIER, '"fn"', "fn", 1),
+          [
+            new Token(TokenType.IDENTIFIER, '"arg1"', "arg1", 1),
+            new Token(TokenType.IDENTIFIER, '"arg2"', "arg2", 1),
+          ],
+          [
+            new PrintStmt(
+              new VariableExpr(
+                new Token(TokenType.IDENTIFIER, '"arg2"', "arg2", 1)
+              )
+            ),
+          ]
+        ),
       ]);
     });
   });
