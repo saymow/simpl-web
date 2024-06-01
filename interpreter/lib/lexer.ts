@@ -1,3 +1,4 @@
+import { LexerError } from "./errors";
 import Token from "./token";
 import TokenType from "./token-type";
 
@@ -195,7 +196,16 @@ class Lexer {
 
   private addToken(tokenType: TokenType, literal?: any) {
     const lexeme = this.source.substring(this.start, this.current);
-    this.tokens.push(new Token(tokenType, lexeme, literal, this.line));
+    this.tokens.push(
+      new Token(
+        tokenType,
+        lexeme,
+        literal,
+        this.line,
+        this.start,
+        this.current - this.start
+      )
+    );
   }
 
   private peek() {
@@ -221,7 +231,7 @@ class Lexer {
   }
 
   private error(line: number, message: string) {
-    throw new Error(`[line ${line} ] ${message}`);
+    throw new LexerError(this.tokens, `[line ${line} ]: ${message}`);
   }
 }
 

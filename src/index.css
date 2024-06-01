@@ -2,10 +2,24 @@
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
+
+  --bg-color: rgb(30 30 30);
+  --text-color: #fafafa;
+  --bg-secondary-color: rgb(36 36 37);
+  --border-color: #636363;
+  --primary-color: #4a1373;
 }
 
 * {
   padding: 0;
   margin: 0;
   box-sizing: border-box;
+  color: var(--text-color);
+}
+
+body,
+#root {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
 }

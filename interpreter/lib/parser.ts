@@ -419,12 +419,12 @@ class Parser {
   }
 
   private error(token: Token, message: string) {
-    return new ParserError();
+    return new ParserError(token, message);
   }
 
   private consume(tokenType: TokenType, message: string): Token {
     if (this.peek().type !== tokenType) {
-      throw this.error(this.peek(), message);
+      throw this.error(this.previous(), message);
     }
     return this.advance();
   }

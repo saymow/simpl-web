@@ -5,7 +5,9 @@ class Token {
     public type: TokenType,
     public lexeme: string,
     public literal: any,
-    public line: number
+    public line: number,
+    public startIdx: number,
+    public length: number, 
   ) {}
 }
 
