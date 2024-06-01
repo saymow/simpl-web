@@ -41,6 +41,9 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   constructor(private ast: Stmt[], private system: System) {
     this.context.define("now", new lib.Now());
     this.context.define("input", new lib.Input());
+    this.context.define("string", new lib.String());
+    this.context.define("number", new lib.Number());
+    this.context.define("int", new lib.Int());
   }
 
   public async interpret() {
@@ -150,6 +153,7 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
     switch (expr.operator.type) {
       case TokenType.PLUS: {
+        console.log(left, right, typeof left, typeof right);
         if (typeof left === "number" && typeof right === "number") {
           return left + right;
         }

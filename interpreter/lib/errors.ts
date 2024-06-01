@@ -17,3 +17,5 @@ export class RuntimeError extends Error {
     super(message);
   }
 }
+
+export class LibraryError extends Error {}
