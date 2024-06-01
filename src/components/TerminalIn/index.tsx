@@ -35,6 +35,7 @@ const TerminalInComponent: React.FC<Props> = (props) => {
       <section>
         {"$ "}
         <input
+          autoFocus
           readOnly={isTriggered}
           value={value}
           onChange={(e) => setValue(e.target.value)}

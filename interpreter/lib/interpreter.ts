@@ -68,8 +68,8 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   }
 
   async visitWhileStmt(stmt: WhileStmt): Promise<void> {
-    while (this.evaluateExpr(stmt.expr)) {
-      this.evaluateStmt(stmt.stmt);
+    while (await this.evaluateExpr(stmt.expr)) {
+      await this.evaluateStmt(stmt.stmt);
     }
   }
 
@@ -81,7 +81,9 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   }
 
   async visitVarStmt(stmt: VarStmt): Promise<void> {
-    const value = stmt.initializer ? await this.evaluateExpr(stmt.initializer) : null;
+    const value = stmt.initializer
+      ? await this.evaluateExpr(stmt.initializer)
+      : null;
     this.context.define(stmt.token.literal, value);
   }
 
@@ -112,13 +114,12 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     this.log(expr);
   }
 
-  visitLiteralExpr(expr: LiteralExpr): Value {
+  async visitLiteralExpr(expr: LiteralExpr): Promise<Value> {
     return expr.object;
   }
 
   async visitVariableExpr(expr: VariableExpr): Promise<Value> {
     try {
-      console.log(this.context);
       return this.context.get(expr.name.literal);
     } catch (err) {
       if (err instanceof VariableNotFound) {
@@ -206,7 +207,7 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   }
 
   async visitGroupingExpr(expr: GroupingExpr): Promise<Value> {
-    return this.evaluateExpr(expr.expr);
+    return await this.evaluateExpr(expr.expr);
   }
 
   visitThisExpr(expr: ThisExpr): Value {
@@ -247,7 +248,7 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   }
 
   async visitAssignExpr(expr: AssignExpr): Promise<Value> {
-    const value = this.evaluateExpr(expr.value);
+    const value = await this.evaluateExpr(expr.value);
 
     try {
       return this.context.assign(expr.name.literal, value);
@@ -278,7 +279,6 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   }
 
   private ensureNumberOperands(token: Token, a: Value, b: Value) {
-    console.log("a: ", a, ",b: ", b);
     if (typeof a === "number" && typeof b === "number") {
       return;
     }
@@ -291,7 +291,9 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   }
 
   private log(message: any) {
-    this.system.log(message.toString());
+    message =
+      message !== undefined && message !== null ? message.toString() : "nil";
+    this.system.log(message);
   }
 }
 
