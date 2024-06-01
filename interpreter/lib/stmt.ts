@@ -2,22 +2,22 @@ import { Expr } from "./expr";
 import Token from "./token";
 
 interface StmtVisitor<T> {
-  visitVarStmt(stmt: VarStmt): T;
-  visitExprStmt(stmt: ExprStmt): T;
-  visitBlockStmt(stmt: BlockStmt): T;
-  visitPrintStmt(stmt: PrintStmt): T;
-  visitIfStmt(stmt: IfStmt): T;
-  visitWhileStmt(stmt: WhileStmt): T;
-  visitFunctionStmt(stmt: FunctionStmt): T;
-  visitReturnStmt(stmt: ReturnStmt): T;
+  visitVarStmt(stmt: VarStmt): Promise<T>;
+  visitExprStmt(stmt: ExprStmt): Promise<T>;
+  visitBlockStmt(stmt: BlockStmt): Promise<T>;
+  visitPrintStmt(stmt: PrintStmt): Promise<T>;
+  visitIfStmt(stmt: IfStmt): Promise<T>;
+  visitWhileStmt(stmt: WhileStmt): Promise<T>;
+  visitFunctionStmt(stmt: FunctionStmt): Promise<T>;
+  visitReturnStmt(stmt: ReturnStmt): Promise<T>;
 }
 
 abstract class Stmt {
-  public abstract accept<T>(visitor: StmtVisitor<T>): T;
+  public abstract accept<T>(visitor: StmtVisitor<T>): Promise<T>;
 }
 
 class ExprStmt extends Stmt {
-  public accept<T>(visitor: StmtVisitor<T>): T {
+  public accept<T>(visitor: StmtVisitor<T>): Promise<T> {
     return visitor.visitExprStmt(this);
   }
 
@@ -27,7 +27,7 @@ class ExprStmt extends Stmt {
 }
 
 class BlockStmt extends Stmt {
-  public accept<T>(visitor: StmtVisitor<T>): T {
+  public accept<T>(visitor: StmtVisitor<T>): Promise<T> {
     return visitor.visitBlockStmt(this);
   }
 
@@ -37,7 +37,7 @@ class BlockStmt extends Stmt {
 }
 
 class PrintStmt extends Stmt {
-  public accept<T>(visitor: StmtVisitor<T>): T {
+  public accept<T>(visitor: StmtVisitor<T>): Promise<T> {
     return visitor.visitPrintStmt(this);
   }
 
@@ -47,7 +47,7 @@ class PrintStmt extends Stmt {
 }
 
 class VarStmt extends Stmt {
-  public accept<T>(visitor: StmtVisitor<T>): T {
+  public accept<T>(visitor: StmtVisitor<T>): Promise<T> {
     return visitor.visitVarStmt(this);
   }
 
@@ -57,7 +57,7 @@ class VarStmt extends Stmt {
 }
 
 class IfStmt extends Stmt {
-  public accept<T>(visitor: StmtVisitor<T>): T {
+  public accept<T>(visitor: StmtVisitor<T>): Promise<T> {
     return visitor.visitIfStmt(this);
   }
 
@@ -71,7 +71,7 @@ class IfStmt extends Stmt {
 }
 
 class WhileStmt extends Stmt {
-  public accept<T>(visitor: StmtVisitor<T>): T {
+  public accept<T>(visitor: StmtVisitor<T>): Promise<T> {
     return visitor.visitWhileStmt(this);
   }
 
@@ -81,7 +81,7 @@ class WhileStmt extends Stmt {
 }
 
 class FunctionStmt extends Stmt {
-  public accept<T>(visitor: StmtVisitor<T>): T {
+  public accept<T>(visitor: StmtVisitor<T>): Promise<T> {
     return visitor.visitFunctionStmt(this);
   }
 
@@ -95,7 +95,7 @@ class FunctionStmt extends Stmt {
 }
 
 class ReturnStmt extends Stmt {
-  public accept<T>(visitor: StmtVisitor<T>): T {
+  public accept<T>(visitor: StmtVisitor<T>): Promise<T> {
     return visitor.visitReturnStmt(this);
   }
 

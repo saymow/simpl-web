@@ -1,0 +1,15 @@
+.terminal-out {
+  width: 100%;
+}
+
+.terminal-out section {
+  width: 100%;
+}
+
+.terminal-out input {
+  flex: 1;
+  font-size: 16px;
+  background: transparent;
+  outline: 0;
+  border: 0;
+}

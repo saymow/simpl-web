@@ -28,7 +28,7 @@ import {
   WhileStmt,
 } from "./stmt";
 import { RuntimeError } from "./errors";
-import { Callable, System } from "./interfaces";
+import { Callable, SysCall, System, UserCall } from "./interfaces";
 import TokenType from "./token-type";
 import Token from "./token";
 import Context, { VariableNotFound } from "./context";
@@ -40,74 +40,75 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
   constructor(private ast: Stmt[], private system: System) {
     this.context.define("now", new lib.Now());
+    this.context.define("input", new lib.Input());
   }
 
-  public interpret() {
+  public async interpret() {
     for (const stmt of this.ast) {
-      this.evaluateStmt(stmt);
+      await this.evaluateStmt(stmt);
     }
   }
 
-  private evaluateStmt(stmt: Stmt) {
+  private evaluateStmt(stmt: Stmt): Promise<unknown> {
     return stmt.accept(this);
   }
 
-  private evaluateExpr(expr: Expr) {
+  private evaluateExpr(expr: Expr): Promise<unknown> {
     return expr.accept(this);
   }
 
-  visitReturnStmt(stmt: ReturnStmt): void {
+  async visitReturnStmt(stmt: ReturnStmt): Promise<void> {
     const value = stmt.expr ? this.evaluateExpr(stmt.expr) : null;
     throw new ReturnValue(value);
   }
 
-  visitFunctionStmt(stmt: FunctionStmt): void {
+  async visitFunctionStmt(stmt: FunctionStmt): Promise<void> {
     const handler = new Function(this.context, stmt);
     this.context.define(stmt.name.literal, handler);
   }
 
-  visitWhileStmt(stmt: WhileStmt): void {
+  async visitWhileStmt(stmt: WhileStmt): Promise<void> {
     while (this.evaluateExpr(stmt.expr)) {
       this.evaluateStmt(stmt.stmt);
     }
   }
 
-  visitIfStmt(stmt: IfStmt): void {
-    const expr = this.evaluateExpr(stmt.expr);
+  async visitIfStmt(stmt: IfStmt): Promise<void> {
+    const expr = await this.evaluateExpr(stmt.expr);
 
-    if (expr) this.evaluateStmt(stmt.thenStmt);
-    if (!expr && stmt.elseStmt) this.evaluateStmt(stmt.elseStmt);
+    if (expr) await this.evaluateStmt(stmt.thenStmt);
+    if (!expr && stmt.elseStmt) await this.evaluateStmt(stmt.elseStmt);
   }
 
-  visitVarStmt(stmt: VarStmt): void {
-    const value = stmt.initializer ? this.evaluateExpr(stmt.initializer) : null;
+  async visitVarStmt(stmt: VarStmt): Promise<void> {
+    const value = stmt.initializer ? await this.evaluateExpr(stmt.initializer) : null;
     this.context.define(stmt.token.literal, value);
   }
 
-  visitExprStmt(stmt: ExprStmt): void {
-    return this.evaluateExpr(stmt.expr);
+  async visitExprStmt(stmt: ExprStmt): Promise<void> {
+    await this.evaluateExpr(stmt.expr);
   }
 
-  visitBlockStmt(stmt: BlockStmt): void {
-    this.executeBlock(stmt.stmts, new Context(this.context));
+  async visitBlockStmt(stmt: BlockStmt): Promise<void> {
+    await this.executeBlock(stmt.stmts, new Context(this.context));
   }
 
-  executeBlock<T>(stmts: Stmt[], context: Context<T>) {
+  async executeBlock<T>(stmts: Stmt[], context: Context<T>): Promise<void> {
     const previous = this.context;
 
     try {
       this.context = context;
 
       for (const statement of stmts) {
-        this.evaluateStmt(statement);
+        await this.evaluateStmt(statement);
       }
     } finally {
       this.context = previous;
     }
   }
 
-  visitPrintStmt(stmt: PrintStmt): void {
-    const expr = this.evaluateExpr(stmt.expr);
+  async visitPrintStmt(stmt: PrintStmt): Promise<void> {
+    const expr = await this.evaluateExpr(stmt.expr);
     this.log(expr);
   }
 
@@ -115,8 +116,9 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     return expr.object;
   }
 
-  visitVariableExpr(expr: VariableExpr): Value {
+  async visitVariableExpr(expr: VariableExpr): Promise<Value> {
     try {
+      console.log(this.context);
       return this.context.get(expr.name.literal);
     } catch (err) {
       if (err instanceof VariableNotFound) {
@@ -125,14 +127,15 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     }
   }
 
-  visitUnaryExpr(expr: UnaryExpr): Value {
-    const value = this.evaluateExpr(expr.right);
+  async visitUnaryExpr(expr: UnaryExpr): Promise<Value> {
+    const value = await this.evaluateExpr(expr.right);
 
     switch (expr.operator.type) {
       case TokenType.BANG:
         return !this.isTruthy(value);
       case TokenType.MINUS:
-        return -value;
+        this.ensureNumberOperand(expr.operator, value);
+        return -(value as number);
       default:
         break;
     }
@@ -140,9 +143,9 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     return null;
   }
 
-  visitBinaryExpr(expr: BinaryExpr): Value {
-    const left = this.evaluateExpr(expr.left);
-    const right = this.evaluateExpr(expr.right);
+  async visitBinaryExpr(expr: BinaryExpr): Promise<Value> {
+    const left = await this.evaluateExpr(expr.left);
+    const right = await this.evaluateExpr(expr.right);
 
     switch (expr.operator.type) {
       case TokenType.PLUS: {
@@ -186,8 +189,8 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     }
   }
 
-  visitLogicalExpr(expr: LogicalExpr): Value {
-    const left = this.evaluateExpr(expr.left);
+  async visitLogicalExpr(expr: LogicalExpr): Promise<Value> {
+    const left = await this.evaluateExpr(expr.left);
 
     if (expr.operator.type === TokenType.OR) {
       if (this.isTruthy(left)) {
@@ -202,7 +205,7 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     return this.evaluateExpr(expr.right);
   }
 
-  visitGroupingExpr(expr: GroupingExpr): Value {
+  async visitGroupingExpr(expr: GroupingExpr): Promise<Value> {
     return this.evaluateExpr(expr.expr);
   }
 
@@ -218,8 +221,8 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     throw new Error("Method not implemented.");
   }
 
-  visitCallExpr(expr: CallExpr): Value {
-    const callee = this.evaluateExpr(expr.callee) as Callable;
+  async visitCallExpr(expr: CallExpr): Promise<Value> {
+    const callee = (await this.evaluateExpr(expr.callee)) as Callable;
     const args = [];
 
     if (!(callee instanceof Callable)) {
@@ -233,13 +236,17 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     }
 
     for (const argExpr of expr.args) {
-      args.push(this.evaluateExpr(argExpr));
+      args.push(await this.evaluateExpr(argExpr));
     }
 
-    return callee.call(this, args);
+    if (callee instanceof UserCall) {
+      return await callee.call(this, args);
+    } else if (callee instanceof SysCall) {
+      return await callee.call(this.system, args);
+    }
   }
 
-  visitAssignExpr(expr: AssignExpr): Value {
+  async visitAssignExpr(expr: AssignExpr): Promise<Value> {
     const value = this.evaluateExpr(expr.value);
 
     try {
@@ -251,7 +258,7 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     }
   }
 
-  visitSetExpr(expr: SetExpr): Value {
+  async visitSetExpr(expr: SetExpr): Promise<Value> {
     throw new Error("Method not implemented.");
   }
 
@@ -262,7 +269,16 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     return true;
   }
 
+  private ensureNumberOperand(token: Token, a: Value) {
+    if (typeof a === "number") {
+      return;
+    }
+
+    throw new RuntimeError(token, "Operand must be numbers.");
+  }
+
   private ensureNumberOperands(token: Token, a: Value, b: Value) {
+    console.log("a: ", a, ",b: ", b);
     if (typeof a === "number" && typeof b === "number") {
       return;
     }

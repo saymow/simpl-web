@@ -3,26 +3,26 @@ import Token from "./token";
 type Value = any;
 
 interface ExprVisitor<T> {
-  visitLiteralExpr(expr: LiteralExpr): T;
-  visitVariableExpr(expr: VariableExpr): T;
-  visitUnaryExpr(expr: UnaryExpr): T;
-  visitBinaryExpr(expr: BinaryExpr): T;
-  visitLogicalExpr(expr: LogicalExpr): T;
-  visitGroupingExpr(expr: GroupingExpr): T;
-  visitThisExpr(expr: ThisExpr): T;
-  visitSuperExpr(expr: SuperExpr): T;
-  visitGetExpr(expr: GetExpr): T;
-  visitCallExpr(expr: CallExpr): T;
-  visitAssignExpr(expr: AssignExpr): T;
-  visitSetExpr(expr: SetExpr): T;
+  visitLiteralExpr(expr: LiteralExpr): Promise<T>;
+  visitVariableExpr(expr: VariableExpr): Promise<T>;
+  visitUnaryExpr(expr: UnaryExpr): Promise<T>;
+  visitBinaryExpr(expr: BinaryExpr): Promise<T>;
+  visitLogicalExpr(expr: LogicalExpr): Promise<T>;
+  visitGroupingExpr(expr: GroupingExpr): Promise<T>;
+  visitThisExpr(expr: ThisExpr): Promise<T>;
+  visitSuperExpr(expr: SuperExpr): Promise<T>;
+  visitGetExpr(expr: GetExpr): Promise<T>;
+  visitCallExpr(expr: CallExpr): Promise<T>;
+  visitAssignExpr(expr: AssignExpr): Promise<T>;
+  visitSetExpr(expr: SetExpr): Promise<T>;
 }
 
 abstract class Expr {
-  public abstract accept<T>(visitor: ExprVisitor<T>): T;
+  public abstract accept<T>(visitor: ExprVisitor<T>): Promise<T>;
 }
 
 class LiteralExpr extends Expr {
-  public accept<T>(visitor: ExprVisitor<T>): T {
+  public accept<T>(visitor: ExprVisitor<T>): Promise<T> {
     return visitor.visitLiteralExpr(this);
   }
 
@@ -32,7 +32,7 @@ class LiteralExpr extends Expr {
 }
 
 class VariableExpr extends Expr {
-  public accept<T>(visitor: ExprVisitor<T>): T {
+  public accept<T>(visitor: ExprVisitor<T>): Promise<T> {
     return visitor.visitVariableExpr(this);
   }
 
@@ -42,7 +42,7 @@ class VariableExpr extends Expr {
 }
 
 class UnaryExpr extends Expr {
-  public accept<T>(visitor: ExprVisitor<T>): T {
+  public accept<T>(visitor: ExprVisitor<T>): Promise<T> {
     return visitor.visitUnaryExpr(this);
   }
 
@@ -52,7 +52,7 @@ class UnaryExpr extends Expr {
 }
 
 class BinaryExpr extends Expr {
-  public accept<T>(visitor: ExprVisitor<T>): T {
+  public accept<T>(visitor: ExprVisitor<T>): Promise<T> {
     return visitor.visitBinaryExpr(this);
   }
 
@@ -62,7 +62,7 @@ class BinaryExpr extends Expr {
 }
 
 class LogicalExpr extends Expr {
-  public accept<T>(visitor: ExprVisitor<T>): T {
+  public accept<T>(visitor: ExprVisitor<T>): Promise<T> {
     return visitor.visitLogicalExpr(this);
   }
 
@@ -72,7 +72,7 @@ class LogicalExpr extends Expr {
 }
 
 class GroupingExpr extends Expr {
-  public accept<T>(visitor: ExprVisitor<T>): T {
+  public accept<T>(visitor: ExprVisitor<T>): Promise<T> {
     return visitor.visitGroupingExpr(this);
   }
 
@@ -82,7 +82,7 @@ class GroupingExpr extends Expr {
 }
 
 class ThisExpr extends Expr {
-  public accept<T>(visitor: ExprVisitor<T>): T {
+  public accept<T>(visitor: ExprVisitor<T>): Promise<T> {
     return visitor.visitThisExpr(this);
   }
 
@@ -92,7 +92,7 @@ class ThisExpr extends Expr {
 }
 
 class SuperExpr extends Expr {
-  public accept<T>(visitor: ExprVisitor<T>): T {
+  public accept<T>(visitor: ExprVisitor<T>): Promise<T> {
     return visitor.visitSuperExpr(this);
   }
 
@@ -102,7 +102,7 @@ class SuperExpr extends Expr {
 }
 
 class GetExpr extends Expr {
-  public accept<T>(visitor: ExprVisitor<T>): T {
+  public accept<T>(visitor: ExprVisitor<T>): Promise<T> {
     return visitor.visitGetExpr(this);
   }
 
@@ -112,7 +112,7 @@ class GetExpr extends Expr {
 }
 
 class CallExpr extends Expr {
-  public accept<T>(visitor: ExprVisitor<T>): T {
+  public accept<T>(visitor: ExprVisitor<T>): Promise<T> {
     return visitor.visitCallExpr(this);
   }
 
@@ -122,7 +122,7 @@ class CallExpr extends Expr {
 }
 
 class AssignExpr extends Expr {
-  public accept<T>(visitor: ExprVisitor<T>): T {
+  public accept<T>(visitor: ExprVisitor<T>): Promise<T> {
     return visitor.visitAssignExpr(this);
   }
 
@@ -132,7 +132,7 @@ class AssignExpr extends Expr {
 }
 
 class SetExpr extends Expr {
-  public accept<T>(visitor: ExprVisitor<T>): T {
+  public accept<T>(visitor: ExprVisitor<T>): Promise<T> {
     return visitor.visitSetExpr(this);
   }
 

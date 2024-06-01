@@ -11,6 +11,9 @@ import {
   ParserError as LngParserError,
   RuntimeError,
 } from "../interpreter";
+import { Terminal, TerminalIn, TerminalOut } from "./interfaces";
+import TerminalOutComponent from "./components/TerminalOut";
+import TerminalInComponent from "./components/TerminalIn";
 
 class ParserError extends LngParserError {
   constructor(
@@ -29,16 +32,8 @@ class TokenError extends Error {
   }
 }
 
-const interpret = (ast: Stmt[], log: (message: string) => void) => {
-  const interpreter = new Interpreter(ast, {
-    log,
-  });
-
-  interpreter.interpret();
-};
-
 const wrapTokenLexeme = (token: Token, errorMessage?: string): string => {
-  let classNames = ["token"];
+  const classNames = ["token"];
 
   switch (token.type) {
     case TokenType.CLASS:
@@ -137,8 +132,8 @@ interface Program {
 function App() {
   const [source, setSource] = useState("");
   const [formattedSource, setFormattedSource] = useState<string>();
-  const [output, setOutput] = useState("");
   const [program, setProgram] = useState<Program>();
+  const [terminal, setTerminal] = useState<Terminal[]>([]);
   const isValidState = useMemo(() => program != null, [program]);
 
   useEffect(() => {
@@ -174,16 +169,28 @@ function App() {
   }, [source]);
 
   const appendOutputLine = (message: string) => {
-    setOutput((prev) => prev.concat(message + "\n"));
+    setTerminal((prev) => [...prev, new TerminalOut(message)]);
   };
 
-  const handleRun = () => {
+  const handleInput = async (text: string): Promise<string> => {
+    return new Promise((resolve) => {
+      setTerminal((prev) => [
+        ...prev,
+        new TerminalIn(text, (input) => resolve(input)),
+      ]);
+    });
+  };
+
+  const handleRun = async () => {
     if (!program) return;
 
     try {
-      console.log("running: ", program);
-      setOutput("");
-      interpret(program.syntaxTree, appendOutputLine);
+      setTerminal([]);
+      const interpreter = new Interpreter(program.syntaxTree, {
+        log: appendOutputLine,
+        input: handleInput,
+      });
+      await interpreter.interpret();
     } catch (err) {
       if (err instanceof RuntimeError) {
         console.log(err.token, err.message);
@@ -220,7 +227,15 @@ function App() {
             onChange={(e) => setSource(e.target.value)}
           />
         </section>
-        <section className="output">{output}</section>
+        <section className="output">
+          {terminal.map((line, idx) =>
+            line instanceof TerminalIn ? (
+              <TerminalInComponent key={idx} instance={line} />
+            ) : (
+              <TerminalOutComponent key={idx} instance={line as TerminalOut} />
+            )
+          )}
+        </section>
       </article>
     </main>
   );

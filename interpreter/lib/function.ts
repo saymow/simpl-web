@@ -1,4 +1,4 @@
-import { Callable } from "./interfaces";
+import { UserCall } from "./interfaces";
 import { FunctionStmt } from "./stmt";
 import Context from "./context";
 
@@ -6,7 +6,7 @@ export class ReturnValue<T> {
   constructor(public value: T) {}
 }
 
-class Function<T> extends Callable {
+class Function<T> extends UserCall {
   constructor(public closure: Context<T>, public declaration: FunctionStmt) {
     super();
   }
@@ -15,7 +15,7 @@ class Function<T> extends Callable {
     return this.declaration.parameters.length;
   }
 
-  public call(interpreter: any, args: any[]) {
+  public async call(interpreter: any, args: any[]) {
     const context = new Context<T>(this.closure);
 
     for (let idx = 0; idx < this.arity(); idx++) {
@@ -23,7 +23,7 @@ class Function<T> extends Callable {
     }
 
     try {
-      interpreter.executeBlock(this.declaration.body, context);
+      await interpreter.executeBlock(this.declaration.body, context);
     } catch (errOrReturnValue) {
       if (errOrReturnValue instanceof ReturnValue) {
         return errOrReturnValue.value;
