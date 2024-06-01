@@ -142,8 +142,7 @@ button[disabled] {
 
 .editor .token[data-error] {
   position: relative;
-  text-decoration: underline;
-  text-decoration-color: red;
+  text-decoration: red underline wavy;
 }
 
 .editor .token[data-error]::after {

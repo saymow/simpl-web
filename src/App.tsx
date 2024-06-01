@@ -9,6 +9,7 @@ import {
   TokenType,
   LexerError,
   ParserError as LngParserError,
+  RuntimeError,
 } from "../interpreter";
 
 class ParserError extends LngParserError {
@@ -28,14 +29,9 @@ class TokenError extends Error {
   }
 }
 
-const interpret = (
-  ast: Stmt[],
-  log: (message: string) => void,
-  error: (message: string) => void
-) => {
+const interpret = (ast: Stmt[], log: (message: string) => void) => {
   const interpreter = new Interpreter(ast, {
     log,
-    error,
   });
 
   interpreter.interpret();
@@ -133,20 +129,25 @@ const bindTokens = (
   return formattedSourceParts.join("");
 };
 
+interface Program {
+  tokens: Token[];
+  syntaxTree: Stmt[];
+}
+
 function App() {
   const [source, setSource] = useState("");
   const [formattedSource, setFormattedSource] = useState<string>();
   const [output, setOutput] = useState("");
-  const [syntaxTree, setSyntaxTree] = useState<Stmt[]>();
-  const isValidState = useMemo(() => syntaxTree != null, [syntaxTree]);
+  const [program, setProgram] = useState<Program>();
+  const isValidState = useMemo(() => program != null, [program]);
 
   useEffect(() => {
     try {
-      let ast;
       const tokens = new Lexer(source).scan();
+      let syntaxTree;
 
       try {
-        ast = new Parser(tokens).parse();
+        syntaxTree = new Parser(tokens).parse();
       } catch (err) {
         if (err instanceof LngParserError) {
           throw new ParserError(tokens, err.token, err.message, err.stack);
@@ -155,10 +156,10 @@ function App() {
         throw Error("Unexpected error");
       }
 
-      setSyntaxTree(ast);
+      setProgram({ tokens, syntaxTree });
       setFormattedSource(bindTokens(source, tokens));
     } catch (err) {
-      setSyntaxTree(undefined);
+      setProgram(undefined);
       if (err instanceof LexerError) {
         setFormattedSource(bindTokens(source, err.tokens));
       } else if (err instanceof ParserError) {
@@ -177,13 +178,26 @@ function App() {
   };
 
   const handleRun = () => {
-    if (!syntaxTree) return;
+    if (!program) return;
 
     try {
+      console.log("running: ", program);
       setOutput("");
-      interpret(syntaxTree, appendOutputLine, () => {});
+      interpret(program.syntaxTree, appendOutputLine);
     } catch (err) {
-      console.error(err);
+      if (err instanceof RuntimeError) {
+        console.log(err.token, err.message);
+        setFormattedSource(
+          bindTokens(
+            source,
+            program.tokens,
+            new TokenError(err.token, err.message)
+          )
+        );
+        return;
+      }
+
+      console.error("Unexpected error: ", err);
     }
   };
 

@@ -38,17 +38,13 @@ import * as lib from "./lib";
 class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   private context = new Context<Value>();
 
-  constructor(private ast: Stmt[], private sys: System) {
+  constructor(private ast: Stmt[], private system: System) {
     this.context.define("now", new lib.Now());
   }
 
   public interpret() {
-    try {
-      for (const stmt of this.ast) {
-        this.evaluateStmt(stmt);
-      }
-    } catch (err) {
-      this.sys.error(err as string);
+    for (const stmt of this.ast) {
+      this.evaluateStmt(stmt);
     }
   }
 
@@ -279,7 +275,7 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   }
 
   private log(message: any) {
-    this.sys.log(message.toString());
+    this.system.log(message.toString());
   }
 }
 

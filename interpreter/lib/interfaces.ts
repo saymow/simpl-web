@@ -2,7 +2,6 @@ import { Value } from "./expr";
 
 export interface System {
   log(message?: string | number): void;
-  error(message: string): void;
 }
 
 export abstract class Callable {
