@@ -3,9 +3,9 @@
   line-height: 1.5;
   font-weight: 400;
 
-  --bg-color: rgb(30 30 30);
   --text-color: #fafafa;
-  --bg-secondary-color: rgb(36 36 37);
+  --bg-color: #181818;
+  --bg-secondary-color: #1f1f1f;
   --border-color: #636363;
   --primary-color: #4a1373;
 }
