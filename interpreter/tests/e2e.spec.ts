@@ -233,7 +233,9 @@ describe("e2e", () => {
 
   describe("Code files", () => {
     it("BMI Calculation", async () => {
-      const { interpreter, log, input } = await makeSutFileRead("./1.in");
+      const { interpreter, log, input } = await makeSutFileRead(
+        "./bmi-calc.in"
+      );
 
       input
         .mockImplementationOnce(async (text) => {
@@ -248,6 +250,34 @@ describe("e2e", () => {
       await interpreter.interpret();
 
       expect(parseFloat(log.mock.calls[0][0]).toFixed(2)).toBe("24.69");
+    });
+
+    it("Grades average", async () => {
+      const { interpreter, log, input } = await makeSutFileRead("./avg.in");
+
+      input
+        .mockImplementationOnce(async (text) => {
+          expect(text).toBe("# of students: ");
+          return "3";
+        })
+        .mockImplementationOnce(async (text) => {
+          expect(text).toBe("1) student grade: ");
+          return "6";
+        })
+        .mockImplementationOnce(async (text) => {
+          expect(text).toBe("2) student grade: ");
+          return "7";
+        })
+        .mockImplementationOnce(async (text) => {
+          expect(text).toBe("3) student grade: ");
+          return "10";
+        });
+
+      await interpreter.interpret();
+
+      expect(parseFloat(log.mock.calls[0][0]).toFixed(2)).toBe(
+        ((6 + 7 + 10) / 3).toFixed(2)
+      );
     });
   });
 });

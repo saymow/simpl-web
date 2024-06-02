@@ -1,0 +1,15 @@
+var students = 0;
+var studentsGrades = 0;
+
+fun avg(sum, n) {
+    return sum / n;
+}
+
+students = int(input("# of students: "));
+
+for (var i = 0; i < students; i = i + 1) {
+    var studentGrade = number(input(string(i + 1) + ") student grade: "));
+    studentsGrades  =  studentsGrades + studentGrade;
+}
+
+print string(avg(studentsGrades, students));
