@@ -4,12 +4,22 @@
 
 .terminal-out section {
   width: 100%;
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .terminal-out input {
   flex: 1;
+}
+
+.terminal-out .input-line {
+  flex: 1;
+  display: inline;
   font-size: 16px;
   background: transparent;
   outline: 0;
   border: 0;
+  word-break: break-all;
+  white-space: pre-wrap;
+  margin-left: .2rem;
 }

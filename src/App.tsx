@@ -12,8 +12,7 @@ import {
   RuntimeError,
 } from "../interpreter";
 import { Terminal, TerminalIn, TerminalOut } from "./interfaces";
-import TerminalOutComponent from "./components/TerminalOut";
-import TerminalInComponent from "./components/TerminalIn";
+import TerminalComponent from "./components/Terminal";
 
 class ParserError extends LngParserError {
   constructor(
@@ -227,15 +226,7 @@ function App() {
             onChange={(e) => setSource(e.target.value)}
           />
         </section>
-        <section className="output">
-          {terminal.map((line, idx) =>
-            line instanceof TerminalIn ? (
-              <TerminalInComponent key={idx} instance={line} />
-            ) : (
-              <TerminalOutComponent key={idx} instance={line as TerminalOut} />
-            )
-          )}
-        </section>
+        <TerminalComponent lines={terminal} />
       </article>
     </main>
   );

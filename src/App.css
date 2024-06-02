@@ -96,10 +96,6 @@ button[disabled] {
   outline: 0;
 }
 
-.editor .output {
-  padding: 0.5rem;
-}
-
 .editor .token.declaration {
   color: rgb(0, 0, 189);
 }

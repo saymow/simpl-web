@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { TerminalIn } from "../../interfaces";
 import "./styles.css";
 
@@ -7,39 +7,43 @@ interface Props {
 }
 
 const TerminalInComponent: React.FC<Props> = (props) => {
+  const lineRef = useRef<HTMLDivElement>(null);
   const [value, setValue] = useState("");
   const [isTriggered, setTriggered] = useState(false);
 
-  const handleKeyUpEvent = useCallback(
-    (e: KeyboardEvent) => {
-      if (isTriggered) return;
+  const handleKeyDownEvent: React.KeyboardEventHandler<HTMLDivElement> = (
+    e
+  ) => {
+    if (isTriggered) return;
 
-      if (e.key === "Enter") {
-        setTriggered(true);
-        props.instance.handler(value);
-      }
-    },
-    [props.instance, isTriggered, value]
-  );
+    if (e.key === "Enter") {
+      e.preventDefault();
+      setTriggered(true);
+      props.instance.handler(value);
+    }
+  };
 
   useEffect(() => {
-    window.addEventListener("keyup", handleKeyUpEvent);
-    return () => {
-      window.removeEventListener("keyup", handleKeyUpEvent);
-    };
-  }, [handleKeyUpEvent]);
+    if (!isTriggered && lineRef.current) {
+      lineRef.current.focus();
+      lineRef.current.textContent = "";
+    }
+  }, [isTriggered]);
+
 
   return (
     <span className="terminal-out">
       <p>{props.instance.text}</p>
       <section>
-        {"$ "}
-        <input
-          autoFocus
-          readOnly={isTriggered}
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-        />
+        <span>$</span>
+        <div
+          ref={lineRef}
+          id={isTriggered ? undefined : "input-line"}
+          className="input-line"
+          contentEditable={isTriggered ? false : "plaintext-only"}
+          onKeyDown={handleKeyDownEvent}
+          onInput={(e) => setValue(e.currentTarget.innerText)}
+        ></div>
       </section>
     </span>
   );
