@@ -230,4 +230,24 @@ describe("e2e", () => {
       expect(log.mock.calls[0][0]).toBe("5");
     });
   });
+
+  describe("Code files", () => {
+    it("BMI Calculation", async () => {
+      const { interpreter, log, input } = await makeSutFileRead("./1.in");
+
+      input
+        .mockImplementationOnce(async (text) => {
+          expect(text).toBe("Digit your height (m): ");
+          return "1.80";
+        })
+        .mockImplementationOnce(async (text) => {
+          expect(text).toBe("Digit your weight (kg): ");
+          return "80";
+        });
+
+      await interpreter.interpret();
+
+      expect(parseFloat(log.mock.calls[0][0]).toFixed(2)).toBe("24.69");
+    });
+  });
 });

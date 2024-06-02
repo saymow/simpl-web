@@ -133,7 +133,6 @@ button[disabled] {
 
 .editor .token.string {
   color: yellow;
-  font-style: italic;
 }
 
 .editor .token[data-error] {

@@ -1,0 +1,8 @@
+fun BMI(height, weight) {
+  return weight / (height * height);
+}
+
+var height = number(input("Digit your height (m): "));
+var weight = number(input("Digit your weight (kg): "));
+
+print string(BMI(height, weight));
