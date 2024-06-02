@@ -120,4 +120,24 @@ describe("e2e", () => {
     expect(log).toHaveBeenCalledTimes(1);
     expect(log.mock.calls[0][0]).toBe("8");
   });
+
+  it("11.in", async () => {
+    const { interpreter, log, input } = await makeSut("11.in");
+
+    input
+      .mockImplementationOnce(async (text) => {
+        expect(text).toBe("Digit your name: ");
+        return "John";
+      })
+      .mockImplementationOnce(async (text) => {
+        expect(text).toBe("Digit your surname: ");
+        return "Doe";
+      });
+
+    await interpreter.interpret();
+
+    expect(input).toHaveBeenCalledTimes(2);
+    expect(log).toHaveBeenCalledTimes(1);
+    expect(log.mock.calls[0][0]).toBe("Hello John Doe!");
+  });
 });
