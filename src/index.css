@@ -24,21 +24,6 @@ body,
   overflow: hidden;
 }
 
-button {
-  outline: 0;
-  border: 0;
-  font-size: 1.4rem;
-  border-radius: 0.5rem;
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-  background: var(--primary-color);
-}
-
-button[disabled] {
-  cursor: initial;
-  opacity: 0.4;
-}
-
 ::-webkit-scrollbar {
   width: 0.5rem;
   height: 0.5rem;

@@ -3,15 +3,11 @@ import {
   BinaryExpr,
   CallExpr,
   Expr,
-  GetExpr,
   GroupingExpr,
   LiteralExpr,
   LogicalExpr,
-  SuperExpr,
-  ThisExpr,
   UnaryExpr,
   VariableExpr,
-  SetExpr,
 } from "./expr";
 import {
   Stmt,
@@ -246,8 +242,6 @@ class Parser {
 
       if (expr instanceof VariableExpr) {
         return new AssignExpr(expr.name, value);
-      } else if (expr instanceof GetExpr) {
-        return new SetExpr(expr.expr, expr.token, value);
       }
 
       this.error(token, "Invalid assignment target.");
@@ -353,12 +347,6 @@ class Parser {
     while (true) {
       if (this.match(TokenType.LEFT_PAREN)) {
         expr = this.finishCall(expr);
-      } else if (this.match(TokenType.DOT)) {
-        const identifier = this.consume(
-          TokenType.IDENTIFIER,
-          "Expect property name after '.'."
-        );
-        expr = new GetExpr(expr, identifier);
       } else {
         break;
       }
@@ -399,16 +387,6 @@ class Parser {
       return new LiteralExpr(this.previous().literal);
     } else if (this.match(TokenType.IDENTIFIER)) {
       return new VariableExpr(this.previous());
-    } else if (this.match(TokenType.THIS)) {
-      return new ThisExpr(this.previous());
-    } else if (this.match(TokenType.SUPER)) {
-      const token = this.previous();
-      this.consume(TokenType.DOT, "Expect '.' after 'super' keyword.");
-      const identifier = this.consume(
-        TokenType.IDENTIFIER,
-        "Expect identifier after super keyword."
-      );
-      return new SuperExpr(token, identifier);
     } else if (this.match(TokenType.LEFT_PAREN)) {
       const expr = this.expression();
       this.consume(TokenType.RIGHT_PAREN, "Expect ')' after group expression.");

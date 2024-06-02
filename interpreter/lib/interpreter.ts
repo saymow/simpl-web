@@ -4,13 +4,10 @@ import {
   CallExpr,
   Expr,
   ExprVisitor,
-  GetExpr,
   GroupingExpr,
   LiteralExpr,
   LogicalExpr,
   SetExpr,
-  SuperExpr,
-  ThisExpr,
   UnaryExpr,
   Value,
   VariableExpr,
@@ -212,18 +209,6 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
   async visitGroupingExpr(expr: GroupingExpr): Promise<Value> {
     return await this.evaluateExpr(expr.expr);
-  }
-
-  visitThisExpr(expr: ThisExpr): Value {
-    throw new Error("Method not implemented.");
-  }
-
-  visitSuperExpr(expr: SuperExpr): Value {
-    throw new Error("Method not implemented.");
-  }
-
-  visitGetExpr(expr: GetExpr): Value {
-    throw new Error("Method not implemented.");
   }
 
   async visitCallExpr(expr: CallExpr): Promise<Value> {

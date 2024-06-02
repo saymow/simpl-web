@@ -52,27 +52,24 @@ describe("Lexer", () => {
 
   it("Shoud handle keywords properly", () => {
     const tokens = new Lexer(
-      "and class else false for fun if nil or print return super this true var while error"
+      "and else false for fun if nil or print return true var while error"
     ).scan();
 
     expect(tokens[0].type).toBe(TokenType.AND);
-    expect(tokens[1].type).toBe(TokenType.CLASS);
-    expect(tokens[2].type).toBe(TokenType.ELSE);
-    expect(tokens[3].type).toBe(TokenType.FALSE);
-    expect(tokens[4].type).toBe(TokenType.FOR);
-    expect(tokens[5].type).toBe(TokenType.FUN);
-    expect(tokens[6].type).toBe(TokenType.IF);
-    expect(tokens[7].type).toBe(TokenType.NIL);
-    expect(tokens[8].type).toBe(TokenType.OR);
-    expect(tokens[9].type).toBe(TokenType.PRINT);
-    expect(tokens[10].type).toBe(TokenType.RETURN);
-    expect(tokens[11].type).toBe(TokenType.SUPER);
-    expect(tokens[12].type).toBe(TokenType.THIS);
-    expect(tokens[13].type).toBe(TokenType.TRUE);
-    expect(tokens[14].type).toBe(TokenType.VAR);
-    expect(tokens[15].type).toBe(TokenType.WHILE);
-    expect(tokens[16].type).toBe(TokenType.ERROR);
-    expect(tokens[17].type).toBe(TokenType.EOF);
+    expect(tokens[1].type).toBe(TokenType.ELSE);
+    expect(tokens[2].type).toBe(TokenType.FALSE);
+    expect(tokens[3].type).toBe(TokenType.FOR);
+    expect(tokens[4].type).toBe(TokenType.FUN);
+    expect(tokens[5].type).toBe(TokenType.IF);
+    expect(tokens[6].type).toBe(TokenType.NIL);
+    expect(tokens[7].type).toBe(TokenType.OR);
+    expect(tokens[8].type).toBe(TokenType.PRINT);
+    expect(tokens[9].type).toBe(TokenType.RETURN);
+    expect(tokens[10].type).toBe(TokenType.TRUE);
+    expect(tokens[11].type).toBe(TokenType.VAR);
+    expect(tokens[12].type).toBe(TokenType.WHILE);
+    expect(tokens[13].type).toBe(TokenType.ERROR);
+    expect(tokens[14].type).toBe(TokenType.EOF);
   });
 
   it("Shoud handle lines properly", () => {

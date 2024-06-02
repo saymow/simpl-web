@@ -9,9 +9,6 @@ interface ExprVisitor<T> {
   visitBinaryExpr(expr: BinaryExpr): Promise<T>;
   visitLogicalExpr(expr: LogicalExpr): Promise<T>;
   visitGroupingExpr(expr: GroupingExpr): Promise<T>;
-  visitThisExpr(expr: ThisExpr): Promise<T>;
-  visitSuperExpr(expr: SuperExpr): Promise<T>;
-  visitGetExpr(expr: GetExpr): Promise<T>;
   visitCallExpr(expr: CallExpr): Promise<T>;
   visitAssignExpr(expr: AssignExpr): Promise<T>;
   visitSetExpr(expr: SetExpr): Promise<T>;
@@ -81,36 +78,6 @@ class GroupingExpr extends Expr {
   }
 }
 
-class ThisExpr extends Expr {
-  public accept<T>(visitor: ExprVisitor<T>): Promise<T> {
-    return visitor.visitThisExpr(this);
-  }
-
-  constructor(public token: Token) {
-    super();
-  }
-}
-
-class SuperExpr extends Expr {
-  public accept<T>(visitor: ExprVisitor<T>): Promise<T> {
-    return visitor.visitSuperExpr(this);
-  }
-
-  constructor(public token: Token, public method: Token) {
-    super();
-  }
-}
-
-class GetExpr extends Expr {
-  public accept<T>(visitor: ExprVisitor<T>): Promise<T> {
-    return visitor.visitGetExpr(this);
-  }
-
-  constructor(public expr: Expr, public token: Token) {
-    super();
-  }
-}
-
 class CallExpr extends Expr {
   public accept<T>(visitor: ExprVisitor<T>): Promise<T> {
     return visitor.visitCallExpr(this);
@@ -151,9 +118,6 @@ export {
   BinaryExpr,
   LogicalExpr,
   GroupingExpr,
-  ThisExpr,
-  SuperExpr,
-  GetExpr,
   CallExpr,
   AssignExpr,
   SetExpr,

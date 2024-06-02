@@ -5,12 +5,9 @@ import {
   AssignExpr,
   BinaryExpr,
   CallExpr,
-  GetExpr,
   GroupingExpr,
   LiteralExpr,
   LogicalExpr,
-  SuperExpr,
-  ThisExpr,
   UnaryExpr,
   VariableExpr,
   SetExpr,
@@ -33,7 +30,7 @@ const WrapExpr = (expr: Expr): ExprStmt => {
 
 describe("Parser", () => {
   describe("Primaries", () => {
-    it('true; false; nil; 77; "some-string"; this; myVar; super.method;', () => {
+    it('true; false; nil; 77; "some-string";  myVar;', () => {
       expect(
         new Parser([
           new Token(TokenType.TRUE, "true", true, 1, -1, -1),
@@ -53,14 +50,9 @@ describe("Parser", () => {
             -1
           ),
           new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
-          new Token(TokenType.THIS, "this", undefined, 1, -1, -1),
-          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
           new Token(TokenType.IDENTIFIER, "myVar", "myVar", 1, -1, -1),
           new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
-          new Token(TokenType.SUPER, "super", undefined, 1, -1, -1),
-          new Token(TokenType.DOT, ".", undefined, 1, -1, -1),
-          new Token(TokenType.IDENTIFIER, "method", undefined, 1, -1, -1),
-          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+
           new Token(TokenType.EOF, "", undefined, 2, -1, -1),
         ]).parse()
       ).toEqual([
@@ -70,17 +62,8 @@ describe("Parser", () => {
         WrapExpr(new LiteralExpr("77")),
         WrapExpr(new LiteralExpr("some-string")),
         WrapExpr(
-          new ThisExpr(new Token(TokenType.THIS, "this", undefined, 1, -1, -1))
-        ),
-        WrapExpr(
           new VariableExpr(
             new Token(TokenType.IDENTIFIER, "myVar", "myVar", 1, -1, -1)
-          )
-        ),
-        WrapExpr(
-          new SuperExpr(
-            new Token(TokenType.SUPER, "super", undefined, 1, -1, -1),
-            new Token(TokenType.IDENTIFIER, "method", undefined, 1, -1, -1)
           )
         ),
       ]);
@@ -116,53 +99,6 @@ describe("Parser", () => {
   });
 
   describe("Calls", () => {
-    it("myVar.property;", () => {
-      expect(
-        new Parser([
-          new Token(TokenType.IDENTIFIER, "myVar", "myVar", 1, -1, -1),
-          new Token(TokenType.DOT, ".", ".", 1, -1, -1),
-          new Token(TokenType.IDENTIFIER, "property", "property", 1, -1, -1),
-          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
-          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
-        ]).parse()
-      ).toEqual([
-        WrapExpr(
-          new GetExpr(
-            new VariableExpr(
-              new Token(TokenType.IDENTIFIER, "myVar", "myVar", 1, -1, -1)
-            ),
-            new Token(TokenType.IDENTIFIER, "property", "property", 1, -1, -1)
-          )
-        ),
-      ]);
-    });
-
-    it("myVar.property.other;", () => {
-      expect(
-        new Parser([
-          new Token(TokenType.IDENTIFIER, "myVar", "myVar", 1, -1, -1),
-          new Token(TokenType.DOT, ".", ".", 1, -1, -1),
-          new Token(TokenType.IDENTIFIER, "property", "property", 1, -1, -1),
-          new Token(TokenType.DOT, ".", ".", 1, -1, -1),
-          new Token(TokenType.IDENTIFIER, "other", "other", 1, -1, -1),
-          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
-          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
-        ]).parse()
-      ).toEqual([
-        WrapExpr(
-          new GetExpr(
-            new GetExpr(
-              new VariableExpr(
-                new Token(TokenType.IDENTIFIER, "myVar", "myVar", 1, -1, -1)
-              ),
-              new Token(TokenType.IDENTIFIER, "property", "property", 1, -1, -1)
-            ),
-            new Token(TokenType.IDENTIFIER, "other", "other", 1, -1, -1)
-          )
-        ),
-      ]);
-    });
-
     it("myVar();", () => {
       expect(
         new Parser([
@@ -566,30 +502,6 @@ describe("Parser", () => {
               new Token(TokenType.IDENTIFIER, "b", "b", 1, -1, -1),
               new LiteralExpr("5")
             )
-          )
-        ),
-      ]);
-    });
-
-    it("object.prop = 5;", () => {
-      expect(
-        new Parser([
-          new Token(TokenType.IDENTIFIER, "object", "object", 1, -1, -1),
-          new Token(TokenType.DOT, ".", undefined, 1, -1, -1),
-          new Token(TokenType.IDENTIFIER, "prop", "prop", 1, -1, -1),
-          new Token(TokenType.EQUAL, "=", undefined, 1, -1, -1),
-          new Token(TokenType.NUMBER, "5", "5", 1, -1, -1),
-          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
-          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
-        ]).parse()
-      ).toEqual([
-        WrapExpr(
-          new SetExpr(
-            new VariableExpr(
-              new Token(TokenType.IDENTIFIER, "object", "object", 1, -1, -1)
-            ),
-            new Token(TokenType.IDENTIFIER, "prop", "prop", 1, -1, -1),
-            new LiteralExpr("5")
           )
         ),
       ]);
