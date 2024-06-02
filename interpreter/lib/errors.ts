@@ -18,4 +18,4 @@ export class RuntimeError extends Error {
   }
 }
 
-export class LibraryError extends Error {}
+export class CoreLibError extends Error {}

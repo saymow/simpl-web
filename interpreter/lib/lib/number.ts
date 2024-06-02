@@ -1,4 +1,4 @@
-import { LibraryError } from "../errors";
+import { CoreLibError } from "../errors";
 import { Value } from "../expr";
 import { SysCall, System } from "../interfaces";
 
@@ -11,7 +11,7 @@ class MyNumber extends SysCall {
     const value = args[0];
 
     if (value === undefined || value === null) {
-      throw new LibraryError("Cannot cast 'nil' to string.");
+      throw new CoreLibError("Cannot cast 'nil' to string.");
     }
 
     return parseFloat(value);

@@ -153,7 +153,6 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
     switch (expr.operator.type) {
       case TokenType.PLUS: {
-        console.log(left, right, typeof left, typeof right);
         if (typeof left === "number" && typeof right === "number") {
           return left + right;
         }
