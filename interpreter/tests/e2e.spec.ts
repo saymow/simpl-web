@@ -280,32 +280,134 @@ describe("e2e", () => {
       );
     });
 
-    it("Linear function", async () => {
-      const { interpreter, log, input } = await makeSutFileRead(
-        "./calc_linear_fn.in"
-      );
+    describe("Linear function", () => {
+      it("1", async () => {
+        const { interpreter, log, input } = await makeSutFileRead(
+          "./calc_linear_fn.in"
+        );
 
-      input
-        .mockImplementationOnce(async (text) => {
-          expect(text).toBe("1° point x: ");
-          return "0";
-        })
-        .mockImplementationOnce(async (text) => {
-          expect(text).toBe("1° point y: ");
-          return "5";
-        })
-        .mockImplementationOnce(async (text) => {
-          expect(text).toBe("2° point x: ");
-          return "1";
-        })
-        .mockImplementationOnce(async (text) => {
-          expect(text).toBe("2° point y: ");
-          return "3";
-        });
+        input
+          .mockImplementationOnce(async (text) => {
+            expect(text).toBe("1° point x: ");
+            return "0";
+          })
+          .mockImplementationOnce(async (text) => {
+            expect(text).toBe("1° point y: ");
+            return "5";
+          })
+          .mockImplementationOnce(async (text) => {
+            expect(text).toBe("2° point x: ");
+            return "1";
+          })
+          .mockImplementationOnce(async (text) => {
+            expect(text).toBe("2° point y: ");
+            return "3";
+          });
 
-      await interpreter.interpret();
+        await interpreter.interpret();
 
-      expect(log.mock.calls[0][0]).toBe("y = -2x + 5");
+        expect(log.mock.calls[0][0]).toBe("y = -2x + 5");
+
+        input
+          .mockImplementationOnce(async (text) => {
+            expect(text).toBe("1° point x: ");
+            return "0";
+          })
+          .mockImplementationOnce(async (text) => {
+            expect(text).toBe("1° point y: ");
+            return "-5";
+          })
+          .mockImplementationOnce(async (text) => {
+            expect(text).toBe("2° point x: ");
+            return "1";
+          })
+          .mockImplementationOnce(async (text) => {
+            expect(text).toBe("2° point y: ");
+            return "1";
+          });
+
+        await interpreter.interpret();
+
+        expect(log.mock.calls[1][0]).toBe("y = 6x - 5");
+
+        input
+          .mockImplementationOnce(async (text) => {
+            expect(text).toBe("1° point x: ");
+            return "0";
+          })
+          .mockImplementationOnce(async (text) => {
+            expect(text).toBe("1° point y: ");
+            return "0";
+          })
+          .mockImplementationOnce(async (text) => {
+            expect(text).toBe("2° point x: ");
+            return "1";
+          })
+          .mockImplementationOnce(async (text) => {
+            expect(text).toBe("2° point y: ");
+            return "1";
+          });
+
+        await interpreter.interpret();
+
+        expect(log.mock.calls[2][0]).toBe("y = 1x");
+      });
+
+      it("1", async () => {
+        const { interpreter, log, input } = await makeSutFileRead(
+          "./calc_linear_fn.in"
+        );
+
+        input
+          .mockImplementationOnce(async (text) => {
+            expect(text).toBe("1° point x: ");
+            return "0";
+          })
+          .mockImplementationOnce(async (text) => {
+            expect(text).toBe("1° point y: ");
+            return "-5";
+          })
+          .mockImplementationOnce(async (text) => {
+            expect(text).toBe("2° point x: ");
+            return "1";
+          })
+          .mockImplementationOnce(async (text) => {
+            expect(text).toBe("2° point y: ");
+            return "1";
+          });
+
+        await interpreter.interpret();
+
+        expect(log.mock.calls[0][0]).toBe("y = 6x - 5");
+      });
+
+      it("1", async () => {
+        const { interpreter, log, input } = await makeSutFileRead(
+          "./calc_linear_fn.in"
+        );
+
+        input
+          .mockImplementationOnce(async (text) => {
+            expect(text).toBe("1° point x: ");
+            return "0";
+          })
+          .mockImplementationOnce(async (text) => {
+            expect(text).toBe("1° point y: ");
+            return "0";
+          })
+          .mockImplementationOnce(async (text) => {
+            expect(text).toBe("2° point x: ");
+            return "1";
+          })
+          .mockImplementationOnce(async (text) => {
+            expect(text).toBe("2° point y: ");
+            return "1";
+          });
+
+        await interpreter.interpret();
+
+        expect(log.mock.calls[0][0]).toBe("y = 1x");
+      });
     });
   });
 });

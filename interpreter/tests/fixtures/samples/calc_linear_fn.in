@@ -23,6 +23,6 @@ y_intercept = compute_y_intercept(a_x, a_y, slope);
 if (y_intercept  > 0) 
   print "y = " + string(slope) + "x + " + string(compute_y_intercept(a_x, a_y, slope)); 
 else if (y_intercept < 0) 
-  print "y = " + string(slope) + "x" + string(compute_y_intercept(a_x, a_y, slope));
+  print "y = " + string(slope) + "x - " + string(abs(compute_y_intercept(a_x, a_y, slope)));
 else
   print "y = " + string(slope) + "x";  
