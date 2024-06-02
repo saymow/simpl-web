@@ -27,7 +27,7 @@ import {
   VarStmt,
   WhileStmt,
 } from "./stmt";
-import { RuntimeError } from "./errors";
+import { CoreLibError, RuntimeError } from "./errors";
 import { Callable, SysCall, System, UserCall } from "./interfaces";
 import TokenType from "./token-type";
 import Token from "./token";
@@ -45,7 +45,6 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     this.context.define("number", new lib.Number());
     this.context.define("int", new lib.Int());
     this.context.define("abs", new lib.Abs());
-
   }
 
   public async interpret() {
@@ -248,7 +247,15 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     if (callee instanceof UserCall) {
       return await callee.call(this, args);
     } else if (callee instanceof SysCall) {
-      return await callee.call(this.system, args);
+      try {
+        return await callee.call(this.system, args);
+      } catch (err) {
+        if (err instanceof CoreLibError) {
+          throw new RuntimeError(expr.paren, err.message);
+        }
+
+        throw err;
+      }
     }
   }
 
