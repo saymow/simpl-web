@@ -8,7 +8,7 @@ interface Props {
 
 const Button: React.FC<Props> = (props) => {
   return (
-    <button disabled={!props.disabled} onClick={props.onClick}>
+    <button disabled={props.disabled} onClick={props.onClick}>
       {props.children}
     </button>
   );
