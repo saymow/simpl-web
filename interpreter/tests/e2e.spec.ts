@@ -279,5 +279,33 @@ describe("e2e", () => {
         ((6 + 7 + 10) / 3).toFixed(2)
       );
     });
+
+    it("Linear function", async () => {
+      const { interpreter, log, input } = await makeSutFileRead(
+        "./calc_linear_fn.in"
+      );
+
+      input
+        .mockImplementationOnce(async (text) => {
+          expect(text).toBe("1° point x: ");
+          return "0";
+        })
+        .mockImplementationOnce(async (text) => {
+          expect(text).toBe("1° point y: ");
+          return "5";
+        })
+        .mockImplementationOnce(async (text) => {
+          expect(text).toBe("2° point x: ");
+          return "1";
+        })
+        .mockImplementationOnce(async (text) => {
+          expect(text).toBe("2° point y: ");
+          return "3";
+        });
+
+      await interpreter.interpret();
+
+      expect(log.mock.calls[0][0]).toBe("y = -2x + 5");
+    });
   });
 });
