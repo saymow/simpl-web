@@ -1,0 +1,129 @@
+.editor {
+    flex: 1;
+    height: calc(100% - 4rem);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-top: 1px solid var(--border-color);
+  }
+  
+  @media (max-width: 560px) {
+    .editor {
+      grid-template-columns: unset;
+      grid-template-rows: 1fr 1fr;
+    }
+  }
+  
+  .editor .input-container,
+  .editor .output {
+    white-space: pre-line;
+    border-right: 1px solid var(--border-color);
+  }
+  
+  .editor .input-container {
+    position: relative;
+  }
+  
+  .editor .input-background {
+    -webkit-appearance: textarea;
+    -moz-appearance: textarea;
+  
+    font-size: 16px;
+    font: larger -moz-fixed;
+    font: -webkit-medium-control;
+  
+    overflow-y: auto;
+    position: absolute;
+    word-break: break-all;
+    white-space: pre-wrap;
+  
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.5rem;
+    background: var(--bg-secondary-color);
+    color: #fff;
+    user-select: none;
+  }
+  
+  .editor .input {
+    position: absolute;
+  
+    font-size: 16px;
+    font: larger -moz-fixed;
+    font: -webkit-medium-control;
+  
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.5rem;
+    border: unset;
+    resize: none;
+    color: transparent;
+    caret-color: #fff;
+    background: transparent;
+  }
+  
+  .editor .input:focus {
+    outline: 0;
+  }
+  
+  .editor .token.declaration {
+    color: rgb(0, 0, 189);
+  }
+  
+  .editor .token.statement {
+    color: rgb(0, 90, 27);
+  }
+  
+  .editor .token.braces {
+    color: yellow;
+  }
+  
+  .editor .token.parens {
+    color: rgb(201, 1, 201);
+  }
+  
+  .editor .token.identifier {
+    color: rgb(110, 110, 255);
+  }
+  
+  .editor .token.logic_operator {
+    color: rgb(14, 184, 214);
+  }
+  
+  .editor .token.bool {
+    color: rgb(44, 71, 161);
+  }
+  .editor .token.nil {
+    color: rgb(0, 0, 0);
+  }
+  
+  .editor .token.number {
+    color: rgb(0, 218, 0);
+  }
+  
+  .editor .token.string {
+    color: yellow;
+  }
+  
+  .editor .token[data-error] {
+    position: relative;
+    text-decoration: red underline wavy;
+  }
+  
+  .editor .token[data-error]::after {
+    display: block;
+    position: absolute;
+    content: attr(data-error);
+    background: var(--bg-color);
+    left: 0;
+    width: max-content;
+    color: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 2px;
+    font-size: 14px;
+    padding: 3px 3px;
+  }
+  
