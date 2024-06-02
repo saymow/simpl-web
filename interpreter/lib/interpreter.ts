@@ -33,7 +33,7 @@ import TokenType from "./token-type";
 import Token from "./token";
 import Context, { VariableNotFound } from "./context";
 import Function, { ReturnValue } from "./function";
-import * as lib from "./lib";
+import * as lib from "./core-lib";
 
 class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   private context = new Context<Value>();
