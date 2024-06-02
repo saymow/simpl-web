@@ -121,23 +121,33 @@ describe("e2e", () => {
     expect(log.mock.calls[0][0]).toBe("8");
   });
 
-  it("11.in", async () => {
-    const { interpreter, log, input } = await makeSut("11.in");
+  describe("Core Lib", () => {
+    it("input()", async () => {
+      const { interpreter, log, input } = await makeSut("11.in");
 
-    input
-      .mockImplementationOnce(async (text) => {
-        expect(text).toBe("Digit your name: ");
-        return "John";
-      })
-      .mockImplementationOnce(async (text) => {
-        expect(text).toBe("Digit your surname: ");
-        return "Doe";
-      });
+      input
+        .mockImplementationOnce(async (text) => {
+          expect(text).toBe("Digit your name: ");
+          return "John";
+        })
+        .mockImplementationOnce(async (text) => {
+          expect(text).toBe("Digit your surname: ");
+          return "Doe";
+        });
 
-    await interpreter.interpret();
+      await interpreter.interpret();
 
-    expect(input).toHaveBeenCalledTimes(2);
-    expect(log).toHaveBeenCalledTimes(1);
-    expect(log.mock.calls[0][0]).toBe("Hello John Doe!");
+      expect(input).toHaveBeenCalledTimes(2);
+      expect(log).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls[0][0]).toBe("Hello John Doe!");
+    });
+
+    it("int()", async () => {
+      const { interpreter, log, input } = await makeSut("12.in");
+
+      await interpreter.interpret();
+
+      expect(log.mock.calls[0][0]).toBe("5");
+    });
   });
 });
