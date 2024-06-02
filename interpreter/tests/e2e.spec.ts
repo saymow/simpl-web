@@ -1,7 +1,20 @@
 import { readSample } from "./fixtures";
 import { Lexer, Parser, Interpreter } from "../";
 
-const makeSut = async (filename: string) => {
+const makeSut = async (source: string) => {
+  const tokens = new Lexer(source).scan();
+  const ast = new Parser(tokens).parse();
+  const log = jest.fn((_: string) => {});
+  const input = jest.fn(async (_: string) => "test");
+  const interpreter = new Interpreter(ast, {
+    log,
+    input,
+  });
+
+  return { interpreter, log, input };
+};
+
+const makeSutFileRead = async (filename: string) => {
   const source = await readSample(filename);
   const tokens = new Lexer(source).scan();
   const ast = new Parser(tokens).parse();
@@ -16,114 +29,179 @@ const makeSut = async (filename: string) => {
 };
 
 describe("e2e", () => {
-  it("1.in", async () => {
-    const { interpreter, log } = await makeSut("1.in");
+  describe("Snippets", () => {
+    it("1", async () => {
+      const { interpreter, log } = await makeSut(`
+        var a = 5;
+  
+        if (a > 3) {
+            print "maior";
+        } else {
+            print "menor";
+        }
+      `);
 
-    await interpreter.interpret();
+      await interpreter.interpret();
 
-    expect(log).toHaveBeenCalledTimes(1);
-    expect(log.mock.calls[0][0]).toBe("maior");
-  });
+      expect(log).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls[0][0]).toBe("maior");
+    });
 
-  it("2.in", async () => {
-    const { interpreter, log } = await makeSut("2.in");
+    it("2", async () => {
+      const { interpreter, log } = await makeSut(`
+        var a = 5;
+        var b = 1;
+  
+        print a + b;
+      `);
 
-    await interpreter.interpret();
+      await interpreter.interpret();
 
-    expect(log).toHaveBeenCalledTimes(1);
-    expect(log.mock.calls[0][0]).toBe("6");
-  });
+      expect(log).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls[0][0]).toBe("6");
+    });
 
-  it("3.in", async () => {
-    const { interpreter, log } = await makeSut("3.in");
+    it("3", async () => {
+      const { interpreter, log } = await makeSut(`
+        while (2 < 1) print "never";
+      `);
 
-    await interpreter.interpret();
+      await interpreter.interpret();
 
-    expect(log).not.toHaveBeenCalled();
-  });
+      expect(log).not.toHaveBeenCalled();
+    });
 
-  it("4.in", async () => {
-    const { interpreter, log } = await makeSut("4.in");
+    it("4", async () => {
+      const { interpreter, log } = await makeSut(`
+        var i = 0; 
+  
+        while (i < 5) { 
+            print i; 
+            i = i + 1;
+        }
+      `);
 
-    await interpreter.interpret();
+      await interpreter.interpret();
 
-    expect(log).toHaveBeenCalledTimes(5);
-    expect(log.mock.calls[0][0]).toBe("0");
-    expect(log.mock.calls[1][0]).toBe("1");
-    expect(log.mock.calls[2][0]).toBe("2");
-    expect(log.mock.calls[3][0]).toBe("3");
-    expect(log.mock.calls[4][0]).toBe("4");
-  });
+      expect(log).toHaveBeenCalledTimes(5);
+      expect(log.mock.calls[0][0]).toBe("0");
+      expect(log.mock.calls[1][0]).toBe("1");
+      expect(log.mock.calls[2][0]).toBe("2");
+      expect(log.mock.calls[3][0]).toBe("3");
+      expect(log.mock.calls[4][0]).toBe("4");
+    });
 
-  it("5.in", async () => {
-    const { interpreter, log } = await makeSut("5.in");
+    it("5", async () => {
+      const { interpreter, log } = await makeSut(`
+        for (var i = 0; i < 5; i = i + 1) 
+          print i;
+      `);
 
-    await interpreter.interpret();
+      await interpreter.interpret();
 
-    expect(log).toHaveBeenCalledTimes(5);
-    expect(log.mock.calls[0][0]).toBe("0");
-    expect(log.mock.calls[1][0]).toBe("1");
-    expect(log.mock.calls[2][0]).toBe("2");
-    expect(log.mock.calls[3][0]).toBe("3");
-    expect(log.mock.calls[4][0]).toBe("4");
-  });
+      expect(log).toHaveBeenCalledTimes(5);
+      expect(log.mock.calls[0][0]).toBe("0");
+      expect(log.mock.calls[1][0]).toBe("1");
+      expect(log.mock.calls[2][0]).toBe("2");
+      expect(log.mock.calls[3][0]).toBe("3");
+      expect(log.mock.calls[4][0]).toBe("4");
+    });
 
-  it("6.in", async () => {
-    const { interpreter, log } = await makeSut("6.in");
+    it("6", async () => {
+      const { interpreter, log } = await makeSut(`
+        var i = 0; 
+  
+        for (; i < 5; i = i + 1) 
+            print i;
+      `);
 
-    await interpreter.interpret();
+      await interpreter.interpret();
 
-    expect(log).toHaveBeenCalledTimes(5);
-    expect(log.mock.calls[0][0]).toBe("0");
-    expect(log.mock.calls[1][0]).toBe("1");
-    expect(log.mock.calls[2][0]).toBe("2");
-    expect(log.mock.calls[3][0]).toBe("3");
-    expect(log.mock.calls[4][0]).toBe("4");
-  });
+      expect(log).toHaveBeenCalledTimes(5);
+      expect(log.mock.calls[0][0]).toBe("0");
+      expect(log.mock.calls[1][0]).toBe("1");
+      expect(log.mock.calls[2][0]).toBe("2");
+      expect(log.mock.calls[3][0]).toBe("3");
+      expect(log.mock.calls[4][0]).toBe("4");
+    });
 
-  it("7.in", async () => {
-    const { interpreter, log } = await makeSut("7.in");
+    it("7", async () => {
+      const { interpreter, log } = await makeSut(`
+        var i = 0; 
+  
+        for (;i < 5;) { 
+            print i;
+            i = i + 1;
+        }
+      `);
 
-    await interpreter.interpret();
+      await interpreter.interpret();
 
-    expect(log).toHaveBeenCalledTimes(5);
-    expect(log.mock.calls[0][0]).toBe("0");
-    expect(log.mock.calls[1][0]).toBe("1");
-    expect(log.mock.calls[2][0]).toBe("2");
-    expect(log.mock.calls[3][0]).toBe("3");
-    expect(log.mock.calls[4][0]).toBe("4");
-  });
+      expect(log).toHaveBeenCalledTimes(5);
+      expect(log.mock.calls[0][0]).toBe("0");
+      expect(log.mock.calls[1][0]).toBe("1");
+      expect(log.mock.calls[2][0]).toBe("2");
+      expect(log.mock.calls[3][0]).toBe("3");
+      expect(log.mock.calls[4][0]).toBe("4");
+    });
 
-  it("8.in", async () => {
-    const { interpreter, log } = await makeSut("8.in");
+    it("8", async () => {
+      const { interpreter, log } = await makeSut(`
+        fun sum (a, b) { 
+          print a + b;
+        } 
+    
+        sum(3, 4);
+      `);
 
-    await interpreter.interpret();
+      await interpreter.interpret();
 
-    expect(log).toHaveBeenCalledTimes(1);
-    expect(log.mock.calls[0][0]).toBe("7");
-  });
+      expect(log).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls[0][0]).toBe("7");
+    });
 
-  it("9.in", async () => {
-    const { interpreter, log } = await makeSut("9.in");
+    it("9", async () => {
+      const { interpreter, log } = await makeSut(`
+        fun multiply (a, b) { 
+          print a * b;
+        } 
+    
+        multiply(3, 4);
+      `);
 
-    await interpreter.interpret();
+      await interpreter.interpret();
 
-    expect(log).toHaveBeenCalledTimes(1);
-    expect(log.mock.calls[0][0]).toBe("12");
-  });
+      expect(log).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls[0][0]).toBe("12");
+    });
 
-  it("10.in", async () => {
-    const { interpreter, log } = await makeSut("10.in");
+    it("10", async () => {
+      const { interpreter, log } = await makeSut(`
+        fun diff (a, b) { 
+          if (a > b) 
+            return a - b;
+          else 
+            return b - a;
+        } 
+    
+        print diff(12, 4);
+      `);
 
-    await interpreter.interpret();
+      await interpreter.interpret();
 
-    expect(log).toHaveBeenCalledTimes(1);
-    expect(log.mock.calls[0][0]).toBe("8");
+      expect(log).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls[0][0]).toBe("8");
+    });
   });
 
   describe("Core Lib", () => {
     it("input()", async () => {
-      const { interpreter, log, input } = await makeSut("11.in");
+      const { interpreter, log, input } = await makeSut(`
+        var name = input("Digit your name: ");
+        var surname = input("Digit your surname: ");
+      
+        print "Hello " + name + " " + surname + "!" ; 
+      `);
 
       input
         .mockImplementationOnce(async (text) => {
@@ -143,7 +221,9 @@ describe("e2e", () => {
     });
 
     it("int()", async () => {
-      const { interpreter, log, input } = await makeSut("12.in");
+      const { interpreter, log } = await makeSut(`
+        print int("2") + int("3"); 
+      `);
 
       await interpreter.interpret();
 

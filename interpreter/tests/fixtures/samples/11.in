@@ -1,4 +1,0 @@
-var name = input("Digit your name: ");
-var surname = input("Digit your surname: ");
-
-print "Hello " + name + " " + surname + "!" ; 
