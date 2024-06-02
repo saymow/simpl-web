@@ -13,6 +13,7 @@ import {
 } from "../interpreter";
 import { Terminal, TerminalIn, TerminalOut } from "./interfaces";
 import TerminalComponent from "./components/Terminal";
+import Editor from "./components/Editor";
 
 class ParserError extends LngParserError {
   constructor(
@@ -215,17 +216,11 @@ function App() {
         </button>
       </header>
       <article className="editor">
-        <section className="input-container">
-          <article
-            dangerouslySetInnerHTML={{ __html: formattedSource ?? source }}
-            className="input-background"
-          ></article>
-          <textarea
-            className="input"
-            value={source}
-            onChange={(e) => setSource(e.target.value)}
-          />
-        </section>
+        <Editor
+          source={source}
+          formattedSource={formattedSource}
+          setSource={setSource}
+        />
         <TerminalComponent lines={terminal} />
       </article>
     </main>

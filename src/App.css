@@ -38,7 +38,13 @@ button[disabled] {
   display: grid;
   grid-template-columns: 1fr 1fr;
   border-top: 1px solid var(--border-color);
-  /* background: var(--bg-secondary-color); */
+}
+
+@media (max-width: 560px) {
+  .editor {
+    grid-template-columns: unset;
+    grid-template-rows: 1fr 1fr;
+  }
 }
 
 .editor .input-container,
@@ -59,6 +65,7 @@ button[disabled] {
   font: larger -moz-fixed;
   font: -webkit-medium-control;
 
+  overflow-y: auto;
   position: absolute;
   word-break: break-all;
   white-space: pre-wrap;
