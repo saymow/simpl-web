@@ -17,6 +17,7 @@ interface ExprVisitor<T> {
   visitUnaryOperatorExpr(expr: UnaryOperatorExpr): Promise<T>;
   visitArrayExpr(expr: ArrayExpr): Promise<T>;
   visitArrayGetExpr(expr: ArrayGetExpr): Promise<T>;
+  visitArraySetExpr(expr: ArraySetExpr): Promise<T>;
   visitSetExpr(expr: SetExpr): Promise<T>;
 }
 
@@ -167,6 +168,16 @@ class ArrayGetExpr extends Expr {
   }
 }
 
+class ArraySetExpr extends Expr {
+  public accept<T>(visitor: ExprVisitor<T>): Promise<T> {
+    return visitor.visitArraySetExpr(this);
+  }
+
+  constructor(public callee: Expr, public indexExpr: Expr, public expr: Expr) {
+    super();
+  }
+}
+
 export type { Value, ExprVisitor };
 
 export {
@@ -185,4 +196,5 @@ export {
   UnaryOperatorType,
   ArrayExpr,
   ArrayGetExpr,
+  ArraySetExpr,
 };

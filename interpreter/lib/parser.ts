@@ -1,6 +1,7 @@
 import {
   ArrayExpr,
   ArrayGetExpr,
+  ArraySetExpr,
   AssignExpr,
   AssignOperatorExpr,
   BinaryExpr,
@@ -235,6 +236,7 @@ class Parser {
     return this.assignment();
   }
 
+  // assignment → ( call "." )? IDENTIFIER "=" assignment | logic_or ;
   private assignment(): Expr {
     let expr = this.logicOr();
 
@@ -244,6 +246,9 @@ class Parser {
 
       if (expr instanceof VariableExpr) {
         return new AssignExpr(expr.name, value);
+      }
+      if (expr instanceof ArrayGetExpr) {
+        return new ArraySetExpr(expr.callee, expr.indexExpr, value);
       }
 
       this.error(token, "Invalid assignment target.");
