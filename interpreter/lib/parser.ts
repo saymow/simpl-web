@@ -1,5 +1,6 @@
 import {
   AssignExpr,
+  AssignOperatorExpr,
   BinaryExpr,
   CallExpr,
   Expr,
@@ -308,24 +309,68 @@ class Parser {
   }
 
   private term(): Expr {
-    let expr = this.factor();
+    let expr = this.termAssignOperator();
 
     while (this.match(TokenType.MINUS, TokenType.PLUS)) {
       const operator = this.previous();
-      const right = this.factor();
+      const right = this.termAssignOperator();
       expr = new BinaryExpr(expr, operator, right);
     }
 
     return expr;
   }
 
+  // term → term_assign_operator ( ( "-" | "+" ) term_assign_operator )* ;
+  // term_assign_operator  →  (IDENTIFIER ( "-=" | "+=" ) factor) | factor
+
+  private termAssignOperator(): Expr {
+    const expr = this.factor();
+
+    if (this.match(TokenType.MINUS_EQUAL, TokenType.PLUS_EQUAL)) {
+      if (!(expr instanceof VariableExpr)) {
+        throw this.error(
+          (expr as VariableExpr).name,
+          "Expected variable for assignment operation."
+        );
+      }
+
+      const operator = this.previous();
+      const right = this.factor();
+      return new AssignOperatorExpr(expr.name, operator, right);
+    }
+
+    return expr;
+  }
+
   private factor(): Expr {
-    let expr = this.unary();
+    let expr = this.factorAssignOperator();
 
     while (this.match(TokenType.SLASH, TokenType.STAR)) {
       const operator = this.previous();
-      const right = this.unary();
+      const right = this.factorAssignOperator();
       expr = new BinaryExpr(expr, operator, right);
+    }
+
+    return expr;
+  }
+
+  // factor → factor_assign_operator ( ( "-" | "+" ) factor_assign_operator )* ;
+  // factor_assign_operator → (IDENTIFIER ( "-=" | "+=" ) unary) | unary
+
+  private factorAssignOperator(): Expr {
+    const expr = this.unary();
+
+    if (this.match(TokenType.SLASH_EQUAL, TokenType.STAR_EQUAL)) {
+      if (!(expr instanceof VariableExpr)) {
+        throw this.error(
+          (expr as VariableExpr).name,
+          "Expected variable for assignment operation."
+        );
+      }
+
+      const operator = this.previous();
+      const right = this.unary();
+      return new AssignOperatorExpr(expr.name, operator, right);
     }
 
     return expr;
@@ -386,7 +431,7 @@ class Parser {
     } else if (this.match(TokenType.NUMBER, TokenType.STRING)) {
       return new LiteralExpr(this.previous().literal);
     } else if (this.match(TokenType.IDENTIFIER)) {
-      return new VariableExpr(this.previous());
+      return this.variableIdentifier();
     } else if (this.match(TokenType.LEFT_PAREN)) {
       const expr = this.expression();
       this.consume(TokenType.RIGHT_PAREN, "Expect ')' after group expression.");
@@ -394,6 +439,10 @@ class Parser {
     }
 
     throw this.error(this.peek(), "Unexpected token.");
+  }
+
+  private variableIdentifier(): Expr {
+    return new VariableExpr(this.previous());
   }
 
   private error(token: Token, message: string) {

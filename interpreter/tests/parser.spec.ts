@@ -12,6 +12,7 @@ import {
   VariableExpr,
   SetExpr,
   Expr,
+  AssignOperatorExpr,
 } from "../lib/expr";
 import {
   BlockStmt,
@@ -501,6 +502,134 @@ describe("Parser", () => {
             new AssignExpr(
               new Token(TokenType.IDENTIFIER, "b", "b", 1, -1, -1),
               new LiteralExpr("5")
+            )
+          )
+        ),
+      ]);
+    });
+
+    it("a += 1;", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1),
+          new Token(TokenType.PLUS_EQUAL, "+=", undefined, 1, -1, -1),
+          new Token(TokenType.NUMBER, "1", 1, 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        WrapExpr(
+          new AssignOperatorExpr(
+            new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1),
+            new Token(TokenType.PLUS_EQUAL, "+=", undefined, 1, -1, -1),
+            new LiteralExpr(1)
+          )
+        ),
+      ]);
+    });
+
+    it("a -= 1;", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1),
+          new Token(TokenType.MINUS_EQUAL, "-=", undefined, 1, -1, -1),
+          new Token(TokenType.NUMBER, "1", 1, 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        WrapExpr(
+          new AssignOperatorExpr(
+            new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1),
+            new Token(TokenType.MINUS_EQUAL, "-=", undefined, 1, -1, -1),
+            new LiteralExpr(1)
+          )
+        ),
+      ]);
+    });
+
+    it("a += x;", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1),
+          new Token(TokenType.PLUS_EQUAL, "+=", undefined, 1, -1, -1),
+          new Token(TokenType.IDENTIFIER, "x", "x", 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        WrapExpr(
+          new AssignOperatorExpr(
+            new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1),
+            new Token(TokenType.PLUS_EQUAL, "+=", undefined, 1, -1, -1),
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "x", "x", 1, -1, -1)
+            )
+          )
+        ),
+      ]);
+    });
+
+    it("a -= x;", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1),
+          new Token(TokenType.MINUS_EQUAL, "-=", undefined, 1, -1, -1),
+          new Token(TokenType.IDENTIFIER, "x", "x", 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        WrapExpr(
+          new AssignOperatorExpr(
+            new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1),
+            new Token(TokenType.MINUS_EQUAL, "-=", undefined, 1, -1, -1),
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "x", "x", 1, -1, -1)
+            )
+          )
+        ),
+      ]);
+    });
+
+    it("a *= x;", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1),
+          new Token(TokenType.STAR_EQUAL, "*=", undefined, 1, -1, -1),
+          new Token(TokenType.IDENTIFIER, "x", "x", 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        WrapExpr(
+          new AssignOperatorExpr(
+            new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1),
+            new Token(TokenType.STAR_EQUAL, "*=", undefined, 1, -1, -1),
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "x", "x", 1, -1, -1)
+            )
+          )
+        ),
+      ]);
+    });
+
+    it("a /= x;", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1),
+          new Token(TokenType.SLASH_EQUAL, "/=", undefined, 1, -1, -1),
+          new Token(TokenType.IDENTIFIER, "x", "x", 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        WrapExpr(
+          new AssignOperatorExpr(
+            new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1),
+            new Token(TokenType.SLASH_EQUAL, "/=", undefined, 1, -1, -1),
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "x", "x", 1, -1, -1)
             )
           )
         ),

@@ -11,6 +11,7 @@ interface ExprVisitor<T> {
   visitGroupingExpr(expr: GroupingExpr): Promise<T>;
   visitCallExpr(expr: CallExpr): Promise<T>;
   visitAssignExpr(expr: AssignExpr): Promise<T>;
+  visitAssignOperatorExpr(expr: AssignOperatorExpr): Promise<T>;
   visitSetExpr(expr: SetExpr): Promise<T>;
 }
 
@@ -98,6 +99,16 @@ class AssignExpr extends Expr {
   }
 }
 
+class AssignOperatorExpr extends Expr {
+  public accept<T>(visitor: ExprVisitor<T>): Promise<T> {
+    return visitor.visitAssignOperatorExpr(this);
+  }
+
+  constructor(public name: Token, public operator: Token, public value: Expr) {
+    super();
+  }
+}
+
 class SetExpr extends Expr {
   public accept<T>(visitor: ExprVisitor<T>): Promise<T> {
     return visitor.visitSetExpr(this);
@@ -120,5 +131,6 @@ export {
   GroupingExpr,
   CallExpr,
   AssignExpr,
+  AssignOperatorExpr,
   SetExpr,
 };
