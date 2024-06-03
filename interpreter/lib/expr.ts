@@ -1,4 +1,5 @@
 import Token from "./token";
+import TokenType from "./token-type";
 
 type Value = any;
 
@@ -14,6 +15,7 @@ interface ExprVisitor<T> {
   visitAssignOperatorExpr(expr: AssignOperatorExpr): Promise<T>;
   visitUnaryOperatorExpr(expr: UnaryOperatorExpr): Promise<T>;
   visitArrayExpr(expr: ArrayExpr): Promise<T>;
+  visitArrayGetExpr(expr: ArrayGetExpr): Promise<T>;
   visitSetExpr(expr: SetExpr): Promise<T>;
 }
 
@@ -150,6 +152,16 @@ class ArrayExpr extends Expr {
   }
 }
 
+class ArrayGetExpr extends Expr {
+  public accept<T>(visitor: ExprVisitor<T>): Promise<T> {
+    return visitor.visitArrayGetExpr(this);
+  }
+
+  constructor(public callee: Expr, public indexExpr: Expr) {
+    super();
+  }
+}
+
 export type { Value, ExprVisitor };
 
 export {
@@ -166,5 +178,6 @@ export {
   SetExpr,
   UnaryOperatorExpr,
   UnaryOperatorType,
-  ArrayExpr
+  ArrayExpr,
+  ArrayGetExpr,
 };

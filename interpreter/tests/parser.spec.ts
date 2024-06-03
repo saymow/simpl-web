@@ -16,6 +16,7 @@ import {
   UnaryOperatorExpr,
   UnaryOperatorType,
   ArrayExpr,
+  ArrayGetExpr,
 } from "../lib/expr";
 import {
   BlockStmt,
@@ -1366,8 +1367,8 @@ describe("Parser", () => {
           new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1),
           new Token(TokenType.EQUAL, "=", undefined, 1, -1, -1),
           new Token(TokenType.LEFT_BRACKET, "[", undefined, 1, -1, -1),
-          new Token(TokenType.NUMBER, '1', 1, 1, -1, -1),
-          new Token(TokenType.COMMA, ',', undefined, 1, -1, -1),
+          new Token(TokenType.NUMBER, "1", 1, 1, -1, -1),
+          new Token(TokenType.COMMA, ",", undefined, 1, -1, -1),
           new Token(TokenType.STRING, '"test"', "test", 1, -1, -1),
           new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
           new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
@@ -1378,10 +1379,57 @@ describe("Parser", () => {
           new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1),
           new ArrayExpr(
             new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
-            [
-              new LiteralExpr(1),
-              new LiteralExpr("test")
-            ]
+            [new LiteralExpr(1), new LiteralExpr("test")]
+          )
+        ),
+      ]);
+    });
+
+    it(`arr[1];`, () => {
+      expect(
+        new Parser([
+          new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1),
+          new Token(TokenType.LEFT_BRACKET, "[", undefined, 1, -1, -1),
+          new Token(TokenType.NUMBER, "1", 1, 1, -1, -1),
+          new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        WrapExpr(
+          new ArrayGetExpr(
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1)
+            ),
+            new LiteralExpr(1)
+          )
+        ),
+      ]);
+    });
+
+    it(`arr[1][2];`, () => {
+      expect(
+        new Parser([
+          new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1),
+          new Token(TokenType.LEFT_BRACKET, "[", undefined, 1, -1, -1),
+          new Token(TokenType.NUMBER, "1", 1, 1, -1, -1),
+          new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+          new Token(TokenType.LEFT_BRACKET, "[", undefined, 1, -1, -1),
+          new Token(TokenType.NUMBER, "2", 2, 1, -1, -1),
+          new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        WrapExpr(
+          new ArrayGetExpr(
+            new ArrayGetExpr(
+              new VariableExpr(
+                new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1)
+              ),
+              new LiteralExpr(1)
+            ),
+            new LiteralExpr(2)
           )
         ),
       ]);

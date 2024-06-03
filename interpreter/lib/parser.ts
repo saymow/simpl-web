@@ -1,5 +1,6 @@
 import {
   ArrayExpr,
+  ArrayGetExpr,
   AssignExpr,
   AssignOperatorExpr,
   BinaryExpr,
@@ -322,7 +323,6 @@ class Parser {
 
   // term → term_assign_operator ( ( "-" | "+" ) term_assign_operator )* ;
   // term_assign_operator  →  (IDENTIFIER ( "-=" | "+=" ) factor) | factor
-
   private termAssignOperator(): Expr {
     const expr = this.factor();
 
@@ -356,7 +356,6 @@ class Parser {
 
   // factor → factor_assign_operator ( ( "-" | "+" ) factor_assign_operator )* ;
   // factor_assign_operator → (IDENTIFIER ( "-=" | "+=" ) unary) | unary
-
   private factorAssignOperator(): Expr {
     const expr = this.unary();
 
@@ -388,6 +387,7 @@ class Parser {
     return this.call();
   }
 
+  // call → primary ( "(" arguments? ")" | "[" IDENTIFIER "]" )* ;
   private call(): Expr {
     let expr = this.primary();
 
@@ -395,6 +395,12 @@ class Parser {
     while (true) {
       if (this.match(TokenType.LEFT_PAREN)) {
         expr = this.finishCall(expr);
+      } else if (this.match(TokenType.LEFT_BRACKET)) {
+        const indexExpr = this.expression();
+
+        this.consume(TokenType.RIGHT_BRACKET, "Expect ']' after array access.");
+
+        expr = new ArrayGetExpr(expr, indexExpr);
       } else {
         break;
       }
