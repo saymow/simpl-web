@@ -12,7 +12,7 @@ class Len extends SysCall {
     const value = args[0];
 
     if (!(isArray(value) || isString(value))) {
-      throw new CoreLibError("Value must be string or array.");
+      throw new CoreLibError("Expected string or array.");
     }
 
     return value.length;

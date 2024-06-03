@@ -1,5 +1,6 @@
 import { readSample } from "./fixtures";
-import { Lexer, Parser, Interpreter } from "../";
+import { Lexer, Parser, Interpreter, SysCall } from "../";
+import * as lib from "../lib/core-lib";
 
 const makeSut = async (source: string) => {
   const tokens = new Lexer(source).scan();
@@ -27,6 +28,15 @@ const makeSutFileRead = async (filename: string) => {
 
   return { interpreter, log, input };
 };
+
+const expectCoreLib =
+  (handler: SysCall) =>
+  async (...args: any[]) => {
+    const log = jest.fn((_: string) => {});
+    const input = jest.fn(async (_: string) => "test");
+
+    return expect(await handler.call({ log, input }, args));
+  };
 
 describe("e2e", () => {
   describe("Snippets", () => {
@@ -293,6 +303,7 @@ describe("e2e", () => {
   });
 
   describe("Core Lib", () => {
+    // This allows for testing blocking IO;
     it("input()", async () => {
       const { interpreter, log, input } = await makeSut(`
         var name = input("Digit your name: ");
@@ -319,25 +330,23 @@ describe("e2e", () => {
     });
 
     it("int()", async () => {
-      const { interpreter, log } = await makeSut(`
-        print int("2") + int("3"); 
-      `);
-
-      await interpreter.interpret();
-
-      expect(log.mock.calls[0][0]).toBe("5");
+      (await expectCoreLib(new lib.Int())(5.5)).toBe(5);
+      (await expectCoreLib(new lib.Int())("5.5")).toBe(5);
     });
 
     it("len(string|Value[])", async () => {
-      const { interpreter, log } = await makeSut(`
-        print len("str");
-        print len([1, 2, 3, 4, 5]); 
-      `);
+      (await expectCoreLib(new lib.Len())("str")).toBe(3);
+      (await expectCoreLib(new lib.Len())([1, 2, 3, 4, 5])).toBe(5);
+    });
 
-      await interpreter.interpret();
+    it("push(Value[], Value)", async () => {
+      const arr = [1, 2, 3];
 
-      expect(log.mock.calls[0][0]).toBe("3");
-      expect(log.mock.calls[1][0]).toBe("5");
+      (await expectCoreLib(new lib.Push())(arr, 4)).toBe(4);
+      (await expectCoreLib(new lib.Push())(arr, "test")).toBe(5);
+      
+      expect(arr[3]).toBe(4);
+      expect(arr[4]).toBe("test");
     });
   });
 

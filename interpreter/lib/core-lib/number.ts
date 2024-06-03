@@ -12,7 +12,7 @@ class MyNumber extends SysCall {
     const value = args[0];
 
     if (!(isString(value) || isNumber(value))) {
-      throw new CoreLibError("Expect string or number.");
+      throw new CoreLibError("Expected string or number.");
     }
 
     return parseFloat(value);

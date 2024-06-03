@@ -12,7 +12,7 @@ class MyString extends SysCall {
     const value = args[0];
 
     if (!isNumber(value)) {
-      throw new CoreLibError("Expect number.");
+      throw new CoreLibError("Expected number.");
     }
 
     return value.toString();
