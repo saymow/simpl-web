@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import "./styles.css";
 
 interface Props {
@@ -7,19 +7,39 @@ interface Props {
   setSource(source: string): void;
 }
 
+const LINE_BREAK_REGEX = /\n/g;
+
+const countLines = (source: string) => {
+  return (source.match(LINE_BREAK_REGEX)?.length ?? 0) + 1;
+};
+
+const makeLinesBarLines = (source: string) => {
+  return new Array(countLines(source))
+    .fill(0)
+    .map((_, idx) => idx + 1)
+    .join("\n");
+};
+
 const Editor: React.FC<Props> = (props) => {
   const { source, formattedSource, setSource } = props;
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const backgroundRef = useRef<HTMLElement>(null);
+  const linesBarRef = useRef<HTMLElement>(null);
+  const linesBarContent = useMemo(() => makeLinesBarLines(source), [source]);
 
   const onInputScroll = () => {
-    if (!(inputRef.current && backgroundRef.current)) return;
+    if (!(inputRef.current && backgroundRef.current && linesBarRef.current))
+      return;
 
     backgroundRef.current.scrollTop = inputRef.current.scrollTop;
+    linesBarRef.current.scrollTop = inputRef.current.scrollTop;
   };
 
   return (
     <section className="input-container">
+      <span ref={linesBarRef} className="lines-bar">
+        {linesBarContent}
+      </span>
       <article
         ref={backgroundRef}
         dangerouslySetInnerHTML={{ __html: formattedSource ?? source }}

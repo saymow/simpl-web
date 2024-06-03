@@ -21,6 +21,29 @@
 
 .editor .input-container {
   position: relative;
+  padding: 0.5rem 0.5rem 0.5rem 1rem;
+}
+
+.editor .input-container .lines-bar {
+  position: absolute;
+  font-size: 16px;
+  font: larger -moz-fixed;
+  font: -webkit-medium-control;
+  text-align: right;
+
+  color: var(--border-color);
+  z-index: 1;
+  left: 0.5rem;
+  top: 0.2rem;
+  bottom: 0;
+  font-size: 16px;
+  line-height: 22px;
+  overflow-y: auto;
+}
+
+.editor .input-container .lines-bar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 .editor .input-background {
@@ -36,11 +59,12 @@
   word-break: break-all;
   white-space: pre-wrap;
 
+  padding-left: 0.5rem;
+
   top: 0;
   bottom: 0;
-  left: 0;
+  left: 2rem;
   right: 0;
-  padding: 0.5rem;
   background: var(--bg-secondary-color);
   color: #fff;
   user-select: none;
@@ -53,11 +77,12 @@
   font: larger -moz-fixed;
   font: -webkit-medium-control;
 
+  padding-left: 0.5rem;
+
   top: 0;
   bottom: 0;
-  left: 0;
+  left: 2rem;
   right: 0;
-  padding: 0.5rem;
   border: unset;
   resize: none;
   color: transparent;
