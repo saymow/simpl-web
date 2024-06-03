@@ -1,5 +1,7 @@
 enum TokenType {
   // Single-character tokens.
+  LEFT_BRACKET = "[",
+  RIGHT_BRACKET = "]",
   LEFT_PAREN = "LEFT_PAREN",
   RIGHT_PAREN = "RIGHT_PAREN",
   LEFT_BRACE = "LEFT_BRACE",
