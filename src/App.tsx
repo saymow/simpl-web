@@ -36,7 +36,9 @@ function App() {
       let syntaxTree;
 
       try {
+        console.log(tokens);
         syntaxTree = new Parser(tokens).parse();
+        console.log(syntaxTree);
       } catch (err) {
         if (err instanceof ParserError) {
           throw new CustomParserError(

@@ -110,8 +110,20 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     return callee[idx];
   }
 
-  visitUnaryOperatorExpr(expr: UnaryOperatorExpr): Promise<any> {
-    const current = this.getVariable(expr.name as Token<TokenType.VAR>);
+  async visitUnaryOperatorExpr(expr: UnaryOperatorExpr): Promise<any> {
+    if (
+      !(
+        expr.nameExpr instanceof VariableExpr ||
+        expr.nameExpr instanceof ArrayGetExpr
+      )
+    ) {
+      throw new RuntimeError(
+        expr.operator,
+        "Expected variable for unary operator."
+      );
+    }
+
+    const current = (await this.evaluateExpr(expr.nameExpr)) as Value;
     let newValue = current;
 
     this.ensureNumberOperand(expr.operator, current);
@@ -124,7 +136,30 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
         newValue--;
     }
 
-    this.assignVariable(expr.name as Token<TokenType.VAR>, newValue);
+    if (expr.nameExpr instanceof ArrayGetExpr) {
+      const callee = await this.evaluateExpr(expr.nameExpr.callee);
+      const idx = await this.evaluateExpr(expr.nameExpr.indexExpr);
+
+      if (!(typeof idx === "number")) {
+        throw new RuntimeError(
+          expr.nameExpr.bracket,
+          "Index must be a number."
+        );
+      }
+      if (!(callee instanceof Array)) {
+        throw new RuntimeError(
+          expr.nameExpr.bracket,
+          `Cannot access property '${idx}.'`
+        );
+      }
+      if (idx >= callee.length) {
+        throw new RuntimeError(expr.nameExpr.bracket, "Index out of bounds.");
+      }
+
+      callee[idx] = newValue;
+    } else if (expr.nameExpr instanceof VariableExpr) {
+      this.assignVariable(expr.nameExpr.name as Token<TokenType.VAR>, newValue);
+    }
 
     if (expr.type === UnaryOperatorType.SUFFIX) {
       return current;

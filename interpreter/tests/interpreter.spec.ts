@@ -307,7 +307,9 @@ describe("Interpreter", () => {
         ),
         new PrintStmt(
           new UnaryOperatorExpr(
-            new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1)
+            ),
             new Token(TokenType.PLUS_PLUS, "++", undefined, 1, -1, -1),
             UnaryOperatorType.SUFFIX
           )
@@ -333,7 +335,9 @@ describe("Interpreter", () => {
         ),
         new PrintStmt(
           new UnaryOperatorExpr(
-            new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1)
+            ),
             new Token(TokenType.MINUS_MINUS, "--", undefined, 1, -1, -1),
             UnaryOperatorType.SUFFIX
           )
@@ -359,7 +363,9 @@ describe("Interpreter", () => {
         ),
         new PrintStmt(
           new UnaryOperatorExpr(
-            new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1)
+            ),
             new Token(TokenType.PLUS_PLUS, "++", undefined, 1, -1, -1),
             UnaryOperatorType.PREFIX
           )
@@ -379,7 +385,9 @@ describe("Interpreter", () => {
         ),
         new PrintStmt(
           new UnaryOperatorExpr(
-            new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1)
+            ),
             new Token(TokenType.MINUS_MINUS, "--", undefined, 1, -1, -1),
             UnaryOperatorType.PREFIX
           )
@@ -389,6 +397,45 @@ describe("Interpreter", () => {
       await interpreter.interpret();
 
       expect(log.mock.calls[0][0]).toBe("0");
+    });
+
+    it("var arr = [1]; print --arr[0]; print arr[0];", async () => {
+      const { interpreter, log } = makeSut([
+        new VarStmt(
+          new Token(TokenType.IDENTIFIER, "arr", undefined, 1, -1, -1),
+          new ArrayExpr(
+            new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+            [new LiteralExpr(1)]
+          )
+        ),
+        new PrintStmt(
+          new UnaryOperatorExpr(
+            new ArrayGetExpr(
+              new VariableExpr(
+                new Token(TokenType.IDENTIFIER, "arr", undefined, 1, -1, -1)
+              ),
+              new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+              new LiteralExpr(0)
+            ),
+            new Token(TokenType.MINUS_MINUS, "--", undefined, 1, -1, -1),
+            UnaryOperatorType.PREFIX
+          )
+        ),
+        new PrintStmt(
+          new ArrayGetExpr(
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "arr", undefined, 1, -1, -1)
+            ),
+            new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+            new LiteralExpr(0)
+          )
+        ),
+      ]);
+
+      await interpreter.interpret();
+
+      expect(log.mock.calls[0][0]).toBe("0");
+      expect(log.mock.calls[1][0]).toBe("0");
     });
   });
 

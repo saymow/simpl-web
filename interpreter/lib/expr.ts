@@ -136,7 +136,7 @@ class UnaryOperatorExpr extends Expr {
   }
 
   constructor(
-    public name: Token,
+    public nameExpr: Expr,
     public operator: Token,
     public type: UnaryOperatorType
   ) {

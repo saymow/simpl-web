@@ -413,6 +413,16 @@ class Parser {
         );
 
         expr = new ArrayGetExpr(expr, token, indexExpr);
+
+        if (this.match(TokenType.PLUS_PLUS, TokenType.MINUS_MINUS)) {
+          const operator = this.previous();
+
+          expr = new UnaryOperatorExpr(
+            expr,
+            operator,
+            UnaryOperatorType.SUFFIX
+          );
+        }
       } else {
         break;
       }
@@ -484,27 +494,24 @@ class Parser {
   }
 
   private variableIdentifier(): Expr {
-    const variable = this.previous();
+    const variableExpr = new VariableExpr(this.previous());
 
     if (this.match(TokenType.PLUS_PLUS, TokenType.MINUS_MINUS)) {
       const operator = this.previous();
 
       return new UnaryOperatorExpr(
-        variable,
+        variableExpr,
         operator,
         UnaryOperatorType.SUFFIX
       );
     }
 
-    return new VariableExpr(variable);
+    return variableExpr;
   }
 
   private prefixUnaryOperator(): Expr {
     const operator = this.previous();
-    const variable = this.consume(
-      TokenType.IDENTIFIER,
-      "Expect variable after unary prefix operation."
-    );
+    const variable = this.expression();
 
     return new UnaryOperatorExpr(variable, operator, UnaryOperatorType.PREFIX);
   }
