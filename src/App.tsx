@@ -57,6 +57,7 @@ function App() {
       if (err instanceof LexerError) {
         setFormattedSource(bindTokens(source, err.tokens));
       } else if (err instanceof CustomParserError) {
+        console.log(err);
         setFormattedSource(
           bindTokens(source, err.tokens, new TokenError(err.token, err.message))
         );

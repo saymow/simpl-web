@@ -5,8 +5,8 @@ var b_y;
 var slope;
 var y_intercept;
 
-fun compute_slope(a_x, a_y, b_x, b_y) {
-    return (a_y - b_y) / (a_x - b_x);
+fun compute_slope(x0, y0, x, y) {
+    return (y - y0) / (x - x0);
 }
 
 fun compute_y_intercept(x, y, slope) {
@@ -27,4 +27,3 @@ if (y_intercept  > 0) {
 } else {
     output("y = " + string(slope) + "x");
 }
-    

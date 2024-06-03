@@ -51,16 +51,16 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     }
   }
 
-  private evaluateStmt(stmt: Stmt): Promise<unknown> {
-    return stmt.accept(this);
+  private async evaluateStmt(stmt: Stmt): Promise<unknown> {
+    return await stmt.accept(this);
   }
 
-  private evaluateExpr(expr: Expr): Promise<unknown> {
-    return expr.accept(this);
+  private async evaluateExpr(expr: Expr): Promise<unknown> {
+    return await expr.accept(this);
   }
 
   async visitReturnStmt(stmt: ReturnStmt): Promise<void> {
-    const value = stmt.expr ? this.evaluateExpr(stmt.expr) : null;
+    const value = stmt.expr ? await this.evaluateExpr(stmt.expr) : null;
     throw new ReturnValue(value);
   }
 

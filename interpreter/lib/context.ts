@@ -28,11 +28,11 @@ class Context<T> {
   get(name: string): Value {
     if (!this.keywords.has(name)) {
       if (!this.enclosing) {
-        throw new VariableNotFound()
+        throw new VariableNotFound();
       }
 
       return this.enclosing.get(name);
-    };
+    }
 
     return this.keywords.get(name);
   }
