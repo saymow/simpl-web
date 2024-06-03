@@ -87,5 +87,11 @@ export const bindTokens = (
 
   formattedSourceParts.push(source.substring(startIdx));
 
+  // "white-space: pre;" always add a new line BEFORE a word. Therefore, in order to not have
+  // the last \n ignored, we add this one.   
+  if (formattedSourceParts[formattedSourceParts.length - 1].endsWith("\n")) {
+    formattedSourceParts.push("\n");
+  }
+
   return formattedSourceParts.join("");
 };

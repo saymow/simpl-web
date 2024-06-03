@@ -27,6 +27,9 @@ const Editor: React.FC<Props> = (props) => {
   const linesBarRef = useRef<HTMLElement>(null);
   const linesBarContent = useMemo(() => makeLinesBarLines(source), [source]);
 
+  // console.log("source: ", JSON.stringify(source) ?? "");
+  // console.log("formattedSource: ", JSON.stringify(formattedSource) ?? "");
+
   const onInputScroll = () => {
     if (!(inputRef.current && backgroundRef.current && linesBarRef.current))
       return;
