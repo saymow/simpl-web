@@ -241,6 +241,55 @@ describe("e2e", () => {
       expect(log.mock.calls[4][0]).toBe("2");
       expect(log.mock.calls[5][0]).toBe("1");
     });
+
+    it("12", async () => {
+      const { interpreter, log } = await makeSut(`
+        var arr = [1, 2, 3, 4, 5];
+
+        for (var i = 0; i < 5; i++) {
+          print ++arr[i];
+        }
+        
+        for (var i = 0; i < 5; i++) {
+          print --arr[i];
+        }
+        
+        for (var i = 0; i < 5; i++) {
+          print arr[i] *= 5;
+        }
+        
+        for (var i = 0; i < 5; i++) {
+          print arr[i] /= 5;
+        }
+      `);
+
+      await interpreter.interpret();
+
+      [
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "5",
+        "10",
+        "15",
+        "20",
+        "25",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+      ].forEach((ans, idx) => {
+        expect(log.mock.calls[idx][0]).toBe(ans);
+      });
+    });
   });
 
   describe("Core Lib", () => {
