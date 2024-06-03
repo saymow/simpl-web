@@ -15,6 +15,7 @@ import {
   AssignOperatorExpr,
   UnaryOperatorExpr,
   UnaryOperatorType,
+  ArrayExpr,
 } from "../lib/expr";
 import {
   BlockStmt,
@@ -656,7 +657,7 @@ describe("Parser", () => {
         ),
       ]);
     });
-    
+
     it("++a;", () => {
       expect(
         new Parser([
@@ -1330,6 +1331,58 @@ describe("Parser", () => {
               )
             ),
           ]
+        ),
+      ]);
+    });
+  });
+
+  describe("Arrays", () => {
+    it("var arr = [];", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.VAR, "var", undefined, 1, -1, -1),
+          new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1),
+          new Token(TokenType.EQUAL, "=", undefined, 1, -1, -1),
+          new Token(TokenType.LEFT_BRACKET, "[", undefined, 1, -1, -1),
+          new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        new VarStmt(
+          new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1),
+          new ArrayExpr(
+            new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+            []
+          )
+        ),
+      ]);
+    });
+
+    it(`var arr = [1, "test"];`, () => {
+      expect(
+        new Parser([
+          new Token(TokenType.VAR, "var", undefined, 1, -1, -1),
+          new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1),
+          new Token(TokenType.EQUAL, "=", undefined, 1, -1, -1),
+          new Token(TokenType.LEFT_BRACKET, "[", undefined, 1, -1, -1),
+          new Token(TokenType.NUMBER, '1', 1, 1, -1, -1),
+          new Token(TokenType.COMMA, ',', undefined, 1, -1, -1),
+          new Token(TokenType.STRING, '"test"', "test", 1, -1, -1),
+          new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        new VarStmt(
+          new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1),
+          new ArrayExpr(
+            new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+            [
+              new LiteralExpr(1),
+              new LiteralExpr("test")
+            ]
+          )
         ),
       ]);
     });

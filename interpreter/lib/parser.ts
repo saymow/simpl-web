@@ -1,4 +1,5 @@
 import {
+  ArrayExpr,
   AssignExpr,
   AssignOperatorExpr,
   BinaryExpr,
@@ -376,7 +377,7 @@ class Parser {
   }
 
   // unary → ( "!" | "-" ) unary | unary_operator ;
-  // 
+  //
   private unary(): Expr {
     if (this.match(TokenType.BANG, TokenType.MINUS)) {
       const operator = this.previous();
@@ -432,6 +433,8 @@ class Parser {
       return new LiteralExpr(null);
     } else if (this.match(TokenType.NUMBER, TokenType.STRING)) {
       return new LiteralExpr(this.previous().literal);
+    } else if (this.match(TokenType.LEFT_BRACKET)) {
+      return this.array();
     } else if (this.match(TokenType.IDENTIFIER)) {
       return this.variableIdentifier();
     } else if (this.match(TokenType.PLUS_PLUS, TokenType.MINUS_MINUS)) {
@@ -443,6 +446,23 @@ class Parser {
     }
 
     throw this.error(this.peek(), "Unexpected token.");
+  }
+
+  private array(): Expr {
+    const elements = [];
+
+    if (!this.check(TokenType.RIGHT_BRACKET)) {
+      do {
+        elements.push(this.expression());
+      } while (this.match(TokenType.COMMA));
+    }
+
+    const token = this.consume(
+      TokenType.RIGHT_BRACKET,
+      "Expect ']' after array elements list."
+    );
+
+    return new ArrayExpr(token, elements);
   }
 
   private variableIdentifier(): Expr {
