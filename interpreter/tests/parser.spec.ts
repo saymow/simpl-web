@@ -10,7 +10,6 @@ import {
   LogicalExpr,
   UnaryExpr,
   VariableExpr,
-  SetExpr,
   Expr,
   AssignOperatorExpr,
   UnaryOperatorExpr,
@@ -1401,6 +1400,7 @@ describe("Parser", () => {
             new VariableExpr(
               new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1)
             ),
+            new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
             new LiteralExpr(1)
           )
         ),
@@ -1427,8 +1427,10 @@ describe("Parser", () => {
               new VariableExpr(
                 new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1)
               ),
+              new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
               new LiteralExpr(1)
             ),
+            new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
             new LiteralExpr(2)
           )
         ),

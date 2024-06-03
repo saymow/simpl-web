@@ -397,10 +397,12 @@ class Parser {
         expr = this.finishCall(expr);
       } else if (this.match(TokenType.LEFT_BRACKET)) {
         const indexExpr = this.expression();
+        const token = this.consume(
+          TokenType.RIGHT_BRACKET,
+          "Expect ']' after array access."
+        );
 
-        this.consume(TokenType.RIGHT_BRACKET, "Expect ']' after array access.");
-
-        expr = new ArrayGetExpr(expr, indexExpr);
+        expr = new ArrayGetExpr(expr, token, indexExpr);
       } else {
         break;
       }
@@ -501,11 +503,14 @@ class Parser {
     return new ParserError(token, message);
   }
 
-  private consume(tokenType: TokenType, message: string): Token {
+  private consume<T extends TokenType[keyof TokenType]>(
+    tokenType: T,
+    message: string
+  ): Token<T> {
     if (this.peek().type !== tokenType) {
       throw this.error(this.previous(), message);
     }
-    return this.advance();
+    return this.advance() as Token<T>;
   }
 
   private advance(): Token {

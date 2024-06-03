@@ -1,6 +1,7 @@
 import Token from "./token";
 import TokenType from "./token-type";
 
+// type Value = undefined | null | string | number | Value[];
 type Value = any;
 
 interface ExprVisitor<T> {
@@ -157,7 +158,11 @@ class ArrayGetExpr extends Expr {
     return visitor.visitArrayGetExpr(this);
   }
 
-  constructor(public callee: Expr, public indexExpr: Expr) {
+  constructor(
+    public callee: Expr,
+    public bracket: Token<TokenType.RIGHT_BRACKET>,
+    public indexExpr: Expr
+  ) {
     super();
   }
 }

@@ -1,4 +1,6 @@
 import {
+  ArrayExpr,
+  ArrayGetExpr,
   AssignExpr,
   AssignOperatorExpr,
   BinaryExpr,
@@ -60,6 +62,33 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
   private async evaluateExpr(expr: Expr): Promise<unknown> {
     return await expr.accept(this);
+  }
+
+  async visitArrayExpr(expr: ArrayExpr): Promise<any> {
+    const elements = [];
+
+    for (const elementExpr of expr.elements) {
+      elements.push(await this.evaluateExpr(elementExpr));
+    }
+
+    return elements;
+  }
+
+  async visitArrayGetExpr(expr: ArrayGetExpr): Promise<any> {
+    const callee = await this.evaluateExpr(expr.callee);
+    const idx = await this.evaluateExpr(expr.indexExpr);
+
+    if (!(typeof idx === "number")) {
+      throw new RuntimeError(expr.bracket, "Index must be a number.");
+    }
+    if (!(callee instanceof Array)) {
+      throw new RuntimeError(expr.bracket, `Cannot access property '${idx}.'`);
+    }
+    if (idx >= callee.length) {
+      throw new RuntimeError(expr.bracket, "Index out of bounds.");
+    }
+
+    return callee[idx];
   }
 
   visitUnaryOperatorExpr(expr: UnaryOperatorExpr): Promise<any> {
@@ -347,7 +376,7 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
       return;
     }
 
-    throw new RuntimeError(token, "Operand must be numbers.");
+    throw new RuntimeError(token, "Operand must be number.");
   }
 
   private ensureNumberOperands(token: Token, a: Value, b: Value) {
@@ -363,8 +392,16 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   }
 
   private log(message: any) {
-    message =
-      message !== undefined && message !== null ? message.toString() : "nil";
+    if (message !== undefined && message !== null) {
+      if (message instanceof Array) {
+        message = JSON.stringify(message);
+      } else {
+        message = message.toString();
+      }
+    } else {
+      message = "nil";
+    }
+
     this.system.log(message);
   }
 }
