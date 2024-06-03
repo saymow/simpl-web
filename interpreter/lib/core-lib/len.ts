@@ -1,6 +1,7 @@
 import { Value } from "../expr";
 import { SysCall, System } from "../interfaces";
 import { CoreLibError } from "../errors";
+import { isArray, isString } from "./helpers";
 
 class Len extends SysCall {
   public arity(): number {
@@ -10,7 +11,7 @@ class Len extends SysCall {
   public async call(system: System, args: Value[]) {
     const value = args[0];
 
-    if (!(value instanceof Array || typeof value === "string")) {
+    if (!(isArray(value) || isString(value))) {
       throw new CoreLibError("Value must be string or array.");
     }
 

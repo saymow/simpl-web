@@ -1,5 +1,7 @@
+import { CoreLibError } from "../errors";
 import { Value } from "../expr";
 import { SysCall, System } from "../interfaces";
+import { isNumber, isString } from "./helpers";
 
 class Input extends SysCall {
   public arity(): number {
@@ -7,7 +9,16 @@ class Input extends SysCall {
   }
 
   public async call(system: System, args: Value[]) {
-    const text = args[0];
+    let text = args[0];
+
+    if (!isString(text)) {
+      if (!isNumber(text)) {
+        throw new CoreLibError("Expected string or number.");
+      }
+
+      text = text.toString();
+    }
+
     return system.input(text);
   }
 }

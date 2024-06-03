@@ -1,6 +1,7 @@
 import { Value } from "../expr";
 import { SysCall, System } from "../interfaces";
 import { CoreLibError } from "../errors";
+import { isNumber, isString } from "./helpers";
 
 class Int extends SysCall {
   public arity(): number {
@@ -10,8 +11,8 @@ class Int extends SysCall {
   public async call(system: System, args: Value[]) {
     const value = args[0];
 
-    if (value === undefined || value === null) {
-      throw new CoreLibError("Cannot cast 'nil' to integer.");
+    if (!(isString(value) || isNumber(value))) {
+      throw new CoreLibError("Expect string or number.");
     }
 
     return parseInt(value);
