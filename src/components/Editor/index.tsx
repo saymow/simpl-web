@@ -1,4 +1,4 @@
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import "./styles.css";
 
 interface Props {
@@ -27,7 +27,15 @@ const Editor: React.FC<Props> = (props) => {
   const linesBarRef = useRef<HTMLElement>(null);
   const linesBarContent = useMemo(() => makeLinesBarLines(source), [source]);
 
-  const onInputScroll = () => {
+  useEffect(() => {
+    updateScrollIfCan();
+  }, [source, formattedSource])
+
+  const handleChanges: React.ChangeEventHandler<HTMLTextAreaElement> = (e) => {
+    setSource(e.target.value);
+  };
+
+  const updateScrollIfCan = () => {
     if (!(inputRef.current && backgroundRef.current && linesBarRef.current))
       return;
 
@@ -47,10 +55,11 @@ const Editor: React.FC<Props> = (props) => {
       ></article>
       <textarea
         ref={inputRef}
-        onScroll={onInputScroll}
+        onScroll={updateScrollIfCan}
+        onPaste={() => console.log("pasted")}
         className="input"
         value={source}
-        onChange={(e) => setSource(e.target.value)}
+        onChange={handleChanges}
       />
     </section>
   );
