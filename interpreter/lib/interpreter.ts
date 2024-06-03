@@ -37,6 +37,7 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
   constructor(private ast: Stmt[], private system: System) {
     this.context.define("now", new lib.Now());
+    this.context.define("output", new lib.Output());
     this.context.define("input", new lib.Input());
     this.context.define("string", new lib.String());
     this.context.define("number", new lib.Number());
