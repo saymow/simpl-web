@@ -339,7 +339,7 @@ class Parser {
     if (this.match(TokenType.MINUS_EQUAL, TokenType.PLUS_EQUAL)) {
       const operator = this.previous();
 
-      if (!(expr instanceof VariableExpr)) {
+      if (!(expr instanceof VariableExpr || expr instanceof ArrayGetExpr)) {
         throw this.error(
           operator,
           "Expected variable for assignment operation."
@@ -347,7 +347,7 @@ class Parser {
       }
 
       const right = this.factor();
-      return new AssignOperatorExpr(expr.name, operator, right);
+      return new AssignOperatorExpr(expr, operator, right);
     }
 
     return expr;
@@ -371,16 +371,17 @@ class Parser {
     const expr = this.unary();
 
     if (this.match(TokenType.SLASH_EQUAL, TokenType.STAR_EQUAL)) {
-      if (!(expr instanceof VariableExpr)) {
+      const operator = this.previous();
+
+      if (!(expr instanceof VariableExpr || expr instanceof ArrayGetExpr)) {
         throw this.error(
-          (expr as VariableExpr).name,
-          "Expected variable for assignment operation."
+          operator,
+          "Expected variable or array item for assignment operation."
         );
       }
 
-      const operator = this.previous();
       const right = this.unary();
-      return new AssignOperatorExpr(expr.name, operator, right);
+      return new AssignOperatorExpr(expr, operator, right);
     }
 
     return expr;

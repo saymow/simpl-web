@@ -524,7 +524,9 @@ describe("Parser", () => {
       ).toEqual([
         WrapExpr(
           new AssignOperatorExpr(
-            new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1),
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1)
+            ),
             new Token(TokenType.PLUS_EQUAL, "+=", undefined, 1, -1, -1),
             new LiteralExpr(1)
           )
@@ -544,7 +546,9 @@ describe("Parser", () => {
       ).toEqual([
         WrapExpr(
           new AssignOperatorExpr(
-            new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1),
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1)
+            ),
             new Token(TokenType.MINUS_EQUAL, "-=", undefined, 1, -1, -1),
             new LiteralExpr(1)
           )
@@ -564,7 +568,40 @@ describe("Parser", () => {
       ).toEqual([
         WrapExpr(
           new AssignOperatorExpr(
-            new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1),
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1)
+            ),
+            new Token(TokenType.PLUS_EQUAL, "+=", undefined, 1, -1, -1),
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "x", "x", 1, -1, -1)
+            )
+          )
+        ),
+      ]);
+    });
+
+    it("arr[0] += x;", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1),
+          new Token(TokenType.LEFT_BRACKET, "[", undefined, 1, -1, -1),
+          new Token(TokenType.NUMBER, "0", 0, 1, -1, -1),
+          new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+          new Token(TokenType.PLUS_EQUAL, "+=", undefined, 1, -1, -1),
+          new Token(TokenType.IDENTIFIER, "x", "x", 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        WrapExpr(
+          new AssignOperatorExpr(
+            new ArrayGetExpr(
+              new VariableExpr(
+                new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1)
+              ),
+              new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+              new LiteralExpr(0)
+            ),
             new Token(TokenType.PLUS_EQUAL, "+=", undefined, 1, -1, -1),
             new VariableExpr(
               new Token(TokenType.IDENTIFIER, "x", "x", 1, -1, -1)
@@ -586,7 +623,9 @@ describe("Parser", () => {
       ).toEqual([
         WrapExpr(
           new AssignOperatorExpr(
-            new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1),
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1)
+            ),
             new Token(TokenType.MINUS_EQUAL, "-=", undefined, 1, -1, -1),
             new VariableExpr(
               new Token(TokenType.IDENTIFIER, "x", "x", 1, -1, -1)
@@ -608,7 +647,40 @@ describe("Parser", () => {
       ).toEqual([
         WrapExpr(
           new AssignOperatorExpr(
-            new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1),
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1)
+            ),
+            new Token(TokenType.STAR_EQUAL, "*=", undefined, 1, -1, -1),
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "x", "x", 1, -1, -1)
+            )
+          )
+        ),
+      ]);
+    });
+
+    it("arr[0] *= x;", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1),
+          new Token(TokenType.LEFT_BRACKET, "[", undefined, 1, -1, -1),
+          new Token(TokenType.NUMBER, "0", 0, 1, -1, -1),
+          new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+          new Token(TokenType.STAR_EQUAL, "*=", undefined, 1, -1, -1),
+          new Token(TokenType.IDENTIFIER, "x", "x", 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        WrapExpr(
+          new AssignOperatorExpr(
+            new ArrayGetExpr(
+              new VariableExpr(
+                new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1)
+              ),
+              new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+              new LiteralExpr(0)
+            ),
             new Token(TokenType.STAR_EQUAL, "*=", undefined, 1, -1, -1),
             new VariableExpr(
               new Token(TokenType.IDENTIFIER, "x", "x", 1, -1, -1)
@@ -630,7 +702,9 @@ describe("Parser", () => {
       ).toEqual([
         WrapExpr(
           new AssignOperatorExpr(
-            new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1),
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1)
+            ),
             new Token(TokenType.SLASH_EQUAL, "/=", undefined, 1, -1, -1),
             new VariableExpr(
               new Token(TokenType.IDENTIFIER, "x", "x", 1, -1, -1)

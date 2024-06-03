@@ -110,7 +110,11 @@ class AssignOperatorExpr extends Expr {
     return visitor.visitAssignOperatorExpr(this);
   }
 
-  constructor(public name: Token, public operator: Token, public value: Expr) {
+  constructor(
+    public nameExpr: Expr,
+    public operator: Token,
+    public value: Expr
+  ) {
     super();
   }
 }
