@@ -49,6 +49,7 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     this.context.define("number", new lib.Number());
     this.context.define("int", new lib.Int());
     this.context.define("abs", new lib.Abs());
+    this.context.define("len", new lib.Len());
   }
 
   public async interpret() {

@@ -327,6 +327,18 @@ describe("e2e", () => {
 
       expect(log.mock.calls[0][0]).toBe("5");
     });
+
+    it("len(string|Value[])", async () => {
+      const { interpreter, log } = await makeSut(`
+        print len("str");
+        print len([1, 2, 3, 4, 5]); 
+      `);
+
+      await interpreter.interpret();
+
+      expect(log.mock.calls[0][0]).toBe("3");
+      expect(log.mock.calls[1][0]).toBe("5");
+    });
   });
 
   describe("Code files", () => {
