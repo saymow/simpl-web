@@ -16,6 +16,7 @@ import Editor from "./components/Editor";
 import { CustomParserError, TokenError } from "./errors";
 import { bindTokens } from "./helpers";
 import Button from "./components/Button";
+import { INITIAL_PROGRAM } from "./data";
 
 interface Program {
   tokens: Token[];
@@ -23,7 +24,7 @@ interface Program {
 }
 
 function App() {
-  const [source, setSource] = useState("");
+  const [source, setSource] = useState(INITIAL_PROGRAM);
   const [formattedSource, setFormattedSource] = useState<string>();
   const [program, setProgram] = useState<Program>();
   const [terminal, setTerminal] = useState<Terminal[]>([]);
