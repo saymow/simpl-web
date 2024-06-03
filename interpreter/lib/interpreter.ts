@@ -10,6 +10,8 @@ import {
   LogicalExpr,
   SetExpr,
   UnaryExpr,
+  UnaryOperatorExpr,
+  UnaryOperatorType,
   Value,
   VariableExpr,
 } from "./expr";
@@ -60,6 +62,29 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     return await expr.accept(this);
   }
 
+  visitUnaryOperatorExpr(expr: UnaryOperatorExpr): Promise<any> {
+    const current = this.getVariable(expr.name as Token<TokenType.VAR>);
+    let newValue = current;
+
+    this.ensureNumberOperand(expr.operator, current);
+
+    switch (expr.operator.type) {
+      case TokenType.PLUS_PLUS:
+        newValue++;
+        break;
+      case TokenType.MINUS_MINUS:
+        newValue--;
+    }
+
+    this.assignVariable(expr.name as Token<TokenType.VAR>, newValue);
+
+    if (expr.type === UnaryOperatorType.SUFFIX) {
+      return current;
+    }
+
+    return newValue;
+  }
+
   async visitAssignOperatorExpr(expr: AssignOperatorExpr): Promise<any> {
     const current = this.getVariable(expr.name as Token<TokenType.VAR>);
     const increment = await this.evaluateExpr(expr.value);
@@ -78,8 +103,8 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
             "Operands must be numbers or strings."
           );
         }
-        
-        value = current as any + increment as any;
+
+        value = ((current as any) + increment) as any;
 
         break;
       case TokenType.MINUS_EQUAL:

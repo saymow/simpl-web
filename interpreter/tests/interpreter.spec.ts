@@ -5,6 +5,8 @@ import {
   CallExpr,
   GroupingExpr,
   LiteralExpr,
+  UnaryOperatorExpr,
+  UnaryOperatorType,
   VariableExpr,
 } from "../lib/expr";
 import Interpreter from "../lib/interpreter";
@@ -117,6 +119,28 @@ describe("Interpreter", () => {
       expect(log.mock.calls[0][0]).toBe("77");
     });
 
+    it("var myVar;", async () => {
+      const { interpreter } = makeSut([
+        new VarStmt(
+          new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1)
+        ),
+      ]);
+
+      expect(interpreter.interpret()).resolves.not.toThrow();
+    });
+
+    it("print myVar;", async () => {
+      const { interpreter } = makeSut([
+        new PrintStmt(
+          new VariableExpr(
+            new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1)
+          )
+        ),
+      ]);
+
+      expect(interpreter.interpret()).rejects.toThrow();
+    });
+
     it("var myVar = 77; myVar = 5; print myVar;", async () => {
       const { interpreter, log } = makeSut([
         new VarStmt(
@@ -193,7 +217,6 @@ describe("Interpreter", () => {
       expect(log).toHaveBeenCalledTimes(1);
       expect(log.mock.calls[0][0]).toBe("name");
     });
-
 
     it("var myVar = 10; myVar -= 5; print myVar;", async () => {
       const { interpreter, log } = makeSut([
@@ -273,18 +296,19 @@ describe("Interpreter", () => {
       expect(log.mock.calls[0][0]).toBe("2");
     });
 
-    it("var myVar;", async () => {
-      const { interpreter } = makeSut([
+    it("var myVar = 1; print myVar++; print myVar;", async () => {
+      const { interpreter, log } = makeSut([
         new VarStmt(
-          new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1)
+          new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
+          new LiteralExpr(1)
         ),
-      ]);
-
-      expect(interpreter.interpret()).resolves.not.toThrow();
-    });
-
-    it("print myVar;", async () => {
-      const { interpreter } = makeSut([
+        new PrintStmt(
+          new UnaryOperatorExpr(
+            new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
+            new Token(TokenType.PLUS_PLUS, "++", undefined, 1, -1, -1),
+            UnaryOperatorType.SUFFIX
+          )
+        ),
         new PrintStmt(
           new VariableExpr(
             new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1)
@@ -292,7 +316,76 @@ describe("Interpreter", () => {
         ),
       ]);
 
-      expect(interpreter.interpret()).rejects.toThrow();
+      await interpreter.interpret();
+
+      expect(log.mock.calls[0][0]).toBe("1");
+      expect(log.mock.calls[1][0]).toBe("2");
+    });
+
+    it("var myVar = 1; print myVar--; print myVar;", async () => {
+      const { interpreter, log } = makeSut([
+        new VarStmt(
+          new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
+          new LiteralExpr(1)
+        ),
+        new PrintStmt(
+          new UnaryOperatorExpr(
+            new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
+            new Token(TokenType.MINUS_MINUS, "--", undefined, 1, -1, -1),
+            UnaryOperatorType.SUFFIX
+          )
+        ),
+        new PrintStmt(
+          new VariableExpr(
+            new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1)
+          )
+        ),
+      ]);
+
+      await interpreter.interpret();
+
+      expect(log.mock.calls[0][0]).toBe("1");
+      expect(log.mock.calls[1][0]).toBe("0");
+    });
+
+    it("var myVar = 1; print ++myVar;", async () => {
+      const { interpreter, log } = makeSut([
+        new VarStmt(
+          new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
+          new LiteralExpr(1)
+        ),
+        new PrintStmt(
+          new UnaryOperatorExpr(
+            new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
+            new Token(TokenType.PLUS_PLUS, "++", undefined, 1, -1, -1),
+            UnaryOperatorType.PREFIX
+          )
+        ),
+      ]);
+
+      await interpreter.interpret();
+
+      expect(log.mock.calls[0][0]).toBe("2");
+    });
+
+    it("var myVar = 1; print --myVar;", async () => {
+      const { interpreter, log } = makeSut([
+        new VarStmt(
+          new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
+          new LiteralExpr(1)
+        ),
+        new PrintStmt(
+          new UnaryOperatorExpr(
+            new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
+            new Token(TokenType.MINUS_MINUS, "--", undefined, 1, -1, -1),
+            UnaryOperatorType.PREFIX
+          )
+        ),
+      ]);
+
+      await interpreter.interpret();
+
+      expect(log.mock.calls[0][0]).toBe("0");
     });
   });
 

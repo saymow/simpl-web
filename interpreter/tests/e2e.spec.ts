@@ -219,6 +219,28 @@ describe("e2e", () => {
       expect(log.mock.calls[3][0]).toBe("1");
       expect(log.mock.calls[4][0]).toBe("test");
     });
+
+    it("11", async () => {
+      const { interpreter, log } = await makeSut(`
+        var num = 1;
+        
+        print num++;
+        print num;
+        print num--;
+        print num;
+        print ++num;
+        print --num;
+      `);
+
+      await interpreter.interpret();
+
+      expect(log.mock.calls[0][0]).toBe("1");
+      expect(log.mock.calls[1][0]).toBe("2");
+      expect(log.mock.calls[2][0]).toBe("2");
+      expect(log.mock.calls[3][0]).toBe("1");
+      expect(log.mock.calls[4][0]).toBe("2");
+      expect(log.mock.calls[5][0]).toBe("1");
+    });
   });
 
   describe("Core Lib", () => {
