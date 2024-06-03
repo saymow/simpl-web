@@ -1,6 +1,7 @@
 import {
   ArrayExpr,
   ArrayGetExpr,
+  ArraySetExpr,
   AssignExpr,
   AssignOperatorExpr,
   BinaryExpr,
@@ -994,6 +995,95 @@ describe("Interpreter", () => {
 
       expect(log).toHaveBeenCalledTimes(1);
       expect(log.mock.calls[0][0]).toBe("1");
+    });
+
+    it('var arr = [1, "test"]; arr[1] = "not-a-test"; print arr[1];', async () => {
+      const { log, interpreter } = makeSut([
+        new VarStmt(
+          new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1),
+          new ArrayExpr(
+            new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+            [new LiteralExpr(1), new LiteralExpr("test")]
+          )
+        ),
+        new ExprStmt(
+          new ArraySetExpr(
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1)
+            ),
+            new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+            new LiteralExpr(1),
+            new LiteralExpr("not-a-test")
+          )
+        ),
+        new PrintStmt(
+          new ArrayGetExpr(
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1)
+            ),
+            new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+            new LiteralExpr(1)
+          )
+        ),
+      ]);
+
+      await interpreter.interpret();
+
+      expect(log).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls[0][0]).toBe("not-a-test");
+    });
+
+    it('var identity = [[1, 0], [0, 1]]; arr[0][0] = "test"; print arr[0][0];', async () => {
+      const { log, interpreter } = makeSut([
+        new VarStmt(
+          new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1),
+          new ArrayExpr(
+            new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+            [
+              new ArrayExpr(
+                new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+                [new LiteralExpr(1), new LiteralExpr(0)]
+              ),
+              new ArrayExpr(
+                new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+                [new LiteralExpr(0), new LiteralExpr(1)]
+              ),
+            ]
+          )
+        ),
+        new ExprStmt(
+          new ArraySetExpr(
+            new ArrayGetExpr(
+              new VariableExpr(
+                new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1)
+              ),
+              new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+              new LiteralExpr(0)
+            ),
+            new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+            new LiteralExpr(0),
+            new LiteralExpr("test")
+          )
+        ),
+        new PrintStmt(
+          new ArrayGetExpr(
+            new ArrayGetExpr(
+              new VariableExpr(
+                new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1)
+              ),
+              new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+              new LiteralExpr(0)
+            ),
+            new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+            new LiteralExpr(0)
+          )
+        ),
+      ]);
+
+      await interpreter.interpret();
+
+      expect(log).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls[0][0]).toBe("test");
     });
   });
 });

@@ -173,7 +173,12 @@ class ArraySetExpr extends Expr {
     return visitor.visitArraySetExpr(this);
   }
 
-  constructor(public callee: Expr, public indexExpr: Expr, public expr: Expr) {
+  constructor(
+    public callee: Expr,
+    public bracket: Token<TokenType.RIGHT_BRACKET>,
+    public indexExpr: Expr,
+    public expr: Expr
+  ) {
     super();
   }
 }

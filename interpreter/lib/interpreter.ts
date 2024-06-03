@@ -1,6 +1,7 @@
 import {
   ArrayExpr,
   ArrayGetExpr,
+  ArraySetExpr,
   AssignExpr,
   AssignOperatorExpr,
   BinaryExpr,
@@ -62,6 +63,24 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
   private async evaluateExpr(expr: Expr): Promise<unknown> {
     return await expr.accept(this);
+  }
+
+  async visitArraySetExpr(expr: ArraySetExpr): Promise<any> {
+    const callee = await this.evaluateExpr(expr.callee);
+    const idx = await this.evaluateExpr(expr.indexExpr);
+    const value = await this.evaluateExpr(expr.expr);
+
+    if (!(typeof idx === "number")) {
+      throw new RuntimeError(expr.bracket, "Index must be a number.");
+    }
+    if (!(callee instanceof Array)) {
+      throw new RuntimeError(expr.bracket, `Cannot access property '${idx}.'`);
+    }
+    if (idx >= callee.length) {
+      throw new RuntimeError(expr.bracket, "Index out of bounds.");
+    }
+
+    callee[idx] = value;
   }
 
   async visitArrayExpr(expr: ArrayExpr): Promise<any> {

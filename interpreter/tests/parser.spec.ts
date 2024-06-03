@@ -1456,6 +1456,7 @@ describe("Parser", () => {
             new VariableExpr(
               new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1)
             ),
+            new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
             new LiteralExpr(1),
             new LiteralExpr("test")
           )
@@ -1488,6 +1489,7 @@ describe("Parser", () => {
               new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
               new LiteralExpr(1)
             ),
+            new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
             new LiteralExpr(2),
             new LiteralExpr("test")
           )

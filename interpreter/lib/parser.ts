@@ -248,7 +248,12 @@ class Parser {
         return new AssignExpr(expr.name, value);
       }
       if (expr instanceof ArrayGetExpr) {
-        return new ArraySetExpr(expr.callee, expr.indexExpr, value);
+        return new ArraySetExpr(
+          expr.callee,
+          expr.bracket,
+          expr.indexExpr,
+          value
+        );
       }
 
       this.error(token, "Invalid assignment target.");
