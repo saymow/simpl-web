@@ -337,14 +337,15 @@ class Parser {
     const expr = this.factor();
 
     if (this.match(TokenType.MINUS_EQUAL, TokenType.PLUS_EQUAL)) {
+      const operator = this.previous();
+
       if (!(expr instanceof VariableExpr)) {
         throw this.error(
-          (expr as VariableExpr).name,
+          operator,
           "Expected variable for assignment operation."
         );
       }
 
-      const operator = this.previous();
       const right = this.factor();
       return new AssignOperatorExpr(expr.name, operator, right);
     }
