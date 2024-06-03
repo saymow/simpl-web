@@ -12,6 +12,7 @@ interface ExprVisitor<T> {
   visitCallExpr(expr: CallExpr): Promise<T>;
   visitAssignExpr(expr: AssignExpr): Promise<T>;
   visitAssignOperatorExpr(expr: AssignOperatorExpr): Promise<T>;
+  visitUnaryOperatorExpr(expr: UnaryOperatorExpr): Promise<T>;
   visitSetExpr(expr: SetExpr): Promise<T>;
 }
 
@@ -119,6 +120,25 @@ class SetExpr extends Expr {
   }
 }
 
+enum UnaryOperatorType {
+  PREFIX,
+  SUFFIX,
+}
+
+class UnaryOperatorExpr extends Expr {
+  public accept<T>(visitor: ExprVisitor<T>): Promise<T> {
+    return visitor.visitUnaryOperatorExpr(this);
+  }
+
+  constructor(
+    public name: Token,
+    public operator: Token,
+    public type: UnaryOperatorType
+  ) {
+    super();
+  }
+}
+
 export type { Value, ExprVisitor };
 
 export {
@@ -133,4 +153,6 @@ export {
   AssignExpr,
   AssignOperatorExpr,
   SetExpr,
+  UnaryOperatorExpr,
+  UnaryOperatorType,
 };

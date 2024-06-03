@@ -8,6 +8,8 @@ import {
   LiteralExpr,
   LogicalExpr,
   UnaryExpr,
+  UnaryOperatorExpr,
+  UnaryOperatorType,
   VariableExpr,
 } from "./expr";
 import {
@@ -136,9 +138,6 @@ class Parser {
     let initializer;
     let comparisson;
     let increment;
-    let stmt;
-    let innerBlock;
-    let outerBlock;
 
     this.consume(TokenType.LEFT_PAREN, "Expect '(' after for.");
     if (!this.match(TokenType.SEMICOLON)) {
@@ -162,9 +161,9 @@ class Parser {
       this.consume(TokenType.RIGHT_PAREN, "Expect ')' after for increment.");
     }
 
-    stmt = this.statement();
+    const stmt = this.statement();
 
-    innerBlock = new BlockStmt([stmt]);
+    const innerBlock = new BlockStmt([stmt]);
 
     if (increment) {
       innerBlock.stmts.push(new ExprStmt(increment));
@@ -174,7 +173,7 @@ class Parser {
       comparisson = new LiteralExpr(true);
     }
 
-    outerBlock = new BlockStmt([new WhileStmt(comparisson, innerBlock)]);
+    const outerBlock = new BlockStmt([new WhileStmt(comparisson, innerBlock)]);
 
     if (initializer) {
       outerBlock.stmts.unshift(initializer);
@@ -376,6 +375,8 @@ class Parser {
     return expr;
   }
 
+  // unary → ( "!" | "-" ) unary | unary_operator ;
+  // 
   private unary(): Expr {
     if (this.match(TokenType.BANG, TokenType.MINUS)) {
       const operator = this.previous();
@@ -389,6 +390,7 @@ class Parser {
   private call(): Expr {
     let expr = this.primary();
 
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       if (this.match(TokenType.LEFT_PAREN)) {
         expr = this.finishCall(expr);
@@ -432,6 +434,8 @@ class Parser {
       return new LiteralExpr(this.previous().literal);
     } else if (this.match(TokenType.IDENTIFIER)) {
       return this.variableIdentifier();
+    } else if (this.match(TokenType.PLUS_PLUS, TokenType.MINUS_MINUS)) {
+      return this.prefixUnaryOperator();
     } else if (this.match(TokenType.LEFT_PAREN)) {
       const expr = this.expression();
       this.consume(TokenType.RIGHT_PAREN, "Expect ')' after group expression.");
@@ -442,7 +446,29 @@ class Parser {
   }
 
   private variableIdentifier(): Expr {
-    return new VariableExpr(this.previous());
+    const variable = this.previous();
+
+    if (this.match(TokenType.PLUS_PLUS, TokenType.MINUS_MINUS)) {
+      const operator = this.previous();
+
+      return new UnaryOperatorExpr(
+        variable,
+        operator,
+        UnaryOperatorType.SUFFIX
+      );
+    }
+
+    return new VariableExpr(variable);
+  }
+
+  private prefixUnaryOperator(): Expr {
+    const operator = this.previous();
+    const variable = this.consume(
+      TokenType.IDENTIFIER,
+      "Expect variable after unary prefix operation."
+    );
+
+    return new UnaryOperatorExpr(variable, operator, UnaryOperatorType.PREFIX);
   }
 
   private error(token: Token, message: string) {

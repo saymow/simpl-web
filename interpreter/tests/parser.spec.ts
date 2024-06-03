@@ -13,6 +13,8 @@ import {
   SetExpr,
   Expr,
   AssignOperatorExpr,
+  UnaryOperatorExpr,
+  UnaryOperatorType,
 } from "../lib/expr";
 import {
   BlockStmt,
@@ -631,6 +633,82 @@ describe("Parser", () => {
             new VariableExpr(
               new Token(TokenType.IDENTIFIER, "x", "x", 1, -1, -1)
             )
+          )
+        ),
+      ]);
+    });
+
+    it("a++;", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1),
+          new Token(TokenType.PLUS_PLUS, "++", undefined, 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        WrapExpr(
+          new UnaryOperatorExpr(
+            new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1),
+            new Token(TokenType.PLUS_PLUS, "++", undefined, 1, -1, -1),
+            UnaryOperatorType.SUFFIX
+          )
+        ),
+      ]);
+    });
+    
+    it("++a;", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.PLUS_PLUS, "++", undefined, 1, -1, -1),
+          new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        WrapExpr(
+          new UnaryOperatorExpr(
+            new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1),
+            new Token(TokenType.PLUS_PLUS, "++", undefined, 1, -1, -1),
+            UnaryOperatorType.PREFIX
+          )
+        ),
+      ]);
+    });
+
+    it("a--;", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1),
+          new Token(TokenType.MINUS_MINUS, "--", undefined, 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        WrapExpr(
+          new UnaryOperatorExpr(
+            new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1),
+            new Token(TokenType.MINUS_MINUS, "--", undefined, 1, -1, -1),
+            UnaryOperatorType.SUFFIX
+          )
+        ),
+      ]);
+    });
+
+    it("--a;", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.MINUS_MINUS, "--", undefined, 1, -1, -1),
+          new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        WrapExpr(
+          new UnaryOperatorExpr(
+            new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1),
+            new Token(TokenType.MINUS_MINUS, "--", undefined, 1, -1, -1),
+            UnaryOperatorType.PREFIX
           )
         ),
       ]);
