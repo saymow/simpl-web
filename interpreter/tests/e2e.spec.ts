@@ -344,9 +344,18 @@ describe("e2e", () => {
 
       (await expectCoreLib(new lib.Push())(arr, 4)).toBe(4);
       (await expectCoreLib(new lib.Push())(arr, "test")).toBe(5);
-      
+
       expect(arr[3]).toBe(4);
       expect(arr[4]).toBe("test");
+    });
+
+    it("pop(Value[])", async () => {
+      const arr = [3, 2, 1];
+
+      (await expectCoreLib(new lib.Pop())(arr)).toBe(1);
+      (await expectCoreLib(new lib.Pop())(arr)).toBe(2);
+
+      expect(arr).toEqual([3]);
     });
   });
 

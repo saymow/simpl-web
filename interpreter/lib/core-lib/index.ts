@@ -6,4 +6,5 @@ export { default as Number } from "./number";
 export { default as Output } from "./output";
 export { default as Abs } from "./abs";
 export { default as Push } from "./push";
+export { default as Pop } from "./pop";
 export { default as Len } from "./len";

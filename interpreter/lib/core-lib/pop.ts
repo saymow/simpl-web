@@ -3,20 +3,23 @@ import { SysCall, System } from "../interfaces";
 import { CoreLibError } from "../errors";
 import { isArray } from "./helpers";
 
-class Push extends SysCall {
+class Pop extends SysCall {
   public arity(): number {
-    return 2;
+    return 1;
   }
 
   public async call(system: System, args: Value[]): Promise<Value> {
-    const [arr, value] = args;
+    const value = args[0];
 
-    if (!isArray(arr)) {
+    if (!isArray(value)) {
       throw new CoreLibError("Expected array.");
     }
+    if (value.length === 0) {
+      throw new CoreLibError("Cannot pop empty array.");
+    }
 
-    return arr.push(value);
+    return value.pop();
   }
 }
 
-export default Push;
+export default Pop;
