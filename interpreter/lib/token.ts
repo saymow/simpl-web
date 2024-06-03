@@ -1,13 +1,13 @@
 import TokenType from "./token-type";
 
-class Token {
+class Token<T extends TokenType[keyof TokenType] | void = void> {
   constructor(
-    public type: TokenType,
+    public type: T extends TokenType ? T : TokenType,
     public lexeme: string,
     public literal: any,
     public line: number,
     public startIdx: number,
-    public length: number, 
+    public length: number
   ) {}
 }
 

@@ -1,5 +1,6 @@
 import {
   AssignExpr,
+  AssignOperatorExpr,
   BinaryExpr,
   CallExpr,
   GroupingExpr,
@@ -139,6 +140,137 @@ describe("Interpreter", () => {
 
       expect(log).toHaveBeenCalledTimes(1);
       expect(log.mock.calls[0][0]).toBe("5");
+    });
+
+    it("var myVar = 10; myVar += 5; print myVar;", async () => {
+      const { interpreter, log } = makeSut([
+        new VarStmt(
+          new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
+          new LiteralExpr(10)
+        ),
+        new ExprStmt(
+          new AssignOperatorExpr(
+            new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
+            new Token(TokenType.PLUS_EQUAL, "+=", undefined, 1, -1, -1),
+            new LiteralExpr(5)
+          )
+        ),
+        new PrintStmt(
+          new VariableExpr(
+            new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1)
+          )
+        ),
+      ]);
+
+      await interpreter.interpret();
+
+      expect(log).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls[0][0]).toBe("15");
+    });
+
+    it('var myVar = "na"; myVar += "me"; print myVar;', async () => {
+      const { interpreter, log } = makeSut([
+        new VarStmt(
+          new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
+          new LiteralExpr("na")
+        ),
+        new ExprStmt(
+          new AssignOperatorExpr(
+            new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
+            new Token(TokenType.PLUS_EQUAL, "+=", undefined, 1, -1, -1),
+            new LiteralExpr("me")
+          )
+        ),
+        new PrintStmt(
+          new VariableExpr(
+            new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1)
+          )
+        ),
+      ]);
+
+      await interpreter.interpret();
+
+      expect(log).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls[0][0]).toBe("name");
+    });
+
+
+    it("var myVar = 10; myVar -= 5; print myVar;", async () => {
+      const { interpreter, log } = makeSut([
+        new VarStmt(
+          new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
+          new LiteralExpr(10)
+        ),
+        new ExprStmt(
+          new AssignOperatorExpr(
+            new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
+            new Token(TokenType.MINUS_EQUAL, "-", undefined, 1, -1, -1),
+            new LiteralExpr(5)
+          )
+        ),
+        new PrintStmt(
+          new VariableExpr(
+            new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1)
+          )
+        ),
+      ]);
+
+      await interpreter.interpret();
+
+      expect(log).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls[0][0]).toBe("5");
+    });
+
+    it("var myVar = 10; myVar *= 5; print myVar;", async () => {
+      const { interpreter, log } = makeSut([
+        new VarStmt(
+          new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
+          new LiteralExpr(10)
+        ),
+        new ExprStmt(
+          new AssignOperatorExpr(
+            new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
+            new Token(TokenType.STAR_EQUAL, "*", undefined, 1, -1, -1),
+            new LiteralExpr(5)
+          )
+        ),
+        new PrintStmt(
+          new VariableExpr(
+            new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1)
+          )
+        ),
+      ]);
+
+      await interpreter.interpret();
+
+      expect(log).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls[0][0]).toBe("50");
+    });
+
+    it("var myVar = 10; myVar /= 5; print myVar;", async () => {
+      const { interpreter, log } = makeSut([
+        new VarStmt(
+          new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
+          new LiteralExpr(10)
+        ),
+        new ExprStmt(
+          new AssignOperatorExpr(
+            new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
+            new Token(TokenType.SLASH_EQUAL, "/", undefined, 1, -1, -1),
+            new LiteralExpr(5)
+          )
+        ),
+        new PrintStmt(
+          new VariableExpr(
+            new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1)
+          )
+        ),
+      ]);
+
+      await interpreter.interpret();
+
+      expect(log).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls[0][0]).toBe("2");
     });
 
     it("var myVar;", async () => {

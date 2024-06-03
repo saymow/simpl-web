@@ -192,6 +192,33 @@ describe("e2e", () => {
       expect(log).toHaveBeenCalledTimes(1);
       expect(log.mock.calls[0][0]).toBe("8");
     });
+
+    it("10", async () => {
+      const { interpreter, log } = await makeSut(`
+        var num = 1;
+        var str = "";
+
+        num += 1;
+        print num;
+        num -= 1;
+        print num;
+        num *= 3;
+        print num;
+        num /= 3;
+        print num;
+
+        str += "test";
+        print str;
+      `);
+
+      await interpreter.interpret();
+
+      expect(log.mock.calls[0][0]).toBe("2");
+      expect(log.mock.calls[1][0]).toBe("1");
+      expect(log.mock.calls[2][0]).toBe("3");
+      expect(log.mock.calls[3][0]).toBe("1");
+      expect(log.mock.calls[4][0]).toBe("test");
+    });
   });
 
   describe("Core Lib", () => {

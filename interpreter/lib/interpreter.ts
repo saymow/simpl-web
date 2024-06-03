@@ -1,5 +1,6 @@
 import {
   AssignExpr,
+  AssignOperatorExpr,
   BinaryExpr,
   CallExpr,
   Expr,
@@ -57,6 +58,47 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
   private async evaluateExpr(expr: Expr): Promise<unknown> {
     return await expr.accept(this);
+  }
+
+  async visitAssignOperatorExpr(expr: AssignOperatorExpr): Promise<any> {
+    const current = this.getVariable(expr.name as Token<TokenType.VAR>);
+    const increment = await this.evaluateExpr(expr.value);
+    let value;
+
+    switch (expr.operator.type) {
+      case TokenType.PLUS_EQUAL:
+        if (
+          !(
+            (typeof current === "number" && typeof increment === "number") ||
+            (typeof current === "string" && typeof increment === "string")
+          )
+        ) {
+          throw new RuntimeError(
+            expr.operator,
+            "Operands must be numbers or strings."
+          );
+        }
+        
+        value = current as any + increment as any;
+
+        break;
+      case TokenType.MINUS_EQUAL:
+        this.ensureNumberOperands(expr.operator, current, increment);
+        value = current - (increment as number);
+        break;
+      case TokenType.STAR_EQUAL:
+        this.ensureNumberOperands(expr.operator, current, increment);
+        value = current * (increment as number);
+        break;
+      case TokenType.SLASH_EQUAL:
+        this.ensureNumberOperands(expr.operator, current, increment);
+        value = current / (increment as number);
+        break;
+    }
+
+    this.assignVariable(expr.name as Token<TokenType.VAR>, value);
+
+    return value;
   }
 
   async visitReturnStmt(stmt: ReturnStmt): Promise<void> {
@@ -121,13 +163,7 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   }
 
   async visitVariableExpr(expr: VariableExpr): Promise<Value> {
-    try {
-      return this.context.get(expr.name.literal);
-    } catch (err) {
-      if (err instanceof VariableNotFound) {
-        throw new RuntimeError(expr.name, "Variable not found.");
-      }
-    }
+    return this.getVariable(expr.name as Token<TokenType.VAR>);
   }
 
   async visitUnaryExpr(expr: UnaryExpr): Promise<Value> {
@@ -247,18 +283,31 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
   async visitAssignExpr(expr: AssignExpr): Promise<Value> {
     const value = await this.evaluateExpr(expr.value);
+    this.assignVariable(expr.name as Token<TokenType.VAR>, value);
+  }
 
+  async visitSetExpr(expr: SetExpr): Promise<Value> {
+    throw new Error("Method not implemented.");
+  }
+
+  private getVariable(token: Token<TokenType.VAR>): Value {
     try {
-      return this.context.assign(expr.name.literal, value);
+      return this.context.get(token.literal);
+    } catch (err) {
+      if (err instanceof VariableNotFound) {
+        throw new RuntimeError(token, "Variable not found.");
+      }
+    }
+  }
+
+  private assignVariable(token: Token<TokenType.VAR>, value: Value): Value {
+    try {
+      this.context.assign(token.literal, value);
     } catch (err) {
       if (err instanceof VariableNotFound) {
         throw new Error("Variable not found.");
       }
     }
-  }
-
-  async visitSetExpr(expr: SetExpr): Promise<Value> {
-    throw new Error("Method not implemented.");
   }
 
   private isTruthy(value: Value) {
