@@ -10,7 +10,7 @@ describe("Lexer", () => {
   });
 
   it("Shoud handle single caracter tokens properly", () => {
-    const tokens = new Lexer("(){},.-+;/*").scan();
+    const tokens = new Lexer("(){},.;").scan();
 
     expect(tokens[0].type).toBe(TokenType.LEFT_PAREN);
     expect(tokens[1].type).toBe(TokenType.RIGHT_PAREN);
@@ -18,15 +18,11 @@ describe("Lexer", () => {
     expect(tokens[3].type).toBe(TokenType.RIGHT_BRACE);
     expect(tokens[4].type).toBe(TokenType.COMMA);
     expect(tokens[5].type).toBe(TokenType.DOT);
-    expect(tokens[6].type).toBe(TokenType.MINUS);
-    expect(tokens[7].type).toBe(TokenType.PLUS);
-    expect(tokens[8].type).toBe(TokenType.SEMICOLON);
-    expect(tokens[9].type).toBe(TokenType.SLASH);
-    expect(tokens[10].type).toBe(TokenType.STAR);
+    expect(tokens[6].type).toBe(TokenType.SEMICOLON);
   });
 
   it("Shoud handle double caracter tokens properly", () => {
-    const tokens = new Lexer("!!====>>=<<=").scan();
+    const tokens = new Lexer("!!====>>=<<=+++=+---=-/=/*=*").scan();
 
     expect(tokens[0].type).toBe(TokenType.BANG);
     expect(tokens[1].type).toBe(TokenType.BANG_EQUAL);
@@ -36,6 +32,16 @@ describe("Lexer", () => {
     expect(tokens[5].type).toBe(TokenType.GREATER_EQUAL);
     expect(tokens[6].type).toBe(TokenType.LESS);
     expect(tokens[7].type).toBe(TokenType.LESS_EQUAL);
+    expect(tokens[8].type).toBe(TokenType.PLUS_PLUS);
+    expect(tokens[9].type).toBe(TokenType.PLUS_EQUAL);
+    expect(tokens[10].type).toBe(TokenType.PLUS);
+    expect(tokens[11].type).toBe(TokenType.MINUS_MINUS);
+    expect(tokens[12].type).toBe(TokenType.MINUS_EQUAL);
+    expect(tokens[13].type).toBe(TokenType.MINUS);
+    expect(tokens[14].type).toBe(TokenType.SLASH_EQUAL);
+    expect(tokens[15].type).toBe(TokenType.SLASH);
+    expect(tokens[16].type).toBe(TokenType.STAR_EQUAL);
+    expect(tokens[17].type).toBe(TokenType.STAR);
   });
 
   it("Shoud handle literals properly", () => {

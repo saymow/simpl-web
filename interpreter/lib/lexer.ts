@@ -69,16 +69,30 @@ class Lexer {
         this.addToken(TokenType.DOT);
         break;
       case "-":
-        this.addToken(TokenType.MINUS);
+        if (this.match("-")) {
+          this.addToken(TokenType.MINUS_MINUS);
+        } else if (this.match("=")) {
+          this.addToken(TokenType.MINUS_EQUAL);
+        } else {
+          this.addToken(TokenType.MINUS);
+        }
         break;
       case "+":
-        this.addToken(TokenType.PLUS);
+        if (this.match("+")) {
+          this.addToken(TokenType.PLUS_PLUS);
+        } else if (this.match("=")) {
+          this.addToken(TokenType.PLUS_EQUAL);
+        } else {
+          this.addToken(TokenType.PLUS);
+        }
         break;
       case ";":
         this.addToken(TokenType.SEMICOLON);
         break;
       case "/":
-        if (this.match("/")) {
+        if (this.match("=")) {
+          this.addToken(TokenType.SLASH_EQUAL);
+        } else if (this.match("/")) {
           while (this.peek() !== "\n" && !this.atEnd()) {
             this.advance();
           }
@@ -87,7 +101,11 @@ class Lexer {
         }
         break;
       case "*":
-        this.addToken(TokenType.STAR);
+        if (this.match("=")) {
+          this.addToken(TokenType.STAR_EQUAL);
+        } else {
+          this.addToken(TokenType.STAR);
+        }
         break;
       case "!":
         this.addToken(this.match("=") ? TokenType.BANG_EQUAL : TokenType.BANG);
