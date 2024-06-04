@@ -582,7 +582,7 @@ describe("e2e", () => {
     describe("Linear function", () => {
       it("1", async () => {
         const { interpreter, log, input } = await makeSutFileRead(
-          "./calc_linear_fn.in"
+          "./calc-linear-fn.in"
         );
 
         input
@@ -654,7 +654,7 @@ describe("e2e", () => {
 
       it("2", async () => {
         const { interpreter, log, input } = await makeSutFileRead(
-          "./calc_linear_fn.in"
+          "./calc-linear-fn.in"
         );
 
         input
@@ -682,7 +682,7 @@ describe("e2e", () => {
 
       it("3", async () => {
         const { interpreter, log, input } = await makeSutFileRead(
-          "./calc_linear_fn.in"
+          "./calc-linear-fn.in"
         );
 
         input
