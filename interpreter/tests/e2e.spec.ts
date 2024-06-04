@@ -531,10 +531,21 @@ describe("e2e", () => {
 
     describe("indexOf(Value[], Value)", () => {
       it("✔️", async () => {
-
-        (await expectCoreLib(new lib.IndexOf())([1, 2, 3, 2, "test", null], 2)).toBe(1);
-        (await expectCoreLib(new lib.IndexOf())([1, 2, 3, 2, "test", null], "test")).toBe(4);
-        (await expectCoreLib(new lib.IndexOf())([1, 2, 3, 2, "test", null], null)).toBe(5);
+        (
+          await expectCoreLib(new lib.IndexOf())([1, 2, 3, 2, "test", null], 2)
+        ).toBe(1);
+        (
+          await expectCoreLib(new lib.IndexOf())(
+            [1, 2, 3, 2, "test", null],
+            "test"
+          )
+        ).toBe(4);
+        (
+          await expectCoreLib(new lib.IndexOf())(
+            [1, 2, 3, 2, "test", null],
+            null
+          )
+        ).toBe(5);
       });
 
       it("❌: Expected array.", async () => {
@@ -733,7 +744,7 @@ describe("e2e", () => {
       });
     });
 
-    describe("InsertionSort", () => {
+    describe("Insertion sort", () => {
       it("1", async () => {
         const { interpreter, log, input } = await makeSutFileRead(
           "./insertion-sort.in"
@@ -784,6 +795,46 @@ describe("e2e", () => {
         expect(log.mock.calls[0][0]).toBe(
           JSON.stringify(arr.sort((a, b) => a - b))
         );
+      });
+    });
+
+    describe("Breadth First Search", () => {
+      it("1", async () => {
+        const { interpreter, log, input } = await makeSutFileRead(
+          "./breadth-first-search.in"
+        );
+
+        input
+          .mockImplementationOnce(async (text) => {
+            return "A";
+          })
+          .mockImplementationOnce(async (text) => {
+            return "FINAL";
+          });
+
+        await interpreter.interpret();
+
+        expect(log.mock.calls[0][0]).toBe(
+          '["A","B","P","C","K","L","E","F","G","FINAL"]'
+        );
+      });
+
+      it("2", async () => {
+        const { interpreter, log, input } = await makeSutFileRead(
+          "./breadth-first-search.in"
+        );
+
+        input
+          .mockImplementationOnce(async () => {
+            return "D";
+          })
+          .mockImplementationOnce(async () => {
+            return "FINAL";
+          });
+
+        await interpreter.interpret();
+
+        expect(log.mock.calls[0][0]).toBe('["D","N","F","G","FINAL"]');
       });
     });
   });
