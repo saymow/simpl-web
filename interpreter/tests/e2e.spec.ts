@@ -422,7 +422,11 @@ describe("e2e", () => {
 
       it("❌: Index must be an integer.", async () => {
         (
-          await expectCoreLibException(new lib.Insert())([1, 2, 3], 1.5, "test3")
+          await expectCoreLibException(new lib.Insert())(
+            [1, 2, 3],
+            1.5,
+            "test3"
+          )
         ).rejects.toThrow("Index must be an integer.");
         (
           await expectCoreLibException(new lib.Insert())(
@@ -458,6 +462,69 @@ describe("e2e", () => {
             99,
             "test3"
           )
+        ).rejects.toThrow("Index out of bounds.");
+      });
+    });
+
+    describe("remove(Value[], number)", () => {
+      it("✔️", async () => {
+        const arr = [1, 2, 3];
+
+        await expectCoreLib(new lib.Remove())(arr, 0);
+        expect(arr).toEqual([2, 3]);
+
+        await expectCoreLib(new lib.Remove())(arr, 1);
+        expect(arr).toEqual([2]);
+
+        await expectCoreLib(new lib.Remove())(arr, 0);
+        expect(arr).toEqual([]);
+      });
+
+      it("❌: Expected array.", async () => {
+        (
+          await expectCoreLibException(new lib.Remove())("not-an-array", 0)
+        ).rejects.toThrow("Expected array.");
+        (
+          await expectCoreLibException(new lib.Remove())(null, 4)
+        ).rejects.toThrow("Expected array.");
+        (
+          await expectCoreLibException(new lib.Remove())(undefined, 4)
+        ).rejects.toThrow("Expected array.");
+        (await expectCoreLibException(new lib.Remove())(5, 2)).rejects.toThrow(
+          "Expected array."
+        );
+      });
+
+      it("❌: Index must be an integer.", async () => {
+        (
+          await expectCoreLibException(new lib.Remove())([1, 2, 3], 1.5)
+        ).rejects.toThrow("Index must be an integer.");
+        (
+          await expectCoreLibException(new lib.Remove())([], "not-an-integer")
+        ).rejects.toThrow("Index must be an integer.");
+        (
+          await expectCoreLibException(new lib.Remove())([], undefined)
+        ).rejects.toThrow("Index must be an integer.");
+        (
+          await expectCoreLibException(new lib.Remove())([], [])
+        ).rejects.toThrow("Index must be an integer.");
+        (
+          await expectCoreLibException(new lib.Remove())([], null)
+        ).rejects.toThrow("Index must be an integer.");
+      });
+
+      it("❌: Index out of bounds.", async () => {
+        (await expectCoreLibException(new lib.Remove())([], 1)).rejects.toThrow(
+          "Index out of bounds."
+        );
+        (
+          await expectCoreLibException(new lib.Remove())([1, 2], 4)
+        ).rejects.toThrow("Index out of bounds.");
+        (
+          await expectCoreLibException(new lib.Remove())([], -1)
+        ).rejects.toThrow("Index out of bounds.");
+        (
+          await expectCoreLibException(new lib.Remove())([1, 2, 3, 4], 99)
         ).rejects.toThrow("Index out of bounds.");
       });
     });
