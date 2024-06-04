@@ -13,3 +13,4 @@ export { default as Unshift } from "./unshift";
 export { default as Copy } from "./copy";
 export { default as Insert } from "./insert";
 export { default as Remove } from "./remove";
+export { default as IndexOf } from "./indexOf";

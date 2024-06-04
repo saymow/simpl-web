@@ -528,6 +528,30 @@ describe("e2e", () => {
         ).rejects.toThrow("Index out of bounds.");
       });
     });
+
+    describe("indexOf(Value[], Value)", () => {
+      it("✔️", async () => {
+
+        (await expectCoreLib(new lib.IndexOf())([1, 2, 3, 2, "test", null], 2)).toBe(1);
+        (await expectCoreLib(new lib.IndexOf())([1, 2, 3, 2, "test", null], "test")).toBe(4);
+        (await expectCoreLib(new lib.IndexOf())([1, 2, 3, 2, "test", null], null)).toBe(5);
+      });
+
+      it("❌: Expected array.", async () => {
+        (
+          await expectCoreLibException(new lib.IndexOf())("not-an-array", 0)
+        ).rejects.toThrow("Expected array.");
+        (
+          await expectCoreLibException(new lib.IndexOf())(null, 4)
+        ).rejects.toThrow("Expected array.");
+        (
+          await expectCoreLibException(new lib.IndexOf())(undefined, 4)
+        ).rejects.toThrow("Expected array.");
+        (await expectCoreLibException(new lib.IndexOf())(5, 2)).rejects.toThrow(
+          "Expected array."
+        );
+      });
+    });
   });
 
   describe("Code files", () => {
