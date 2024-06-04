@@ -357,6 +357,24 @@ describe("e2e", () => {
 
       expect(arr).toEqual([3]);
     });
+
+    it("shift(Value[])", async () => {
+      const arr = [3, 2, 1];
+
+      (await expectCoreLib(new lib.Shift())(arr)).toBe(3);
+      (await expectCoreLib(new lib.Shift())(arr)).toBe(2);
+
+      expect(arr).toEqual([1]);
+    });
+
+    it("unshift(Value[], Value)", async () => {
+      const arr = [1, 2, 3];
+
+      (await expectCoreLib(new lib.Unshift())(arr, 4)).toBe(4);
+      (await expectCoreLib(new lib.Unshift())(arr, "test")).toBe(5);
+
+      expect(arr).toEqual(["test", 4, 1, 2, 3]);
+    });
   });
 
   describe("Code files", () => {
