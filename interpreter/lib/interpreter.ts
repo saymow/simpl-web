@@ -465,7 +465,7 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
   private isTruthy(value: Value) {
     if (value == null) return false;
-    if (value instanceof Boolean) return value;
+    if (typeof value === "boolean") return value;
 
     return true;
   }

@@ -1,0 +1,42 @@
+var elements = ["a", "b", "c", "d"];
+var matrix = [
+  [0, 1, 0, 0],
+  [1, 0, 1, 0],
+  [1, 0, 0, 1],
+  [0, 0, 0, 0]
+];
+
+fun zeros(len) {
+  var arr = [];
+  
+  for (var i = 0; i < len; i++) {
+     push(arr, 0);
+  }
+
+  return arr;
+}
+
+fun dfs(matrix, elements, origin, target) {
+  var originIdx = indexOf(elements, origin);
+  var targetIdx = indexOf(elements, target);
+  var visited = zeros(len(elements));
+  var stack = [originIdx];
+
+  while (len(stack) > 0) {
+    var itemIdx = pop(stack);
+    
+    if (itemIdx == targetIdx) return true;
+
+    for (var idx = 0; idx < len(elements); idx++) {
+      if (matrix[itemIdx][idx] == 1 and visited[idx] == 0) {
+         push(stack, idx);
+      }
+    }
+
+    visited[itemIdx] = 1;
+  }
+
+  return false;
+}
+
+print dfs(matrix, elements, "d", "a");
