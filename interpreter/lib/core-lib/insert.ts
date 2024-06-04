@@ -1,7 +1,7 @@
 import { Value } from "../expr";
 import { SysCall, System } from "../interfaces";
 import { CoreLibError } from "../errors";
-import { isArray, isNumber } from "./helpers";
+import { isArray, isInteger, isNumber } from "./helpers";
 
 class Insert extends SysCall {
   public arity(): number {
@@ -14,11 +14,11 @@ class Insert extends SysCall {
     if (!isArray(arr)) {
       throw new CoreLibError("Expected array.");
     }
-    if (!isNumber(idx)) {
-      throw new CoreLibError("Index must be a number.");
+    if (!isInteger(idx)) {
+      throw new CoreLibError("Index must be an integer.");
     }
-    if (idx > value.length) {
-      throw new CoreLibError("Index out of bounds");
+    if (idx < 0 || idx > arr.length) {
+      throw new CoreLibError("Index out of bounds.");
     }
 
     arr.splice(idx, 0, value);

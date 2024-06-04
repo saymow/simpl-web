@@ -38,6 +38,15 @@ const expectCoreLib =
     return expect(await handler.call({ log, input }, args));
   };
 
+const expectCoreLibException =
+  (handler: SysCall) =>
+  async (...args: any[]) => {
+    const log = jest.fn((_: string) => {});
+    const input = jest.fn(async (_: string) => "test");
+
+    return expect(handler.call({ log, input }, args));
+  };
+
 describe("e2e", () => {
   describe("Snippets", () => {
     it("1", async () => {
@@ -382,17 +391,75 @@ describe("e2e", () => {
       (await expectCoreLib(new lib.Copy())(arr)).not.toBe(arr);
     });
 
-    it("insert(Value[], Value)", async () => {
-      const arr = [1, 2, 3];
+    describe("insert(Value[], number, Value)", () => {
+      it("✔️", async () => {
+        const arr = [1, 2, 3];
 
-      await expectCoreLib(new lib.Insert())(arr, 0, "test");
-      expect(arr).toEqual(["test", 1, 2, 3]);
+        await expectCoreLib(new lib.Insert())(arr, 0, -1);
+        expect(arr).toEqual([-1, 1, 2, 3]);
 
-      await expectCoreLib(new lib.Insert())(arr, 4, "test2");
-      expect(arr).toEqual(["test", 1, 2, 3, "test2"]);
+        await expectCoreLib(new lib.Insert())(arr, 4, "test2");
+        expect(arr).toEqual([-1, 1, 2, 3, "test2"]);
 
-      await expectCoreLib(new lib.Insert())(arr, 2, "test3");
-      expect(arr).toEqual(["test", 1, "test3", 2, 3, "test2"]);
+        await expectCoreLib(new lib.Insert())(arr, 2, "test3");
+        expect(arr).toEqual([-1, 1, "test3", 2, 3, "test2"]);
+      });
+
+      it("❌: Expected array.", async () => {
+        (
+          await expectCoreLibException(new lib.Insert())("not-an-array", 0, -1)
+        ).rejects.toThrow("Expected array.");
+        (
+          await expectCoreLibException(new lib.Insert())(null, 4, "test2")
+        ).rejects.toThrow("Expected array.");
+        (
+          await expectCoreLibException(new lib.Insert())(undefined, 4, "test2")
+        ).rejects.toThrow("Expected array.");
+        (
+          await expectCoreLibException(new lib.Insert())(5, 2, "test3")
+        ).rejects.toThrow("Expected array.");
+      });
+
+      it("❌: Index must be an integer.", async () => {
+        (
+          await expectCoreLibException(new lib.Insert())([1, 2, 3], 1.5, "test3")
+        ).rejects.toThrow("Index must be an integer.");
+        (
+          await expectCoreLibException(new lib.Insert())(
+            [],
+            "not-an-integer",
+            -1
+          )
+        ).rejects.toThrow("Index must be an integer.");
+        (
+          await expectCoreLibException(new lib.Insert())([], undefined, "test2")
+        ).rejects.toThrow("Index must be an integer.");
+        (
+          await expectCoreLibException(new lib.Insert())([], [], "test2")
+        ).rejects.toThrow("Index must be an integer.");
+        (
+          await expectCoreLibException(new lib.Insert())([], null, "test3")
+        ).rejects.toThrow("Index must be an integer.");
+      });
+
+      it("❌: Index out of bounds.", async () => {
+        (
+          await expectCoreLibException(new lib.Insert())([], 1, -1)
+        ).rejects.toThrow("Index out of bounds.");
+        (
+          await expectCoreLibException(new lib.Insert())([1, 2], 4, "test2")
+        ).rejects.toThrow("Index out of bounds.");
+        (
+          await expectCoreLibException(new lib.Insert())([], -1, "test2")
+        ).rejects.toThrow("Index out of bounds.");
+        (
+          await expectCoreLibException(new lib.Insert())(
+            [1, 2, 3, 4],
+            99,
+            "test3"
+          )
+        ).rejects.toThrow("Index out of bounds.");
+      });
     });
   });
 
