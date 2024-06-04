@@ -380,7 +380,19 @@ describe("e2e", () => {
       const arr = [1, 2, 3];
 
       (await expectCoreLib(new lib.Copy())(arr)).not.toBe(arr);
+    });
 
+    it("insert(Value[], Value)", async () => {
+      const arr = [1, 2, 3];
+
+      await expectCoreLib(new lib.Insert())(arr, 0, "test");
+      expect(arr).toEqual(["test", 1, 2, 3]);
+
+      await expectCoreLib(new lib.Insert())(arr, 4, "test2");
+      expect(arr).toEqual(["test", 1, 2, 3, "test2"]);
+
+      await expectCoreLib(new lib.Insert())(arr, 2, "test3");
+      expect(arr).toEqual(["test", 1, "test3", 2, 3, "test2"]);
     });
   });
 

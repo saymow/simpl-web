@@ -55,6 +55,7 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     this.context.define("shift", new lib.Shift());
     this.context.define("unshift", new lib.Shift());
     this.context.define("copy", new lib.Copy());
+    this.context.define("insert", new lib.Insert());
   }
 
   public async interpret() {
