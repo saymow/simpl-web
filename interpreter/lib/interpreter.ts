@@ -53,7 +53,7 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     this.context.define("push", new lib.Push());
     this.context.define("pop", new lib.Pop());
     this.context.define("shift", new lib.Shift());
-    this.context.define("unshift", new lib.Shift());
+    this.context.define("unshift", new lib.Unshift());
     this.context.define("copy", new lib.Copy());
     this.context.define("insert", new lib.Insert());
     this.context.define("remove", new lib.Remove());
