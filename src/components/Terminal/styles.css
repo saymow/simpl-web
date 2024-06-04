@@ -1,4 +1,8 @@
 .terminal {
+  display: block;
+  width: 100%;
+  flex: 1;
+  max-height: 100%;
   padding: 0.5rem;
   overflow-y: auto;
   padding-bottom: 5rem;

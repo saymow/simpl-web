@@ -1,12 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
 import "./styles.css";
 
-interface Props {
-  source: string;
-  formattedSource?: string;
-  setSource(source: string): void;
-}
-
 const LINE_BREAK_REGEX = /\n/g;
 
 const countLines = (source: string) => {
@@ -20,6 +14,12 @@ const makeLinesBarLines = (source: string) => {
     .join("\n");
 };
 
+interface Props {
+  source: string;
+  formattedSource?: string;
+  setSource(source: string): void;
+}
+
 const Editor: React.FC<Props> = (props) => {
   const { source, formattedSource, setSource } = props;
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -29,7 +29,7 @@ const Editor: React.FC<Props> = (props) => {
 
   useEffect(() => {
     updateScrollIfCan();
-  }, [source, formattedSource])
+  }, [source, formattedSource]);
 
   const handleChanges: React.ChangeEventHandler<HTMLTextAreaElement> = (e) => {
     setSource(e.target.value);
