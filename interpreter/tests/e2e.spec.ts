@@ -375,6 +375,13 @@ describe("e2e", () => {
 
       expect(arr).toEqual(["test", 4, 1, 2, 3]);
     });
+
+    it("copy(Value[])", async () => {
+      const arr = [1, 2, 3];
+
+      (await expectCoreLib(new lib.Copy())(arr)).not.toBe(arr);
+
+    });
   });
 
   describe("Code files", () => {

@@ -10,3 +10,4 @@ export { default as Push } from "./push";
 export { default as Pop } from "./pop";
 export { default as Shift } from "./shift";
 export { default as Unshift } from "./unshift";
+export { default as Copy } from "./copy";
