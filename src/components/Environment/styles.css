@@ -1,0 +1,14 @@
+.environment {
+  flex: 1;
+  height: calc(100% - 4rem);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid var(--border-color);
+}
+
+@media (max-width: 560px) {
+  .environment {
+    grid-template-columns: unset;
+    grid-template-rows: 1fr 1fr;
+  }
+}

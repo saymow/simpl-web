@@ -1,30 +1,14 @@
-.editor {
-  flex: 1;
-  height: calc(100% - 4rem);
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  border-top: 1px solid var(--border-color);
-}
-
-@media (max-width: 560px) {
-  .editor {
-    grid-template-columns: unset;
-    grid-template-rows: 1fr 1fr;
-  }
-}
-
-.editor .input-container,
-.editor .output {
+.input-container {
   white-space: pre-line;
   border-right: 1px solid var(--border-color);
 }
 
-.editor .input-container {
+.input-container {
   position: relative;
   padding: 0.5rem 0.5rem 0.5rem 1rem;
 }
 
-.editor .input-container .lines-bar {
+.input-container .lines-bar {
   position: absolute;
   font-size: 16px;
   font: larger -moz-fixed;
@@ -42,12 +26,12 @@
   overflow-y: auto;
 }
 
-.editor .input-container .lines-bar::-webkit-scrollbar {
+.input-container .lines-bar::-webkit-scrollbar {
   width: 0;
   height: 0;
 }
 
-.editor .input-background {
+.input-background {
   -webkit-appearance: textarea;
   -moz-appearance: textarea;
 
@@ -71,7 +55,7 @@
   user-select: none;
 }
 
-.editor .input {
+.input {
   position: absolute;
 
   font-size: 16px;
@@ -91,56 +75,56 @@
   background: transparent;
 }
 
-.editor .input:focus {
+.input:focus {
   outline: 0;
 }
 
-.editor .token.declaration {
+.token.declaration {
   color: #2666cb;
 }
 
-.editor .token.statement {
+.token.statement {
   color: #c586c0;
 }
 
-.editor .token.braces {
+.token.braces {
   color: #dbd70a;
 }
 
-.editor .token.parens {
+.token.parens {
   color: #dbd70a;
 }
 
-.editor .token.identifier {
+.token.identifier {
   color: #4fc1ff;
 }
 
-.editor .token.logic_operator {
+.token.logic_operator {
   color: #d4d4d4;
 }
 
-.editor .token.bool {
+.token.bool {
   color: #509cce;
 }
 
-.editor .token.nil {
+.token.nil {
   color: #509cce;
 }
 
-.editor .token.number {
+.token.number {
   color: #b5cea8;
 }
 
-.editor .token.string {
+.token.string {
   color: #ce9178;
 }
 
-.editor .token[data-error] {
+.token[data-error] {
   position: relative;
   text-decoration: red underline wavy;
 }
 
-.editor .token[data-error]::after {
+.token[data-error]::after {
   display: block;
   position: absolute;
   content: attr(data-error);
