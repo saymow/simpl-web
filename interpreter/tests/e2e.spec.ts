@@ -652,7 +652,7 @@ describe("e2e", () => {
         expect(log.mock.calls[2][0]).toBe("y = 1x");
       });
 
-      it("1", async () => {
+      it("2", async () => {
         const { interpreter, log, input } = await makeSutFileRead(
           "./calc_linear_fn.in"
         );
@@ -680,7 +680,7 @@ describe("e2e", () => {
         expect(log.mock.calls[0][0]).toBe("y = 6x - 5");
       });
 
-      it("1", async () => {
+      it("3", async () => {
         const { interpreter, log, input } = await makeSutFileRead(
           "./calc_linear_fn.in"
         );
@@ -706,6 +706,60 @@ describe("e2e", () => {
         await interpreter.interpret();
 
         expect(log.mock.calls[0][0]).toBe("y = 1x");
+      });
+    });
+
+    describe("InsertionSort", () => {
+      it("1", async () => {
+        const { interpreter, log, input } = await makeSutFileRead(
+          "./insertion-sort.in"
+        );
+        const arr = [
+          5, 6, 7, 18, 20, 22, 24, 25, 30, 32, 37, 54, 57, 62, 66, 67, 73, 91,
+          92, 96,
+        ];
+
+        let builder = input.mockImplementationOnce(async () => {
+          return Promise.resolve(arr.length.toString());
+        });
+
+        for (const num of arr) {
+          builder = builder.mockImplementationOnce(async () => {
+            return Promise.resolve(num.toString());
+          });
+        }
+
+        await interpreter.interpret();
+
+        expect(log.mock.calls[0][0]).toBe(
+          JSON.stringify(arr.sort((a, b) => a - b))
+        );
+      });
+
+      it("2", async () => {
+        const { interpreter, log, input } = await makeSutFileRead(
+          "./insertion-sort.in"
+        );
+        const arr = [
+          6, 14, 24, 28, 35, 43, 47, 50, 52, 58, 59, 65, 66, 67, 72, 76, 82, 87,
+          92, 95,
+        ];
+
+        let builder = input.mockImplementationOnce(async () => {
+          return Promise.resolve(arr.length.toString());
+        });
+
+        for (const num of arr) {
+          builder = builder.mockImplementationOnce(async () => {
+            return Promise.resolve(num.toString());
+          });
+        }
+
+        await interpreter.interpret();
+
+        expect(log.mock.calls[0][0]).toBe(
+          JSON.stringify(arr.sort((a, b) => a - b))
+        );
       });
     });
   });

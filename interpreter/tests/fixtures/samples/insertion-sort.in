@@ -1,0 +1,28 @@
+var arr_length ;
+var arr = [];
+
+fun swap(arr, i, j) {
+  var tmp = arr[i];
+  arr[i] = arr[j];
+  arr[j] = tmp;
+}
+
+fun insertionSort(arr) {
+  for (var i = len(arr) - 1; i >= 0; i--) {
+    for (var j = i - 1; j >= 0; j--) {
+      if (arr[j] > arr[i]) {
+        swap(arr, i, j);
+      }
+    }
+  }
+
+  return arr;
+}
+
+arr_length = int(input("array size: "));
+
+for (var i = 0; i < arr_length; i++) {
+  push(arr, int(input(string((i + 1)) + "° item: ")));
+}
+
+print insertionSort(arr);
