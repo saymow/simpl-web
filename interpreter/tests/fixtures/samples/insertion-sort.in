@@ -19,10 +19,12 @@ fun insertionSort(arr) {
   return arr;
 }
 
-arr_length = int(input("array size: "));
+output("array size: ");
+arr_length = int(input());
 
 for (var i = 0; i < arr_length; i++) {
-  push(arr, int(input(string((i + 1)) + "° item: ")));
+  output(string((i + 1)) + "° item: ");
+  push(arr, int(input()));
 }
 
 print insertionSort(arr);

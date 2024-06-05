@@ -1,7 +1,7 @@
 import { Value } from "./expr";
 
 export interface System {
-  input(text: string): Promise<string>;
+  input(): Promise<string>;
   log(message?: string | number): void;
 }
 

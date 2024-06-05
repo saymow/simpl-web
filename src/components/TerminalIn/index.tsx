@@ -30,10 +30,8 @@ const TerminalInComponent: React.FC<Props> = (props) => {
     }
   }, [isTriggered]);
 
-
   return (
     <span className="terminal-out">
-      <p>{props.instance.text}</p>
       <section>
         <span>$</span>
         <div

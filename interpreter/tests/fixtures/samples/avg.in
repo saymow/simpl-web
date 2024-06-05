@@ -5,10 +5,12 @@ fun avg(sum, n) {
     return sum / n;
 }
 
-students = int(input("# of students: "));
+output("# of students: ");
+students = int(input());
 
 for (var i = 0; i < students; i = i + 1) {
-    var studentGrade = number(input(string(i + 1) + ") student grade: "));
+    output(string(i + 1) + ") student grade: ");
+    var studentGrade = number(input());
     studentsGrades  =  studentsGrades + studentGrade;
 }
 

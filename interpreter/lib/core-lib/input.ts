@@ -5,21 +5,11 @@ import { isNumber, isString } from "./helpers";
 
 class Input extends SysCall {
   public arity(): number {
-    return 1;
+    return 0;
   }
 
   public async call(system: System, args: Value[]) {
-    let text = args[0];
-
-    if (!isString(text)) {
-      if (!isNumber(text)) {
-        throw new CoreLibError("Expected string or number.");
-      }
-
-      text = text.toString();
-    }
-
-    return system.input(text);
+    return system.input();
   }
 }
 

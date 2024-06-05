@@ -91,4 +91,4 @@ fun bfs(matrix, elements, origin, target) {
   return nil;
 }
 
-print bfs(matrix, elements, input(""), input(""));
+print bfs(matrix, elements, input(), input());

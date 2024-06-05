@@ -6,7 +6,7 @@ const makeSut = async (source: string) => {
   const tokens = new Lexer(source).scan();
   const ast = new Parser(tokens).parse();
   const log = jest.fn((_: string) => {});
-  const input = jest.fn(async (_: string) => "test");
+  const input = jest.fn(async () => "test");
   const interpreter = new Interpreter(ast, {
     log,
     input,
@@ -20,7 +20,7 @@ const makeSutFileRead = async (filename: string) => {
   const tokens = new Lexer(source).scan();
   const ast = new Parser(tokens).parse();
   const log = jest.fn((_: string) => {});
-  const input = jest.fn(async (_: string) => "test");
+  const input = jest.fn(async () => "test");
   const interpreter = new Interpreter(ast, {
     log,
     input,
@@ -33,7 +33,7 @@ const expectCoreLib =
   (handler: SysCall) =>
   async (...args: any[]) => {
     const log = jest.fn((_: string) => {});
-    const input = jest.fn(async (_: string) => "test");
+    const input = jest.fn(async () => "test");
 
     return expect(await handler.call({ log, input }, args));
   };
@@ -315,27 +315,29 @@ describe("e2e", () => {
     // This allows for testing blocking IO;
     it("input()", async () => {
       const { interpreter, log, input } = await makeSut(`
-        var name = input("Digit your name: ");
-        var surname = input("Digit your surname: ");
-      
+        output("Digit your name: ");
+        var name = input();
+        output("Digit your surname: ");
+        var surname = input();
+
         print "Hello " + name + " " + surname + "!" ; 
       `);
 
       input
-        .mockImplementationOnce(async (text) => {
-          expect(text).toBe("Digit your name: ");
+        .mockImplementationOnce(async () => {
           return "John";
         })
-        .mockImplementationOnce(async (text) => {
-          expect(text).toBe("Digit your surname: ");
+        .mockImplementationOnce(async () => {
           return "Doe";
         });
 
       await interpreter.interpret();
 
       expect(input).toHaveBeenCalledTimes(2);
-      expect(log).toHaveBeenCalledTimes(1);
-      expect(log.mock.calls[0][0]).toBe("Hello John Doe!");
+      expect(log).toHaveBeenCalledTimes(3);
+      expect(log.mock.calls[0][0]).toBe("Digit your name: ");
+      expect(log.mock.calls[1][0]).toBe("Digit your surname: ");
+      expect(log.mock.calls[2][0]).toBe("Hello John Doe!");
     });
 
     it("int()", async () => {
@@ -572,46 +574,30 @@ describe("e2e", () => {
       );
 
       input
-        .mockImplementationOnce(async (text) => {
-          expect(text).toBe("Digit your height (m): ");
-          return "1.80";
-        })
-        .mockImplementationOnce(async (text) => {
-          expect(text).toBe("Digit your weight (kg): ");
-          return "80";
-        });
+        .mockImplementationOnce(async () => "1.80")
+        .mockImplementationOnce(async () => "80");
 
       await interpreter.interpret();
 
-      expect(parseFloat(log.mock.calls[0][0]).toFixed(2)).toBe("24.69");
+      expect(
+        parseFloat(log.mock.calls[log.mock.calls.length - 1][0]).toFixed(2)
+      ).toBe("24.69");
     });
 
     it("Grades average", async () => {
       const { interpreter, log, input } = await makeSutFileRead("./avg.in");
 
       input
-        .mockImplementationOnce(async (text) => {
-          expect(text).toBe("# of students: ");
-          return "3";
-        })
-        .mockImplementationOnce(async (text) => {
-          expect(text).toBe("1) student grade: ");
-          return "6";
-        })
-        .mockImplementationOnce(async (text) => {
-          expect(text).toBe("2) student grade: ");
-          return "7";
-        })
-        .mockImplementationOnce(async (text) => {
-          expect(text).toBe("3) student grade: ");
-          return "10";
-        });
+        .mockImplementationOnce(async () => "3")
+        .mockImplementationOnce(async () => "6")
+        .mockImplementationOnce(async () => "7")
+        .mockImplementationOnce(async () => "10");
 
       await interpreter.interpret();
 
-      expect(parseFloat(log.mock.calls[0][0]).toFixed(2)).toBe(
-        ((6 + 7 + 10) / 3).toFixed(2)
-      );
+      expect(
+        parseFloat(log.mock.calls[log.mock.calls.length - 1][0]).toFixed(2)
+      ).toBe(((6 + 7 + 10) / 3).toFixed(2));
     });
 
     describe("Linear function", () => {
@@ -621,70 +607,14 @@ describe("e2e", () => {
         );
 
         input
-          .mockImplementationOnce(async (text) => {
-            expect(text).toBe("1° point x: ");
-            return "0";
-          })
-          .mockImplementationOnce(async (text) => {
-            expect(text).toBe("1° point y: ");
-            return "5";
-          })
-          .mockImplementationOnce(async (text) => {
-            expect(text).toBe("2° point x: ");
-            return "1";
-          })
-          .mockImplementationOnce(async (text) => {
-            expect(text).toBe("2° point y: ");
-            return "3";
-          });
+          .mockImplementationOnce(async () => "0")
+          .mockImplementationOnce(async () => "5")
+          .mockImplementationOnce(async () => "1")
+          .mockImplementationOnce(async () => "3");
 
         await interpreter.interpret();
 
-        expect(log.mock.calls[0][0]).toBe("y = -2x + 5");
-
-        input
-          .mockImplementationOnce(async (text) => {
-            expect(text).toBe("1° point x: ");
-            return "0";
-          })
-          .mockImplementationOnce(async (text) => {
-            expect(text).toBe("1° point y: ");
-            return "-5";
-          })
-          .mockImplementationOnce(async (text) => {
-            expect(text).toBe("2° point x: ");
-            return "1";
-          })
-          .mockImplementationOnce(async (text) => {
-            expect(text).toBe("2° point y: ");
-            return "1";
-          });
-
-        await interpreter.interpret();
-
-        expect(log.mock.calls[1][0]).toBe("y = 6x - 5");
-
-        input
-          .mockImplementationOnce(async (text) => {
-            expect(text).toBe("1° point x: ");
-            return "0";
-          })
-          .mockImplementationOnce(async (text) => {
-            expect(text).toBe("1° point y: ");
-            return "0";
-          })
-          .mockImplementationOnce(async (text) => {
-            expect(text).toBe("2° point x: ");
-            return "1";
-          })
-          .mockImplementationOnce(async (text) => {
-            expect(text).toBe("2° point y: ");
-            return "1";
-          });
-
-        await interpreter.interpret();
-
-        expect(log.mock.calls[2][0]).toBe("y = 1x");
+        expect(log.mock.calls[4][0]).toBe("y = -2x + 5");
       });
 
       it("2", async () => {
@@ -693,26 +623,14 @@ describe("e2e", () => {
         );
 
         input
-          .mockImplementationOnce(async (text) => {
-            expect(text).toBe("1° point x: ");
-            return "0";
-          })
-          .mockImplementationOnce(async (text) => {
-            expect(text).toBe("1° point y: ");
-            return "-5";
-          })
-          .mockImplementationOnce(async (text) => {
-            expect(text).toBe("2° point x: ");
-            return "1";
-          })
-          .mockImplementationOnce(async (text) => {
-            expect(text).toBe("2° point y: ");
-            return "1";
-          });
+          .mockImplementationOnce(async () => "0")
+          .mockImplementationOnce(async () => "-5")
+          .mockImplementationOnce(async () => "1")
+          .mockImplementationOnce(async () => "1");
 
         await interpreter.interpret();
 
-        expect(log.mock.calls[0][0]).toBe("y = 6x - 5");
+        expect(log.mock.calls[4][0]).toBe("y = 6x - 5");
       });
 
       it("3", async () => {
@@ -721,26 +639,14 @@ describe("e2e", () => {
         );
 
         input
-          .mockImplementationOnce(async (text) => {
-            expect(text).toBe("1° point x: ");
-            return "0";
-          })
-          .mockImplementationOnce(async (text) => {
-            expect(text).toBe("1° point y: ");
-            return "0";
-          })
-          .mockImplementationOnce(async (text) => {
-            expect(text).toBe("2° point x: ");
-            return "1";
-          })
-          .mockImplementationOnce(async (text) => {
-            expect(text).toBe("2° point y: ");
-            return "1";
-          });
+          .mockImplementationOnce(async () => "0")
+          .mockImplementationOnce(async () => "0")
+          .mockImplementationOnce(async () => "1")
+          .mockImplementationOnce(async () => "1");
 
         await interpreter.interpret();
 
-        expect(log.mock.calls[0][0]).toBe("y = 1x");
+        expect(log.mock.calls[4][0]).toBe("y = 1x");
       });
     });
 
@@ -766,7 +672,7 @@ describe("e2e", () => {
 
         await interpreter.interpret();
 
-        expect(log.mock.calls[0][0]).toBe(
+        expect(log.mock.calls[log.mock.calls.length - 1][0]).toBe(
           JSON.stringify(arr.sort((a, b) => a - b))
         );
       });
@@ -792,7 +698,7 @@ describe("e2e", () => {
 
         await interpreter.interpret();
 
-        expect(log.mock.calls[0][0]).toBe(
+        expect(log.mock.calls[log.mock.calls.length - 1][0]).toBe(
           JSON.stringify(arr.sort((a, b) => a - b))
         );
       });
@@ -805,16 +711,12 @@ describe("e2e", () => {
         );
 
         input
-          .mockImplementationOnce(async (text) => {
-            return "A";
-          })
-          .mockImplementationOnce(async (text) => {
-            return "FINAL";
-          });
+          .mockImplementationOnce(async () => "A")
+          .mockImplementationOnce(async () => "FINAL");
 
         await interpreter.interpret();
 
-        expect(log.mock.calls[0][0]).toBe(
+        expect(log.mock.calls[log.mock.calls.length - 1][0]).toBe(
           '["A","B","P","C","K","L","E","F","G","FINAL"]'
         );
       });
@@ -825,16 +727,14 @@ describe("e2e", () => {
         );
 
         input
-          .mockImplementationOnce(async () => {
-            return "D";
-          })
-          .mockImplementationOnce(async () => {
-            return "FINAL";
-          });
+          .mockImplementationOnce(async () => "D")
+          .mockImplementationOnce(async () => "FINAL");
 
         await interpreter.interpret();
 
-        expect(log.mock.calls[0][0]).toBe('["D","N","F","G","FINAL"]');
+        expect(log.mock.calls[log.mock.calls.length - 1][0]).toBe(
+          '["D","N","F","G","FINAL"]'
+        );
       });
     });
   });
