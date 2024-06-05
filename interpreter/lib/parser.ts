@@ -365,8 +365,8 @@ class Parser {
     return expr;
   }
 
-  // factor → factor_assign_operator ( ( "-" | "+" ) factor_assign_operator )* ;
-  // factor_assign_operator → (IDENTIFIER ( "-=" | "+=" ) unary) | unary
+  // factor → factor_assign_operator ( ( "/" | "*" ) factor_assign_operator )* ;
+  // factor_assign_operator → (IDENTIFIER ( "/=" | "*=" ) unary) | unary
   private factorAssignOperator(): Expr {
     const expr = this.unary();
 
@@ -387,8 +387,6 @@ class Parser {
     return expr;
   }
 
-  // unary → ( "!" | "-" ) unary | unary_operator ;
-  //
   private unary(): Expr {
     if (this.match(TokenType.BANG, TokenType.MINUS)) {
       const operator = this.previous();
@@ -419,7 +417,7 @@ class Parser {
         if (this.match(TokenType.PLUS_PLUS, TokenType.MINUS_MINUS)) {
           const operator = this.previous();
 
-          expr = new UnaryOperatorExpr(
+          return new UnaryOperatorExpr(
             expr,
             operator,
             UnaryOperatorType.SUFFIX

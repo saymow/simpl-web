@@ -139,8 +139,8 @@ const Environment: React.FC<Props> = (props) => {
     }
   }, [onTerminalPrompt, terminal]);
 
-  const handleHandleMouseMove = useCallback(
-    (e: MouseEvent) => {
+  const handleMoveHandle = useCallback(
+    (x: number, y: number) => {
       if (
         !(
           editorWrapperRef.current &&
@@ -155,21 +155,37 @@ const Environment: React.FC<Props> = (props) => {
           environmentRef.current,
           editorWrapperRef.current,
           terminalWrapperRef.current,
-          e.clientX
+          x
         );
       } else {
         resizeVerticaly(
           environmentRef.current,
           editorWrapperRef.current,
           terminalWrapperRef.current,
-          e.clientY
+          y
         );
       }
     },
     [orientation]
   );
 
-  const handleHandleMouseMoveEnd = useCallback(() => {
+  const handleHandleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      handleMoveHandle(e.clientX, e.clientY);
+    },
+    [handleMoveHandle]
+  );
+
+  const handleHandleTouchMove = useCallback(
+    (e: TouchEvent) => {
+      const x = e.touches[0].clientX;
+      const y = e.touches[0].clientY;
+      handleMoveHandle(x, y);
+    },
+    [handleMoveHandle]
+  );
+
+  const handleHandleMoveEnd = useCallback(() => {
     if (
       !(
         editorWrapperRef.current &&
@@ -194,12 +210,16 @@ const Environment: React.FC<Props> = (props) => {
     }
 
     window.removeEventListener("mousemove", handleHandleMouseMove);
-    window.removeEventListener("mouseup", handleHandleMouseMoveEnd);
-  }, [handleHandleMouseMove, orientation]);
+    window.removeEventListener("touchmove", handleHandleTouchMove);
+    window.removeEventListener("mouseup", handleHandleMoveEnd);
+    window.removeEventListener("touchend", handleHandleMoveEnd);
+  }, [handleHandleMouseMove, handleHandleTouchMove, orientation]);
 
-  const handleHandleClick = () => {
+  const handleHandleMoveStart = () => {
     window.addEventListener("mousemove", handleHandleMouseMove);
-    window.addEventListener("mouseup", handleHandleMouseMoveEnd);
+    window.addEventListener("touchmove", handleHandleTouchMove);
+    window.addEventListener("mouseup", handleHandleMoveEnd);
+    window.addEventListener("touchend", handleHandleMoveEnd);
   };
 
   return (
@@ -214,7 +234,8 @@ const Environment: React.FC<Props> = (props) => {
           setSource={setSource}
         />
         <span
-          onMouseDown={handleHandleClick}
+          onMouseDown={handleHandleMoveStart}
+          onTouchStart={handleHandleMoveStart}
           className={`handle ${computeOrientationClassName(orientation)}`}
         ></span>
       </div>

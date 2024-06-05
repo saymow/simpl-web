@@ -38,7 +38,7 @@
   cursor: ns-resize;
 }
 
-.editor-wrapper .handle:hover {
+.editor-wrapper .handle:active {
   background: var(--border-color);
 }
 

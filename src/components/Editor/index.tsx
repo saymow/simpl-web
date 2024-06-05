@@ -56,7 +56,6 @@ const Editor: React.FC<Props> = (props) => {
       <textarea
         ref={inputRef}
         onScroll={updateScrollIfCan}
-        onPaste={() => console.log("pasted")}
         className="input"
         value={source}
         onChange={handleChanges}
