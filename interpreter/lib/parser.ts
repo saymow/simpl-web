@@ -11,6 +11,7 @@ import {
   LiteralExpr,
   LogicalExpr,
   StructExpr,
+  StructProperty,
   UnaryExpr,
   UnaryOperatorExpr,
   UnaryOperatorType,
@@ -502,12 +503,40 @@ class Parser {
   }
 
   private struct() {
-    const token = this.consume(
+    const properties: StructProperty[] = [];
+    const identifiersUsed = new Set<string>();
+
+    if (!this.check(TokenType.RIGHT_BRACE)) {
+      do {
+        const identifier = this.consume(
+          TokenType.IDENTIFIER,
+          "Expect identifier for struct property."
+        );
+
+        if (identifiersUsed.has(identifier.lexeme)) {
+          throw this.error(
+            identifier,
+            "Structs cannot have multiple properties with the same name."
+          );
+        }
+
+        this.consume(
+          TokenType.COLON,
+          "Expect ':' after struct property identifier."
+        );
+        const expr = this.expression();
+
+        properties.push({ key: identifier, value: expr });
+        identifiersUsed.add(identifier.lexeme);
+      } while (this.match(TokenType.COMMA));
+    }
+
+    const brace = this.consume(
       TokenType.RIGHT_BRACE,
       "Expect '}' after struct properties."
     );
 
-    return new StructExpr(token, []);
+    return new StructExpr(brace, properties);
   }
 
   private array(): Expr {

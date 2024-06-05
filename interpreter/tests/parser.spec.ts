@@ -29,6 +29,7 @@ import {
   VarStmt,
   WhileStmt,
 } from "../lib/stmt";
+import { ParserError } from "../lib/errors";
 
 const WrapExpr = (expr: Expr): ExprStmt => {
   return new ExprStmt(expr);
@@ -1593,23 +1594,128 @@ describe("Parser", () => {
     });
   });
 
-  // describe("Structs", () => {
-  //   it("{};", () => {
-  //     expect(
-  //       new Parser([
-  //         new Token(TokenType.LEFT_BRACE, "{", undefined, 1, -1, -1),
-  //         new Token(TokenType.RIGHT_BRACE, "}", undefined, 1, -1, -1),
-  //         new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
-  //         new Token(TokenType.EOF, "", undefined, 2, -1, -1),
-  //       ]).parse()
-  //     ).toEqual([
-  //       WrapExpr(
-  //         new StructExpr(
-  //           new Token(TokenType.RIGHT_BRACE, "}", undefined, 1, -1, -1),
-  //           []
-  //         )
-  //       ),
-  //     ]);
-  //   });
-  // });
+  describe("Structs", () => {
+    it("{};", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.LEFT_BRACE, "{", undefined, 1, -1, -1),
+          new Token(TokenType.RIGHT_BRACE, "}", undefined, 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        WrapExpr(
+          new StructExpr(
+            new Token(TokenType.RIGHT_BRACE, "}", undefined, 1, -1, -1),
+            []
+          )
+        ),
+      ]);
+    });
+
+    it("{ a: 5 };", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.LEFT_BRACE, "{", undefined, 1, -1, -1),
+          new Token(TokenType.IDENTIFIER, '"a"', "a", 1, -1, -1),
+          new Token(TokenType.COLON, ":", undefined, 1, -1, -1),
+          new Token(TokenType.NUMBER, "5", 5, 1, -1, -1),
+          new Token(TokenType.RIGHT_BRACE, "}", undefined, 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        WrapExpr(
+          new StructExpr(
+            new Token(TokenType.RIGHT_BRACE, "}", undefined, 1, -1, -1),
+            [
+              {
+                key: new Token(TokenType.IDENTIFIER, '"a"', "a", 1, -1, -1),
+                value: new LiteralExpr(5),
+              },
+            ]
+          )
+        ),
+      ]);
+    });
+
+    it('{ a: 5, b: "test", c: [], d: nil };', () => {
+      expect(
+        new Parser([
+          new Token(TokenType.LEFT_BRACE, "{", undefined, 1, -1, -1),
+          new Token(TokenType.IDENTIFIER, "a", undefined, 1, -1, -1),
+          new Token(TokenType.COLON, ":", undefined, 1, -1, -1),
+          new Token(TokenType.NUMBER, "5", 5, 1, -1, -1),
+          new Token(TokenType.COMMA, ",", undefined, 1, -1, -1),
+          new Token(TokenType.IDENTIFIER, "b", undefined, 1, -1, -1),
+          new Token(TokenType.COLON, ":", undefined, 1, -1, -1),
+          new Token(TokenType.STRING, '"test"', "test", 1, -1, -1),
+          new Token(TokenType.COMMA, ",", undefined, 1, -1, -1),
+          new Token(TokenType.IDENTIFIER, "c", undefined, 1, -1, -1),
+          new Token(TokenType.COLON, ":", undefined, 1, -1, -1),
+          new Token(TokenType.LEFT_BRACKET, "[", undefined, 1, -1, -1),
+          new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+          new Token(TokenType.COMMA, ",", undefined, 1, -1, -1),
+          new Token(TokenType.IDENTIFIER, "d", undefined, 1, -1, -1),
+          new Token(TokenType.COLON, ":", undefined, 1, -1, -1),
+          new Token(TokenType.NIL, "nil", undefined, 1, -1, -1),
+          new Token(TokenType.RIGHT_BRACE, "}", undefined, 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        WrapExpr(
+          new StructExpr(
+            new Token(TokenType.RIGHT_BRACE, "}", undefined, 1, -1, -1),
+            [
+              {
+                key: new Token(TokenType.IDENTIFIER, "a", undefined, 1, -1, -1),
+                value: new LiteralExpr(5),
+              },
+              {
+                key: new Token(TokenType.IDENTIFIER, "b", undefined, 1, -1, -1),
+                value: new LiteralExpr("test"),
+              },
+              {
+                key: new Token(TokenType.IDENTIFIER, "c", undefined, 1, -1, -1),
+                value: new ArrayExpr(
+                  new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+                  []
+                ),
+              },
+              {
+                key: new Token(TokenType.IDENTIFIER, "d", undefined, 1, -1, -1),
+                value: new LiteralExpr(null),
+              },
+            ]
+          )
+        ),
+      ]);
+    });
+
+    it('{ a: 5, b: "test" };', () => {
+      try {
+        new Parser([
+          new Token(TokenType.LEFT_BRACE, "{", undefined, 1, -1, -1),
+          new Token(TokenType.IDENTIFIER, "a", undefined, 1, -1, -1),
+          new Token(TokenType.COLON, ":", undefined, 1, -1, -1),
+          new Token(TokenType.NUMBER, "5", 5, 1, -1, -1),
+          new Token(TokenType.COMMA, ",", undefined, 1, -1, -1),
+          new Token(TokenType.IDENTIFIER, "a", undefined, 1, -1, -1),
+          new Token(TokenType.COLON, ":", undefined, 1, -1, -1),
+          new Token(TokenType.STRING, '"test"', "test", 1, -1, -1),
+          new Token(TokenType.RIGHT_BRACE, "}", undefined, 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse();
+      } catch (err) {
+        expect(err).toEqual(
+          new ParserError(
+            new Token(TokenType.IDENTIFIER, "a", undefined, 1, -1, -1),
+            "Structs cannot have multiple properties with the same name."
+          )
+        );
+      }
+    });
+  });
 });

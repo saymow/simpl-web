@@ -206,7 +206,7 @@ class StructExpr extends Expr {
   }
 }
 
-export type { Value, ExprVisitor };
+export type { Value, ExprVisitor, StructProperty };
 
 export {
   Expr,
