@@ -3,6 +3,7 @@ import { Value } from "./expr";
 export interface System {
   input(): Promise<string>;
   log(message?: string | number): void;
+  clear(): void;
 }
 
 export abstract class Callable {

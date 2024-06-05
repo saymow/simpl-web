@@ -1,0 +1,50 @@
+var running = true;
+var items = [];
+
+fun addItem(name) {
+    push(items, { name: name });
+}
+
+fun removeItem(name) {
+   var newItems = [];
+   
+   for (var idx = 0; idx < len(items); idx++) {
+        if (items[idx].name != name) {
+            unshift(newItems, items[idx]);
+        }
+   }
+
+   items = newItems;
+}
+
+fun listItems() {
+   for (var idx = 0; idx < len(items); idx++) {
+        output(string(idx + 1) + ") " + items[idx].name);
+   }
+}
+
+while (running) {
+    output("Select one option: ");
+    output("  1)  Add item");
+    output("  2)  Remove item");
+    output("  3)  List items");
+    output("  4)  Exit");
+    
+    var option = int(input());
+
+    if (option == 1) {
+        output("Item name: ");
+        addItem(input());
+    } else if (option == 2) {
+        output("Item name: "); 
+        removeItem(input());
+    } else if (option == 3) {
+        listItems();
+    } else if (option == 4) {
+        running = false;   
+    } else {
+        output("Invalid option.");
+    }
+}
+
+output("Finishing...");

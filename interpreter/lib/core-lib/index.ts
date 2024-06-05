@@ -15,3 +15,4 @@ export { default as Insert } from "./insert";
 export { default as Remove } from "./remove";
 export { default as IndexOf } from "./indexOf";
 export { default as Boolean } from "./boolean";
+export { default as Clear } from "./clear";
