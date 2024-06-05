@@ -5,7 +5,7 @@ import {
   Parser,
   ParserError,
   Stmt,
-} from "../../../interpreter";
+} from "../../../../language";
 import { INITIAL_PROGRAM } from "../../data";
 import { CustomParserError, TokenError } from "../../errors";
 import { bindTokens } from "../../helpers";

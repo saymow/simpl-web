@@ -8,7 +8,7 @@ import {
   RuntimeError,
   Stmt,
   Token,
-} from "../interpreter";
+} from "../../language";
 import "./App.css";
 import Button from "./components/Button";
 import Environment from "./components/Environment";

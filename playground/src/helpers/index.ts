@@ -1,4 +1,4 @@
-import { Token, TokenType } from "../../interpreter";
+import { Token, TokenType } from "../../../language";
 import { TokenError } from "../errors";
 
 export const wrapTokenLexeme = (

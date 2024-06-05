@@ -1,4 +1,4 @@
-import { Token, ParserError as LngParserError } from "../../interpreter";
+import { Token, ParserError as LngParserError } from "../../../language";
 
 export class CustomParserError extends LngParserError {
   constructor(
