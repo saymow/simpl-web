@@ -95,6 +95,9 @@ class Lexer {
       case ";":
         this.addToken(TokenType.SEMICOLON);
         break;
+      case ":":
+        this.addToken(TokenType.COLON);
+        break;
       case "/":
         if (this.match("=")) {
           this.addToken(TokenType.SLASH_EQUAL);

@@ -10,7 +10,7 @@ describe("Lexer", () => {
   });
 
   it("Shoud handle single caracter tokens properly", () => {
-    const tokens = new Lexer("(){}[],.;").scan();
+    const tokens = new Lexer("(){}[],.;:").scan();
 
     expect(tokens[0].type).toBe(TokenType.LEFT_PAREN);
     expect(tokens[1].type).toBe(TokenType.RIGHT_PAREN);
@@ -21,6 +21,7 @@ describe("Lexer", () => {
     expect(tokens[6].type).toBe(TokenType.COMMA);
     expect(tokens[7].type).toBe(TokenType.DOT);
     expect(tokens[8].type).toBe(TokenType.SEMICOLON);
+    expect(tokens[9].type).toBe(TokenType.COLON);
   });
 
   it("Shoud handle double caracter tokens properly", () => {
