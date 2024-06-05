@@ -18,8 +18,10 @@ fun removeItem(name) {
 }
 
 fun listItems() {
+   output("Items: ");
+ 
    for (var idx = 0; idx < len(items); idx++) {
-        output(string(idx + 1) + ") " + items[idx].name);
+        output(" " + string(idx + 1) + ") " + items[idx].name);
    }
 }
 
@@ -50,4 +52,4 @@ while (running) {
     }
 }
 
-output("END");
+output("END...");
