@@ -270,12 +270,7 @@ class Parser {
         return new AssignExpr(expr.name, value);
       }
       if (expr instanceof GetExpr) {
-        return new SetExpr(
-          expr.callee,
-          expr.token,
-          expr.expr,
-          value
-        );
+        return new SetExpr(expr.callee, expr.token, expr.expr, value);
       }
 
       this.error(token, "Invalid assignment target.");
@@ -436,6 +431,23 @@ class Parser {
 
         expr = new GetExpr(expr, token, indexExpr);
 
+        if (this.match(TokenType.PLUS_PLUS, TokenType.MINUS_MINUS)) {
+          const operator = this.previous();
+
+          return new UnaryOperatorExpr(
+            expr,
+            operator,
+            UnaryOperatorType.SUFFIX
+          );
+        }
+      } else if (this.match(TokenType.DOT)) {
+        const token = this.consume(
+          TokenType.IDENTIFIER,
+          "Expected identifier after '.'."
+        );
+        const propertyExpr = new VariableExpr(token);
+        expr = new GetExpr(expr, token, propertyExpr);
+        
         if (this.match(TokenType.PLUS_PLUS, TokenType.MINUS_MINUS)) {
           const operator = this.previous();
 
@@ -611,8 +623,10 @@ class Parser {
     return this.peek().type === tokenType;
   }
 
-  private previous(): Token {
-    return this.tokens[this.current - 1];
+  private previous<
+    T extends TokenType[keyof TokenType] | void = void
+  >(): Token<T> {
+    return this.tokens[this.current - 1] as Token<T>;
   }
 
   private peek(): Token {

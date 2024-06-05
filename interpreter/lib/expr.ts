@@ -155,7 +155,7 @@ class GetExpr extends Expr {
 
   constructor(
     public callee: Expr,
-    public token: Token<TokenType.RIGHT_BRACKET | TokenType.DOT>,
+    public token: Token<TokenType.RIGHT_BRACKET | TokenType.IDENTIFIER>,
     public expr: Expr
   ) {
     super();
@@ -169,7 +169,7 @@ class SetExpr extends Expr {
 
   constructor(
     public callee: Expr,
-    public token: Token<TokenType.RIGHT_BRACKET | TokenType.DOT>,
+    public token: Token<TokenType.RIGHT_BRACKET | TokenType.IDENTIFIER>,
     public expr: Expr,
     public valueExpr: Expr
   ) {

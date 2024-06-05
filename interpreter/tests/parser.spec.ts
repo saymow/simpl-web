@@ -772,6 +772,106 @@ describe("Parser", () => {
       ]);
     });
 
+    it("myStruct.propertyA++;", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.IDENTIFIER, "myStruct", undefined, 1, -1, -1),
+          new Token(TokenType.DOT, ".", undefined, 1, -1, -1),
+          new Token(TokenType.IDENTIFIER, "propertyA", undefined, 1, -1, -1),
+          new Token(TokenType.PLUS_PLUS, "++", undefined, 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        WrapExpr(
+          new UnaryOperatorExpr(
+            new GetExpr(
+              new VariableExpr(
+                new Token(
+                  TokenType.IDENTIFIER,
+                  "myStruct",
+                  undefined,
+                  1,
+                  -1,
+                  -1
+                )
+              ),
+              new Token(
+                TokenType.IDENTIFIER,
+                "propertyA",
+                undefined,
+                1,
+                -1,
+                -1
+              ),
+              new VariableExpr(
+                new Token(
+                  TokenType.IDENTIFIER,
+                  "propertyA",
+                  undefined,
+                  1,
+                  -1,
+                  -1
+                )
+              )
+            ),
+            new Token(TokenType.PLUS_PLUS, "++", undefined, 1, -1, -1),
+            UnaryOperatorType.SUFFIX
+          )
+        ),
+      ]);
+    });
+
+    it("myStruct.propertyA++;", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.PLUS_PLUS, "++", undefined, 1, -1, -1),
+          new Token(TokenType.IDENTIFIER, "myStruct", undefined, 1, -1, -1),
+          new Token(TokenType.DOT, ".", undefined, 1, -1, -1),
+          new Token(TokenType.IDENTIFIER, "propertyA", undefined, 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        WrapExpr(
+          new UnaryOperatorExpr(
+            new GetExpr(
+              new VariableExpr(
+                new Token(
+                  TokenType.IDENTIFIER,
+                  "myStruct",
+                  undefined,
+                  1,
+                  -1,
+                  -1
+                )
+              ),
+              new Token(
+                TokenType.IDENTIFIER,
+                "propertyA",
+                undefined,
+                1,
+                -1,
+                -1
+              ),
+              new VariableExpr(
+                new Token(
+                  TokenType.IDENTIFIER,
+                  "propertyA",
+                  undefined,
+                  1,
+                  -1,
+                  -1
+                )
+              )
+            ),
+            new Token(TokenType.PLUS_PLUS, "++", undefined, 1, -1, -1),
+            UnaryOperatorType.PREFIX
+          )
+        ),
+      ]);
+    });
+
     it("a++;", () => {
       expect(
         new Parser([
@@ -1716,6 +1816,83 @@ describe("Parser", () => {
           )
         );
       }
+    });
+
+    it("myStruct.propertyA;", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.IDENTIFIER, "myStruct", undefined, 1, -1, -1),
+          new Token(TokenType.DOT, ".", undefined, 1, -1, -1),
+          new Token(TokenType.IDENTIFIER, "propertyA", undefined, 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        WrapExpr(
+          new GetExpr(
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "myStruct", undefined, 1, -1, -1)
+            ),
+            new Token(TokenType.IDENTIFIER, "propertyA", undefined, 1, -1, -1),
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "propertyA", undefined, 1, -1, -1)
+            )
+          )
+        ),
+      ]);
+    });
+
+    it("myStruct.propertyA.propertyB;", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.IDENTIFIER, "myStruct", undefined, 1, -1, -1),
+          new Token(TokenType.DOT, ".", undefined, 1, -1, -1),
+          new Token(TokenType.IDENTIFIER, "propertyA", undefined, 1, -1, -1),
+          new Token(TokenType.DOT, ".", undefined, 1, -1, -1),
+          new Token(TokenType.IDENTIFIER, "propertyB", undefined, 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        WrapExpr(
+          new GetExpr(
+            new GetExpr(
+              new VariableExpr(
+                new Token(
+                  TokenType.IDENTIFIER,
+                  "myStruct",
+                  undefined,
+                  1,
+                  -1,
+                  -1
+                )
+              ),
+              new Token(
+                TokenType.IDENTIFIER,
+                "propertyA",
+                undefined,
+                1,
+                -1,
+                -1
+              ),
+              new VariableExpr(
+                new Token(
+                  TokenType.IDENTIFIER,
+                  "propertyA",
+                  undefined,
+                  1,
+                  -1,
+                  -1
+                )
+              )
+            ),
+            new Token(TokenType.IDENTIFIER, "propertyB", undefined, 1, -1, -1),
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "propertyB", undefined, 1, -1, -1)
+            )
+          )
+        ),
+      ]);
     });
   });
 });
