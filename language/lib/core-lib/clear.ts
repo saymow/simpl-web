@@ -6,7 +6,7 @@ class Clear extends SysCall {
     return 0;
   }
 
-  public async call(system: System, args: Value[]) {
+  public async call(system: System, _: Value[]) {
     return system.clear();
   }
 }
