@@ -8,6 +8,7 @@ import {
   CallExpr,
   GroupingExpr,
   LiteralExpr,
+  StructExpr,
   UnaryOperatorExpr,
   UnaryOperatorType,
   VariableExpr,
@@ -1219,6 +1220,39 @@ describe("Interpreter", () => {
 
       expect(log).toHaveBeenCalledTimes(1);
       expect(log.mock.calls[0][0]).toBe("test");
+    });
+  });
+
+  describe("Structs", () => {
+    it('var struct = { a: 5, b: "test" }; print struct;', async () => {
+      const { log, interpreter } = makeSut([
+        new VarStmt(
+          new Token(TokenType.IDENTIFIER, '"struct"', "struct", 1, -1, -1),
+          new StructExpr(
+            new Token(TokenType.RIGHT_BRACE, "}", undefined, 1, -1, -1),
+            [
+              {
+                key: new Token(TokenType.IDENTIFIER, "a", undefined, 1, -1, -1),
+                value: new LiteralExpr(5),
+              },
+              {
+                key: new Token(TokenType.IDENTIFIER, "b", undefined, 1, -1, -1),
+                value: new LiteralExpr("test"),
+              },
+            ]
+          )
+        ),
+        new PrintStmt(
+          new VariableExpr(
+            new Token(TokenType.IDENTIFIER, '"struct"', "struct", 1, -1, -1)
+          )
+        ),
+      ]);
+
+      await interpreter.interpret();
+
+      expect(log).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls[0][0]).toBe("{\"a\":5,\"b\":\"test\"}");
     });
   });
 });

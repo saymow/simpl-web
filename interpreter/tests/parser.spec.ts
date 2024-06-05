@@ -1693,7 +1693,7 @@ describe("Parser", () => {
       ]);
     });
 
-    it('{ a: 5, b: "test" };', () => {
+    it('{ a: 5, a: "test" };', () => {
       try {
         new Parser([
           new Token(TokenType.LEFT_BRACE, "{", undefined, 1, -1, -1),

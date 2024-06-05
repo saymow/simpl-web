@@ -1,7 +1,7 @@
 import Token from "./token";
 import TokenType from "./token-type";
 
-// type Value = undefined | null | string | number | Value[];
+// type Value = undefined | null | string | number | Value[] | Record<string, Value>;
 type Value = any;
 
 interface ExprVisitor<T> {

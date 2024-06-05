@@ -12,6 +12,7 @@ import {
   LiteralExpr,
   LogicalExpr,
   SetExpr,
+  StructExpr,
   UnaryExpr,
   UnaryOperatorExpr,
   UnaryOperatorType,
@@ -37,6 +38,7 @@ import Token from "./token";
 import Context, { VariableNotFound } from "./context";
 import Function, { ReturnValue } from "./function";
 import * as lib from "./core-lib";
+import { isArray, isObject } from "./core-lib/helpers";
 
 class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   private context = new Context<Value>();
@@ -72,6 +74,16 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
   private async evaluateExpr(expr: Expr): Promise<unknown> {
     return await expr.accept(this);
+  }
+
+  async visitStructExpr(expr: StructExpr): Promise<any> {
+    const struct: Record<string, Value> = {};
+
+    for (const property of expr.properties) {
+      struct[property.key.lexeme] = await this.evaluateExpr(property.value);
+    }
+
+    return struct;
   }
 
   async visitArraySetExpr(expr: ArraySetExpr): Promise<any> {
@@ -249,7 +261,6 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     } else if (expr.nameExpr instanceof VariableExpr) {
       this.assignVariable(expr.nameExpr.name as Token<TokenType.VAR>, value);
     }
-
 
     return value;
   }
@@ -492,7 +503,7 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
   private log(message: any) {
     if (message !== undefined && message !== null) {
-      if (message instanceof Array) {
+      if (isArray(message) || isObject(message)) {
         message = JSON.stringify(message);
       } else {
         message = message.toString();
