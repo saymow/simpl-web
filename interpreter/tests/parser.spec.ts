@@ -1894,5 +1894,88 @@ describe("Parser", () => {
         ),
       ]);
     });
+
+    it("myStruct.propertyA = 5;", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.IDENTIFIER, "myStruct", undefined, 1, -1, -1),
+          new Token(TokenType.DOT, ".", undefined, 1, -1, -1),
+          new Token(TokenType.IDENTIFIER, "propertyA", undefined, 1, -1, -1),
+          new Token(TokenType.EQUAL, "=", undefined, 1, -1, -1),
+          new Token(TokenType.NUMBER, "5", 5, 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        WrapExpr(
+          new SetExpr(
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "myStruct", undefined, 1, -1, -1)
+            ),
+            new Token(TokenType.IDENTIFIER, "propertyA", undefined, 1, -1, -1),
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "propertyA", undefined, 1, -1, -1)
+            ),
+            new LiteralExpr(5)
+          )
+        ),
+      ]);
+    });
+
+    it("myStruct.propertyA.propertyB = 5;", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.IDENTIFIER, "myStruct", undefined, 1, -1, -1),
+          new Token(TokenType.DOT, ".", undefined, 1, -1, -1),
+          new Token(TokenType.IDENTIFIER, "propertyA", undefined, 1, -1, -1),
+          new Token(TokenType.DOT, ".", undefined, 1, -1, -1),
+          new Token(TokenType.IDENTIFIER, "propertyB", undefined, 1, -1, -1),
+          new Token(TokenType.EQUAL, "=", undefined, 1, -1, -1),
+          new Token(TokenType.NUMBER, "5", 5, 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        WrapExpr(
+          new SetExpr(
+            new GetExpr(
+              new VariableExpr(
+                new Token(
+                  TokenType.IDENTIFIER,
+                  "myStruct",
+                  undefined,
+                  1,
+                  -1,
+                  -1
+                )
+              ),
+              new Token(
+                TokenType.IDENTIFIER,
+                "propertyA",
+                undefined,
+                1,
+                -1,
+                -1
+              ),
+              new VariableExpr(
+                new Token(
+                  TokenType.IDENTIFIER,
+                  "propertyA",
+                  undefined,
+                  1,
+                  -1,
+                  -1
+                )
+              )
+            ),
+            new Token(TokenType.IDENTIFIER, "propertyB", undefined, 1, -1, -1),
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "propertyB", undefined, 1, -1, -1)
+            ),
+            new LiteralExpr(5)
+          )
+        ),
+      ]);
+    });
   });
 });
