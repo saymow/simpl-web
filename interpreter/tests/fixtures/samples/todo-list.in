@@ -24,6 +24,7 @@ fun listItems() {
 }
 
 while (running) {
+    clear();
     output("Select one option: ");
     output("  1)  Add item");
     output("  2)  Remove item");
@@ -31,6 +32,7 @@ while (running) {
     output("  4)  Exit");
     
     var option = int(input());
+    clear();
 
     if (option == 1) {
         output("Item name: ");
@@ -40,6 +42,7 @@ while (running) {
         removeItem(input());
     } else if (option == 3) {
         listItems();
+        sleep(2000); 
     } else if (option == 4) {
         running = false;   
     } else {
@@ -47,4 +50,4 @@ while (running) {
     }
 }
 
-output("Finishing...");
+output("END");
