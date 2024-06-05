@@ -42,7 +42,7 @@ const expectCoreLibException =
   (handler: SysCall) =>
   async (...args: any[]) => {
     const log = jest.fn((_: string) => {});
-    const input = jest.fn(async (_: string) => "test");
+    const input = jest.fn(async () => "test");
 
     return expect(handler.call({ log, input }, args));
   };
@@ -564,6 +564,16 @@ describe("e2e", () => {
           "Expected array."
         );
       });
+    });
+
+    it("boolean(Value)", async () => {
+      (await expectCoreLib(new lib.Boolean())(false)).toBe(false);
+      (await expectCoreLib(new lib.Boolean())(undefined)).toBe(false);
+      (await expectCoreLib(new lib.Boolean())(null)).toBe(false);
+      (await expectCoreLib(new lib.Boolean())([1, 2, 3])).toBe(true);
+      (await expectCoreLib(new lib.Boolean())("")).toBe(true);
+      (await expectCoreLib(new lib.Boolean())(0)).toBe(true);
+      (await expectCoreLib(new lib.Boolean())({ test: "true" })).toBe(true);
     });
   });
 
