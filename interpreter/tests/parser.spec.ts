@@ -15,8 +15,8 @@ import {
   UnaryOperatorExpr,
   UnaryOperatorType,
   ArrayExpr,
-  ArrayGetExpr,
-  ArraySetExpr,
+  GetExpr,
+  SetExpr,
   StructExpr,
 } from "../lib/expr";
 import {
@@ -597,7 +597,7 @@ describe("Parser", () => {
       ).toEqual([
         WrapExpr(
           new AssignOperatorExpr(
-            new ArrayGetExpr(
+            new GetExpr(
               new VariableExpr(
                 new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1)
               ),
@@ -676,7 +676,7 @@ describe("Parser", () => {
       ).toEqual([
         WrapExpr(
           new AssignOperatorExpr(
-            new ArrayGetExpr(
+            new GetExpr(
               new VariableExpr(
                 new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1)
               ),
@@ -730,7 +730,7 @@ describe("Parser", () => {
       ).toEqual([
         WrapExpr(
           new UnaryOperatorExpr(
-            new ArrayGetExpr(
+            new GetExpr(
               new VariableExpr(
                 new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1)
               ),
@@ -758,7 +758,7 @@ describe("Parser", () => {
       ).toEqual([
         WrapExpr(
           new UnaryOperatorExpr(
-            new ArrayGetExpr(
+            new GetExpr(
               new VariableExpr(
                 new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1)
               ),
@@ -1493,7 +1493,7 @@ describe("Parser", () => {
         ]).parse()
       ).toEqual([
         WrapExpr(
-          new ArrayGetExpr(
+          new GetExpr(
             new VariableExpr(
               new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1)
             ),
@@ -1519,8 +1519,8 @@ describe("Parser", () => {
         ]).parse()
       ).toEqual([
         WrapExpr(
-          new ArrayGetExpr(
-            new ArrayGetExpr(
+          new GetExpr(
+            new GetExpr(
               new VariableExpr(
                 new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1)
               ),
@@ -1548,7 +1548,7 @@ describe("Parser", () => {
         ]).parse()
       ).toEqual([
         WrapExpr(
-          new ArraySetExpr(
+          new SetExpr(
             new VariableExpr(
               new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1)
             ),
@@ -1577,8 +1577,8 @@ describe("Parser", () => {
         ]).parse()
       ).toEqual([
         WrapExpr(
-          new ArraySetExpr(
-            new ArrayGetExpr(
+          new SetExpr(
+            new GetExpr(
               new VariableExpr(
                 new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1)
               ),

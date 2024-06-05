@@ -1,7 +1,7 @@
 import {
   ArrayExpr,
-  ArrayGetExpr,
-  ArraySetExpr,
+  GetExpr,
+  SetExpr,
   AssignExpr,
   AssignOperatorExpr,
   BinaryExpr,
@@ -209,7 +209,7 @@ describe("Interpreter", () => {
         ),
         new ExprStmt(
           new AssignOperatorExpr(
-            new ArrayGetExpr(
+            new GetExpr(
               new VariableExpr(
                 new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1)
               ),
@@ -221,7 +221,7 @@ describe("Interpreter", () => {
           )
         ),
         new PrintStmt(
-          new ArrayGetExpr(
+          new GetExpr(
             new VariableExpr(
               new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1)
             ),
@@ -332,7 +332,7 @@ describe("Interpreter", () => {
         ),
         new ExprStmt(
           new AssignOperatorExpr(
-            new ArrayGetExpr(
+            new GetExpr(
               new VariableExpr(
                 new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1)
               ),
@@ -344,7 +344,7 @@ describe("Interpreter", () => {
           )
         ),
         new PrintStmt(
-          new ArrayGetExpr(
+          new GetExpr(
             new VariableExpr(
               new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1)
             ),
@@ -499,7 +499,7 @@ describe("Interpreter", () => {
         ),
         new PrintStmt(
           new UnaryOperatorExpr(
-            new ArrayGetExpr(
+            new GetExpr(
               new VariableExpr(
                 new Token(TokenType.IDENTIFIER, "arr", undefined, 1, -1, -1)
               ),
@@ -511,7 +511,7 @@ describe("Interpreter", () => {
           )
         ),
         new PrintStmt(
-          new ArrayGetExpr(
+          new GetExpr(
             new VariableExpr(
               new Token(TokenType.IDENTIFIER, "arr", undefined, 1, -1, -1)
             ),
@@ -1078,7 +1078,7 @@ describe("Interpreter", () => {
           )
         ),
         new PrintStmt(
-          new ArrayGetExpr(
+          new GetExpr(
             new VariableExpr(
               new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1)
             ),
@@ -1113,8 +1113,8 @@ describe("Interpreter", () => {
           )
         ),
         new PrintStmt(
-          new ArrayGetExpr(
-            new ArrayGetExpr(
+          new GetExpr(
+            new GetExpr(
               new VariableExpr(
                 new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1)
               ),
@@ -1143,7 +1143,7 @@ describe("Interpreter", () => {
           )
         ),
         new ExprStmt(
-          new ArraySetExpr(
+          new SetExpr(
             new VariableExpr(
               new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1)
             ),
@@ -1153,7 +1153,7 @@ describe("Interpreter", () => {
           )
         ),
         new PrintStmt(
-          new ArrayGetExpr(
+          new GetExpr(
             new VariableExpr(
               new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1)
             ),
@@ -1188,8 +1188,8 @@ describe("Interpreter", () => {
           )
         ),
         new ExprStmt(
-          new ArraySetExpr(
-            new ArrayGetExpr(
+          new SetExpr(
+            new GetExpr(
               new VariableExpr(
                 new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1)
               ),
@@ -1202,8 +1202,8 @@ describe("Interpreter", () => {
           )
         ),
         new PrintStmt(
-          new ArrayGetExpr(
-            new ArrayGetExpr(
+          new GetExpr(
+            new GetExpr(
               new VariableExpr(
                 new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1)
               ),

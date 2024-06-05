@@ -16,8 +16,7 @@ interface ExprVisitor<T> {
   visitAssignOperatorExpr(expr: AssignOperatorExpr): Promise<T>;
   visitUnaryOperatorExpr(expr: UnaryOperatorExpr): Promise<T>;
   visitArrayExpr(expr: ArrayExpr): Promise<T>;
-  visitArrayGetExpr(expr: ArrayGetExpr): Promise<T>;
-  visitArraySetExpr(expr: ArraySetExpr): Promise<T>;
+  visitGetExpr(expr: GetExpr): Promise<T>;
   visitSetExpr(expr: SetExpr): Promise<T>;
   visitStructExpr(expr: StructExpr): Promise<T>;
 }
@@ -120,16 +119,6 @@ class AssignOperatorExpr extends Expr {
   }
 }
 
-class SetExpr extends Expr {
-  public accept<T>(visitor: ExprVisitor<T>): Promise<T> {
-    return visitor.visitSetExpr(this);
-  }
-
-  constructor(public object: Expr, public property: Token, public value: Expr) {
-    super();
-  }
-}
-
 enum UnaryOperatorType {
   PREFIX,
   SUFFIX,
@@ -159,30 +148,30 @@ class ArrayExpr extends Expr {
   }
 }
 
-class ArrayGetExpr extends Expr {
+class GetExpr extends Expr {
   public accept<T>(visitor: ExprVisitor<T>): Promise<T> {
-    return visitor.visitArrayGetExpr(this);
+    return visitor.visitGetExpr(this);
   }
 
   constructor(
     public callee: Expr,
-    public bracket: Token<TokenType.RIGHT_BRACKET>,
-    public indexExpr: Expr
+    public token: Token<TokenType.RIGHT_BRACKET | TokenType.DOT>,
+    public expr: Expr
   ) {
     super();
   }
 }
 
-class ArraySetExpr extends Expr {
+class SetExpr extends Expr {
   public accept<T>(visitor: ExprVisitor<T>): Promise<T> {
-    return visitor.visitArraySetExpr(this);
+    return visitor.visitSetExpr(this);
   }
 
   constructor(
     public callee: Expr,
-    public bracket: Token<TokenType.RIGHT_BRACKET>,
-    public indexExpr: Expr,
-    public expr: Expr
+    public token: Token<TokenType.RIGHT_BRACKET | TokenType.DOT>,
+    public expr: Expr,
+    public valueExpr: Expr
   ) {
     super();
   }
@@ -219,11 +208,10 @@ export {
   CallExpr,
   AssignExpr,
   AssignOperatorExpr,
-  SetExpr,
   UnaryOperatorExpr,
   UnaryOperatorType,
   ArrayExpr,
-  ArrayGetExpr,
-  ArraySetExpr,
+  GetExpr,
+  SetExpr,
   StructExpr,
 };

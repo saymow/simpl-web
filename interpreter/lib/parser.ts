@@ -1,7 +1,7 @@
 import {
   ArrayExpr,
-  ArrayGetExpr,
-  ArraySetExpr,
+  GetExpr,
+  SetExpr,
   AssignExpr,
   AssignOperatorExpr,
   BinaryExpr,
@@ -269,11 +269,11 @@ class Parser {
       if (expr instanceof VariableExpr) {
         return new AssignExpr(expr.name, value);
       }
-      if (expr instanceof ArrayGetExpr) {
-        return new ArraySetExpr(
+      if (expr instanceof GetExpr) {
+        return new SetExpr(
           expr.callee,
-          expr.bracket,
-          expr.indexExpr,
+          expr.token,
+          expr.expr,
           value
         );
       }
@@ -361,7 +361,7 @@ class Parser {
     if (this.match(TokenType.MINUS_EQUAL, TokenType.PLUS_EQUAL)) {
       const operator = this.previous();
 
-      if (!(expr instanceof VariableExpr || expr instanceof ArrayGetExpr)) {
+      if (!(expr instanceof VariableExpr || expr instanceof GetExpr)) {
         throw this.error(
           operator,
           "Expected variable for assignment operation."
@@ -395,7 +395,7 @@ class Parser {
     if (this.match(TokenType.SLASH_EQUAL, TokenType.STAR_EQUAL)) {
       const operator = this.previous();
 
-      if (!(expr instanceof VariableExpr || expr instanceof ArrayGetExpr)) {
+      if (!(expr instanceof VariableExpr || expr instanceof GetExpr)) {
         throw this.error(
           operator,
           "Expected variable or array item for assignment operation."
@@ -434,7 +434,7 @@ class Parser {
           "Expect ']' after array access."
         );
 
-        expr = new ArrayGetExpr(expr, token, indexExpr);
+        expr = new GetExpr(expr, token, indexExpr);
 
         if (this.match(TokenType.PLUS_PLUS, TokenType.MINUS_MINUS)) {
           const operator = this.previous();
@@ -496,8 +496,6 @@ class Parser {
       this.consume(TokenType.RIGHT_PAREN, "Expect ')' after group expression.");
       return new GroupingExpr(expr);
     }
-
-    console.log(this.peek());
 
     throw this.error(this.peek(), "Unexpected token.");
   }

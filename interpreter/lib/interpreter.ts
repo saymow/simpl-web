@@ -1,7 +1,7 @@
 import {
   ArrayExpr,
-  ArrayGetExpr,
-  ArraySetExpr,
+  GetExpr,
+  SetExpr,
   AssignExpr,
   AssignOperatorExpr,
   BinaryExpr,
@@ -11,7 +11,6 @@ import {
   GroupingExpr,
   LiteralExpr,
   LogicalExpr,
-  SetExpr,
   StructExpr,
   UnaryExpr,
   UnaryOperatorExpr,
@@ -86,19 +85,19 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     return struct;
   }
 
-  async visitArraySetExpr(expr: ArraySetExpr): Promise<any> {
+  async visitSetExpr(expr: SetExpr): Promise<any> {
     const callee = await this.evaluateExpr(expr.callee);
-    const idx = await this.evaluateExpr(expr.indexExpr);
-    const value = await this.evaluateExpr(expr.expr);
+    const idx = await this.evaluateExpr(expr.expr);
+    const value = await this.evaluateExpr(expr.valueExpr);
 
     if (!(typeof idx === "number")) {
-      throw new RuntimeError(expr.bracket, "Index must be a number.");
+      throw new RuntimeError(expr.token, "Index must be a number.");
     }
     if (!(callee instanceof Array)) {
-      throw new RuntimeError(expr.bracket, `Cannot access property '${idx}.'`);
+      throw new RuntimeError(expr.token, `Cannot access property '${idx}.'`);
     }
     if (idx >= callee.length) {
-      throw new RuntimeError(expr.bracket, "Index out of bounds.");
+      throw new RuntimeError(expr.token, "Index out of bounds.");
     }
 
     callee[idx] = value;
@@ -114,18 +113,18 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     return elements;
   }
 
-  async visitArrayGetExpr(expr: ArrayGetExpr): Promise<any> {
+  async visitGetExpr(expr: GetExpr): Promise<any> {
     const callee = await this.evaluateExpr(expr.callee);
-    const idx = await this.evaluateExpr(expr.indexExpr);
+    const idx = await this.evaluateExpr(expr.expr);
 
     if (!(typeof idx === "number")) {
-      throw new RuntimeError(expr.bracket, "Index must be a number.");
+      throw new RuntimeError(expr.token, "Index must be a number.");
     }
     if (!(callee instanceof Array)) {
-      throw new RuntimeError(expr.bracket, `Cannot access property '${idx}.'`);
+      throw new RuntimeError(expr.token, `Cannot access property '${idx}.'`);
     }
     if (idx >= callee.length) {
-      throw new RuntimeError(expr.bracket, "Index out of bounds.");
+      throw new RuntimeError(expr.token, "Index out of bounds.");
     }
 
     return callee[idx];
@@ -135,7 +134,7 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     if (
       !(
         expr.nameExpr instanceof VariableExpr ||
-        expr.nameExpr instanceof ArrayGetExpr
+        expr.nameExpr instanceof GetExpr
       )
     ) {
       throw new RuntimeError(
@@ -157,24 +156,24 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
         newValue--;
     }
 
-    if (expr.nameExpr instanceof ArrayGetExpr) {
+    if (expr.nameExpr instanceof GetExpr) {
       const callee = await this.evaluateExpr(expr.nameExpr.callee);
-      const idx = await this.evaluateExpr(expr.nameExpr.indexExpr);
+      const idx = await this.evaluateExpr(expr.nameExpr.expr);
 
       if (!(typeof idx === "number")) {
         throw new RuntimeError(
-          expr.nameExpr.bracket,
+          expr.nameExpr.token,
           "Index must be a number."
         );
       }
       if (!(callee instanceof Array)) {
         throw new RuntimeError(
-          expr.nameExpr.bracket,
+          expr.nameExpr.token,
           `Cannot access property '${idx}.'`
         );
       }
       if (idx >= callee.length) {
-        throw new RuntimeError(expr.nameExpr.bracket, "Index out of bounds.");
+        throw new RuntimeError(expr.nameExpr.token, "Index out of bounds.");
       }
 
       callee[idx] = newValue;
@@ -193,7 +192,7 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     if (
       !(
         expr.nameExpr instanceof VariableExpr ||
-        expr.nameExpr instanceof ArrayGetExpr
+        expr.nameExpr instanceof GetExpr
       )
     ) {
       throw new RuntimeError(
@@ -237,24 +236,24 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
         break;
     }
 
-    if (expr.nameExpr instanceof ArrayGetExpr) {
+    if (expr.nameExpr instanceof GetExpr) {
       const callee = await this.evaluateExpr(expr.nameExpr.callee);
-      const idx = await this.evaluateExpr(expr.nameExpr.indexExpr);
+      const idx = await this.evaluateExpr(expr.nameExpr.expr);
 
       if (!(typeof idx === "number")) {
         throw new RuntimeError(
-          expr.nameExpr.bracket,
+          expr.nameExpr.token,
           "Index must be a number."
         );
       }
       if (!(callee instanceof Array)) {
         throw new RuntimeError(
-          expr.nameExpr.bracket,
+          expr.nameExpr.token,
           `Cannot access property '${idx}.'`
         );
       }
       if (idx >= callee.length) {
-        throw new RuntimeError(expr.nameExpr.bracket, "Index out of bounds.");
+        throw new RuntimeError(expr.nameExpr.token, "Index out of bounds.");
       }
 
       callee[idx] = value;
@@ -448,10 +447,6 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   async visitAssignExpr(expr: AssignExpr): Promise<Value> {
     const value = await this.evaluateExpr(expr.value);
     this.assignVariable(expr.name as Token<TokenType.VAR>, value);
-  }
-
-  async visitSetExpr(expr: SetExpr): Promise<Value> {
-    throw new Error("Method not implemented.");
   }
 
   private getVariable(token: Token<TokenType.VAR>): Value {
