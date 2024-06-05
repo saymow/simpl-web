@@ -13,10 +13,15 @@ fun compute_y_intercept(x, y, slope) {
     return y - x * slope;
 }
 
-a_x = number(input("1° point x: "));
-a_y = number(input("1° point y: "));
-b_x = number(input("2° point x: "));
-b_y = number(input("2° point y: "));
+output("1° point x: ");
+a_x = number(input());
+output("1° point y: ");
+a_y = number(input());
+output("2° point x: ");
+b_x = number(input());
+output("2° point y: ");
+b_y = number(input());
+
 slope = compute_slope(a_x, a_y, b_x, b_y);
 y_intercept = compute_y_intercept(a_x, a_y, slope);
 
@@ -27,4 +32,5 @@ if (y_intercept  > 0) {
 } else {
     output("y = " + string(slope) + "x");
 }
+
 `;
