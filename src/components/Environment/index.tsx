@@ -12,7 +12,6 @@ import { bindTokens } from "../../helpers";
 import { Terminal } from "../../interfaces";
 import Editor from "../Editor";
 import TerminalComponent from "../Terminal";
-import "./styles.css";
 import {
   computeOrientation,
   resizeHorizontaly,
@@ -22,62 +21,21 @@ import {
   computeOrientationClassName,
   Orientation,
 } from "./helper";
-
-export type Program = Stmt[];
+import "./styles.css";
 
 interface Props {
-  program: Program | null;
-  onProgramChange: (program: Program | null) => void;
   terminal: Terminal[];
+  source: string;
+  onSourceChange: (source: string) => void;
+  syntaxHighlightedSource?: string;
 }
 
 const Environment: React.FC<Props> = (props) => {
-  const { onProgramChange, terminal } = props;
+  const { source, onSourceChange, syntaxHighlightedSource, terminal } = props;
   const environmentRef = useRef<HTMLDivElement>(null);
   const editorWrapperRef = useRef<HTMLDivElement>(null);
   const terminalWrapperRef = useRef<HTMLDivElement>(null);
   const [orientation, setOrientation] = useState(Orientation.Horizontal);
-  const [source, setSource] = useState(INITIAL_PROGRAM);
-  const [syntaxHighlightedSource, setSyntaxHighlightedSource] =
-    useState<string>();
-
-  useEffect(() => {
-    try {
-      const tokens = new Lexer(source).scan();
-      let syntaxTree;
-
-      try {
-        syntaxTree = new Parser(tokens).parse();
-      } catch (err) {
-        if (err instanceof ParserError) {
-          throw new CustomParserError(
-            tokens,
-            err.token,
-            err.message,
-            err.stack
-          );
-        }
-
-        throw Error("Unexpected error");
-      }
-
-      onProgramChange(syntaxTree);
-      setSyntaxHighlightedSource(bindTokens(source, tokens));
-    } catch (err) {
-      onProgramChange(null);
-      if (err instanceof LexerError) {
-        setSyntaxHighlightedSource(bindTokens(source, err.tokens));
-      } else if (err instanceof CustomParserError) {
-        console.log(err);
-        setSyntaxHighlightedSource(
-          bindTokens(source, err.tokens, new TokenError(err.token, err.message))
-        );
-      } else {
-        setSyntaxHighlightedSource(undefined);
-        console.error("Unexpected error: ", err);
-      }
-    }
-  }, [onProgramChange, source]);
 
   const refreshOrientation = useCallback(() => {
     if (!environmentRef.current) return;
@@ -231,7 +189,7 @@ const Environment: React.FC<Props> = (props) => {
         <Editor
           source={source}
           formattedSource={syntaxHighlightedSource}
-          setSource={setSource}
+          setSource={onSourceChange}
         />
         <span
           onMouseDown={handleHandleMoveStart}
