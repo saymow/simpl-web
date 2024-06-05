@@ -78,13 +78,17 @@ function App() {
     setTerminal((prev) => [...prev, new TerminalOut(message)]);
   };
 
-  const handleInputLine = async (text: string): Promise<string> => {
+  const handleInputLine = async (): Promise<string> => {
     return new Promise((resolve) => {
       setTerminal((prev) => [
         ...prev,
-        new TerminalIn(text, (input) => resolve(input)),
+        new TerminalIn((input) => resolve(input)),
       ]);
     });
+  };
+
+  const handleClearTerminal = () => {
+    setTerminal([]);
   };
 
   const handleRun = async () => {
@@ -95,6 +99,7 @@ function App() {
       const interpreter = new Interpreter(programMetadata.program, {
         log: handleOutputLine,
         input: handleInputLine,
+        clear: handleClearTerminal,
       });
       await interpreter.interpret();
     } catch (err) {

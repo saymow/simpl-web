@@ -7,10 +7,7 @@ export class TerminalOut extends Terminal {
 }
 
 export class TerminalIn extends Terminal {
-  constructor(
-    public readonly text: string,
-    public readonly handler: (input: string) => void
-  ) {
+  constructor(public readonly handler: (input: string) => void) {
     super();
   }
 }
