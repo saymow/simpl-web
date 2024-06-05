@@ -115,19 +115,37 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
   async visitGetExpr(expr: GetExpr): Promise<any> {
     const callee = await this.evaluateExpr(expr.callee);
-    const idx = await this.evaluateExpr(expr.expr);
 
-    if (!(typeof idx === "number")) {
-      throw new RuntimeError(expr.token, "Index must be a number.");
-    }
-    if (!(callee instanceof Array)) {
-      throw new RuntimeError(expr.token, `Cannot access property '${idx}.'`);
-    }
-    if (idx >= callee.length) {
-      throw new RuntimeError(expr.token, "Index out of bounds.");
-    }
+    // Resolve as struct access
+    if (expr.token.type === TokenType.IDENTIFIER) {
+      if (!(expr.expr instanceof VariableExpr)) {
+        throw new RuntimeError(expr.token, "Invalid struct property access.");
+      }
+      if (!isObject(callee)) {
+        throw new RuntimeError(
+          expr.token,
+          `Cannot access property '${expr.expr.name.lexeme}.'`
+        );
+      }
 
-    return callee[idx];
+      return (callee as Record<string, Value>)[expr.expr.name.lexeme];
+    }
+    // Resolve as array access
+    else {
+      const idx = await this.evaluateExpr(expr.expr);
+
+      if (!(typeof idx === "number")) {
+        throw new RuntimeError(expr.token, "Index must be a number.");
+      }
+      if (!(callee instanceof Array)) {
+        throw new RuntimeError(expr.token, `Cannot access property '${idx}.'`);
+      }
+      if (idx >= callee.length) {
+        throw new RuntimeError(expr.token, "Index out of bounds.");
+      }
+
+      return callee[idx];
+    }
   }
 
   async visitUnaryOperatorExpr(expr: UnaryOperatorExpr): Promise<any> {
@@ -139,7 +157,7 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     ) {
       throw new RuntimeError(
         expr.operator,
-        "Expected variable or array item for unary operator."
+        "Unexpected use of unary operator."
       );
     }
 
@@ -158,27 +176,49 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
     if (expr.nameExpr instanceof GetExpr) {
       const callee = await this.evaluateExpr(expr.nameExpr.callee);
-      const idx = await this.evaluateExpr(expr.nameExpr.expr);
 
-      if (!(typeof idx === "number")) {
-        throw new RuntimeError(
-          expr.nameExpr.token,
-          "Index must be a number."
-        );
-      }
-      if (!(callee instanceof Array)) {
-        throw new RuntimeError(
-          expr.nameExpr.token,
-          `Cannot access property '${idx}.'`
-        );
-      }
-      if (idx >= callee.length) {
-        throw new RuntimeError(expr.nameExpr.token, "Index out of bounds.");
-      }
+      if (expr.nameExpr.token.type === TokenType.IDENTIFIER) {
+        if (!(expr.nameExpr.expr instanceof VariableExpr)) {
+          throw new RuntimeError(
+            expr.nameExpr.token,
+            "Invalid struct property access."
+          );
+        }
+        if (!isObject(callee)) {
+          throw new RuntimeError(
+            expr.nameExpr.token,
+            `Cannot access property '${expr.nameExpr.expr.name.lexeme}.'`
+          );
+        }
 
-      callee[idx] = newValue;
+        (callee as Record<string, Value>)[expr.nameExpr.expr.name.lexeme] =
+          newValue;
+      } else {
+        const idx = await this.evaluateExpr(expr.nameExpr.expr);
+
+        if (!(typeof idx === "number")) {
+          throw new RuntimeError(
+            expr.nameExpr.token,
+            "Index must be a number."
+          );
+        }
+        if (!(callee instanceof Array)) {
+          throw new RuntimeError(
+            expr.nameExpr.token,
+            `Cannot access property '${idx}.'`
+          );
+        }
+        if (idx >= callee.length) {
+          throw new RuntimeError(expr.nameExpr.token, "Index out of bounds.");
+        }
+
+        callee[idx] = newValue;
+      }
     } else if (expr.nameExpr instanceof VariableExpr) {
-      this.assignVariable(expr.nameExpr.name as Token<TokenType.VAR>, newValue);
+      this.assignVariable(
+        expr.nameExpr.name as Token<TokenType.IDENTIFIER>,
+        newValue
+      );
     }
 
     if (expr.type === UnaryOperatorType.SUFFIX) {
@@ -197,7 +237,7 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     ) {
       throw new RuntimeError(
         expr.operator,
-        "Expected variable or array item for unary operator."
+        "Unexpected use of assign operator."
       );
     }
 
@@ -238,27 +278,49 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
     if (expr.nameExpr instanceof GetExpr) {
       const callee = await this.evaluateExpr(expr.nameExpr.callee);
-      const idx = await this.evaluateExpr(expr.nameExpr.expr);
 
-      if (!(typeof idx === "number")) {
-        throw new RuntimeError(
-          expr.nameExpr.token,
-          "Index must be a number."
-        );
-      }
-      if (!(callee instanceof Array)) {
-        throw new RuntimeError(
-          expr.nameExpr.token,
-          `Cannot access property '${idx}.'`
-        );
-      }
-      if (idx >= callee.length) {
-        throw new RuntimeError(expr.nameExpr.token, "Index out of bounds.");
-      }
+      if (expr.nameExpr.token.type === TokenType.IDENTIFIER) {
+        if (!(expr.nameExpr.expr instanceof VariableExpr)) {
+          throw new RuntimeError(
+            expr.nameExpr.token,
+            "Invalid struct property access."
+          );
+        }
+        if (!isObject(callee)) {
+          throw new RuntimeError(
+            expr.nameExpr.token,
+            `Cannot access property '${expr.nameExpr.expr.name.lexeme}.'`
+          );
+        }
 
-      callee[idx] = value;
+        (callee as Record<string, Value>)[expr.nameExpr.expr.name.lexeme] =
+          value;
+      } else {
+        const idx = await this.evaluateExpr(expr.nameExpr.expr);
+
+        if (!(typeof idx === "number")) {
+          throw new RuntimeError(
+            expr.nameExpr.token,
+            "Index must be a number."
+          );
+        }
+        if (!(callee instanceof Array)) {
+          throw new RuntimeError(
+            expr.nameExpr.token,
+            `Cannot access property '${idx}.'`
+          );
+        }
+        if (idx >= callee.length) {
+          throw new RuntimeError(expr.nameExpr.token, "Index out of bounds.");
+        }
+
+        callee[idx] = value;
+      }
     } else if (expr.nameExpr instanceof VariableExpr) {
-      this.assignVariable(expr.nameExpr.name as Token<TokenType.VAR>, value);
+      this.assignVariable(
+        expr.nameExpr.name as Token<TokenType.IDENTIFIER>,
+        value
+      );
     }
 
     return value;
@@ -326,7 +388,7 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   }
 
   async visitVariableExpr(expr: VariableExpr): Promise<Value> {
-    return this.getVariable(expr.name as Token<TokenType.VAR>);
+    return this.getVariable(expr.name as Token<TokenType.IDENTIFIER>);
   }
 
   async visitUnaryExpr(expr: UnaryExpr): Promise<Value> {
@@ -446,10 +508,10 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
   async visitAssignExpr(expr: AssignExpr): Promise<Value> {
     const value = await this.evaluateExpr(expr.value);
-    this.assignVariable(expr.name as Token<TokenType.VAR>, value);
+    this.assignVariable(expr.name as Token<TokenType.IDENTIFIER>, value);
   }
 
-  private getVariable(token: Token<TokenType.VAR>): Value {
+  private getVariable(token: Token<TokenType.IDENTIFIER>): Value {
     try {
       return this.context.get(token.literal);
     } catch (err) {
@@ -459,7 +521,10 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     }
   }
 
-  private assignVariable(token: Token<TokenType.VAR>, value: Value): Value {
+  private assignVariable(
+    token: Token<TokenType.IDENTIFIER>,
+    value: Value
+  ): Value {
     try {
       this.context.assign(token.literal, value);
     } catch (err) {
