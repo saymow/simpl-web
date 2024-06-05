@@ -8,7 +8,7 @@ class IndexOf extends SysCall {
     return 2;
   }
 
-  public async call(system: System, args: Value[]): Promise<Value> {
+  public async call(_: System, args: Value[]): Promise<Value> {
     const [arr, value] = args;
 
     if (!isArray(arr)) {

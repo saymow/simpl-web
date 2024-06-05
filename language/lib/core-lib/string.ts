@@ -8,7 +8,7 @@ class MyString extends SysCall {
     return 1;
   }
 
-  public async call(system: System, args: Value[]) {
+  public async call(_: System, args: Value[]) {
     const value = args[0];
 
     if (!isNumber(value)) {

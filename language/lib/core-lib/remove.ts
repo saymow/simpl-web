@@ -8,7 +8,7 @@ class Remove extends SysCall {
     return 2;
   }
 
-  public async call(system: System, args: Value[]): Promise<void> {
+  public async call(_: System, args: Value[]): Promise<void> {
     const [arr, idx] = args;
 
     if (!isArray(arr)) {

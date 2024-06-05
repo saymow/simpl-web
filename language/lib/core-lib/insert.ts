@@ -8,7 +8,7 @@ class Insert extends SysCall {
     return 3;
   }
 
-  public async call(system: System, args: Value[]): Promise<void> {
+  public async call(_: System, args: Value[]): Promise<void> {
     const [arr, idx, value] = args;
 
     if (!isArray(arr)) {

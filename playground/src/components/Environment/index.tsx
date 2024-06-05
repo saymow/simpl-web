@@ -1,25 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  Lexer,
-  LexerError,
-  Parser,
-  ParserError,
-  Stmt,
-} from "../../../../language";
-import { INITIAL_PROGRAM } from "../../data";
-import { CustomParserError, TokenError } from "../../errors";
-import { bindTokens } from "../../helpers";
 import { Terminal } from "../../interfaces";
 import Editor from "../Editor";
 import TerminalComponent from "../Terminal";
 import {
+  Orientation,
   computeOrientation,
+  computeOrientationClassName,
   resizeHorizontaly,
   resizeVerticaly,
   setResizeHorizontaly,
   setResizeVerticaly,
-  computeOrientationClassName,
-  Orientation,
 } from "./helper";
 import "./styles.css";
 

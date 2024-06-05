@@ -7,7 +7,7 @@ class Boolean extends SysCall {
     return 1;
   }
 
-  public async call(system: System, args: Value[]) {
+  public async call(_: System, args: Value[]) {
     return isTruthy(args[0]);
   }
 }
