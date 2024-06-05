@@ -19,6 +19,7 @@ interface ExprVisitor<T> {
   visitArrayGetExpr(expr: ArrayGetExpr): Promise<T>;
   visitArraySetExpr(expr: ArraySetExpr): Promise<T>;
   visitSetExpr(expr: SetExpr): Promise<T>;
+  visitStructExpr(expr: StructExpr): Promise<T>;
 }
 
 abstract class Expr {
@@ -187,6 +188,24 @@ class ArraySetExpr extends Expr {
   }
 }
 
+interface StructProperty {
+  key: Token<TokenType.IDENTIFIER>;
+  value: Expr;
+}
+
+class StructExpr extends Expr {
+  public accept<T>(visitor: ExprVisitor<T>): Promise<T> {
+    return visitor.visitStructExpr(this);
+  }
+
+  constructor(
+    public brace: Token<TokenType.RIGHT_BRACE>,
+    public properties: StructProperty[]
+  ) {
+    super();
+  }
+}
+
 export type { Value, ExprVisitor };
 
 export {
@@ -206,4 +225,5 @@ export {
   ArrayExpr,
   ArrayGetExpr,
   ArraySetExpr,
+  StructExpr,
 };

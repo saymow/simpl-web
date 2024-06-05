@@ -17,6 +17,7 @@ import {
   ArrayExpr,
   ArrayGetExpr,
   ArraySetExpr,
+  StructExpr,
 } from "../lib/expr";
 import {
   BlockStmt,
@@ -855,50 +856,6 @@ describe("Parser", () => {
     });
   });
 
-  describe("Block", () => {
-    it("{ true; }", () => {
-      expect(
-        new Parser([
-          new Token(TokenType.LEFT_BRACE, "{", undefined, 1, -1, -1),
-          new Token(TokenType.TRUE, "true", true, 1, -1, -1),
-          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
-          new Token(TokenType.RIGHT_BRACE, "}", undefined, 1, -1, -1),
-          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
-        ]).parse()
-      ).toEqual([new BlockStmt([new ExprStmt(new LiteralExpr(true))])]);
-    });
-
-    it('{ true; "str"; 4 + 5; }', () => {
-      expect(
-        new Parser([
-          new Token(TokenType.LEFT_BRACE, "{", undefined, 1, -1, -1),
-          new Token(TokenType.TRUE, "true", true, 1, -1, -1),
-          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
-          new Token(TokenType.STRING, '"str"', "str", 1, -1, -1),
-          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
-          new Token(TokenType.NUMBER, "4", "4", 1, -1, -1),
-          new Token(TokenType.PLUS, "+", undefined, 1, -1, -1),
-          new Token(TokenType.NUMBER, "5", "5", 1, -1, -1),
-          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
-          new Token(TokenType.RIGHT_BRACE, "}", undefined, 1, -1, -1),
-          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
-        ]).parse()
-      ).toEqual([
-        new BlockStmt([
-          new ExprStmt(new LiteralExpr(true)),
-          new ExprStmt(new LiteralExpr("str")),
-          new ExprStmt(
-            new BinaryExpr(
-              new LiteralExpr("4"),
-              new Token(TokenType.PLUS, "+", undefined, 1, -1, -1),
-              new LiteralExpr("5")
-            )
-          ),
-        ]),
-      ]);
-    });
-  });
-
   describe("Print", () => {
     it("print true;", () => {
       expect(
@@ -1635,4 +1592,24 @@ describe("Parser", () => {
       ]);
     });
   });
+
+  // describe("Structs", () => {
+  //   it("{};", () => {
+  //     expect(
+  //       new Parser([
+  //         new Token(TokenType.LEFT_BRACE, "{", undefined, 1, -1, -1),
+  //         new Token(TokenType.RIGHT_BRACE, "}", undefined, 1, -1, -1),
+  //         new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+  //         new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+  //       ]).parse()
+  //     ).toEqual([
+  //       WrapExpr(
+  //         new StructExpr(
+  //           new Token(TokenType.RIGHT_BRACE, "}", undefined, 1, -1, -1),
+  //           []
+  //         )
+  //       ),
+  //     ]);
+  //   });
+  // });
 });

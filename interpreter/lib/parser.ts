@@ -10,6 +10,7 @@ import {
   GroupingExpr,
   LiteralExpr,
   LogicalExpr,
+  StructExpr,
   UnaryExpr,
   UnaryOperatorExpr,
   UnaryOperatorType,
@@ -104,9 +105,6 @@ class Parser {
   }
 
   private statement(): Stmt {
-    if (this.match(TokenType.LEFT_BRACE)) {
-      return new BlockStmt(this.block());
-    }
     if (this.match(TokenType.PRINT)) {
       return this.printStatement();
     }
@@ -141,6 +139,7 @@ class Parser {
     let initializer;
     let comparisson;
     let increment;
+    let stmt;
 
     this.consume(TokenType.LEFT_PAREN, "Expect '(' after for.");
     if (!this.match(TokenType.SEMICOLON)) {
@@ -164,7 +163,11 @@ class Parser {
       this.consume(TokenType.RIGHT_PAREN, "Expect ')' after for increment.");
     }
 
-    const stmt = this.statement();
+    if (this.match(TokenType.LEFT_BRACE)) {
+      stmt = new BlockStmt(this.block());
+    } else {
+      stmt = this.statement();
+    }
 
     const innerBlock = new BlockStmt([stmt]);
 
@@ -186,23 +189,41 @@ class Parser {
   }
 
   private whileStatement(): Stmt {
+    let stmt;
+
     this.consume(TokenType.LEFT_PAREN, "Expect '(' after while.");
     const expr = this.expression();
     this.consume(TokenType.RIGHT_PAREN, "Expect ')' after while expression.");
-    const stmt = this.statement();
+
+    if (this.match(TokenType.LEFT_BRACE)) {
+      stmt = new BlockStmt(this.block());
+    } else {
+      stmt = this.statement();
+    }
 
     return new WhileStmt(expr, stmt);
   }
 
   private ifStatement(): Stmt {
+    let thenStmt;
+    let elseStmt;
+
     this.consume(TokenType.LEFT_PAREN, "Expect '(' after if.");
     const expr = this.expression();
     this.consume(TokenType.RIGHT_PAREN, "Expect ')' after if expression.");
-    const thenStmt = this.statement();
-    let elseStmt;
+
+    if (this.match(TokenType.LEFT_BRACE)) {
+      thenStmt = new BlockStmt(this.block());
+    } else {
+      thenStmt = this.statement();
+    }
 
     if (this.match(TokenType.ELSE)) {
-      elseStmt = this.statement();
+      if (this.match(TokenType.LEFT_BRACE)) {
+        elseStmt = new BlockStmt(this.block());
+      } else {
+        elseStmt = this.statement();
+      }
     }
 
     return new IfStmt(expr, thenStmt, elseStmt);
@@ -463,6 +484,8 @@ class Parser {
       return new LiteralExpr(this.previous().literal);
     } else if (this.match(TokenType.LEFT_BRACKET)) {
       return this.array();
+    } else if (this.match(TokenType.LEFT_BRACE)) {
+      return this.struct();
     } else if (this.match(TokenType.IDENTIFIER)) {
       return this.variableIdentifier();
     } else if (this.match(TokenType.PLUS_PLUS, TokenType.MINUS_MINUS)) {
@@ -473,7 +496,18 @@ class Parser {
       return new GroupingExpr(expr);
     }
 
+    console.log(this.peek());
+
     throw this.error(this.peek(), "Unexpected token.");
+  }
+
+  private struct() {
+    const token = this.consume(
+      TokenType.RIGHT_BRACE,
+      "Expect '}' after struct properties."
+    );
+
+    return new StructExpr(token, []);
   }
 
   private array(): Expr {
