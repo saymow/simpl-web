@@ -1,7 +1,7 @@
 import { CoreLibError } from "../errors";
 import { Value } from "../expr";
 import { SysCall, System } from "../interfaces";
-import { isNumber } from "./helpers";
+import { isNumber } from "../helpers";
 
 class Abs extends SysCall {
   public arity(): number {

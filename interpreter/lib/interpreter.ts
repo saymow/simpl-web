@@ -37,7 +37,7 @@ import Token from "./token";
 import Context, { VariableNotFound } from "./context";
 import Function, { ReturnValue } from "./function";
 import * as lib from "./core-lib";
-import { isArray, isObject } from "./core-lib/helpers";
+import { isArray, isObject, isTruthy } from "./helpers";
 
 class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   private context = new Context<Value>();
@@ -101,7 +101,6 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
       }
 
       (callee as Record<string, Value>)[expr.expr.name.lexeme] = value;
-    
     } else {
       const idx = await this.evaluateExpr(expr.expr);
 
@@ -412,7 +411,7 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
     switch (expr.operator.type) {
       case TokenType.BANG:
-        return !this.isTruthy(value);
+        return !isTruthy(value);
       case TokenType.MINUS:
         this.ensureNumberOperand(expr.operator, value);
         return -(value as number);
@@ -473,11 +472,11 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
     const left = await this.evaluateExpr(expr.left);
 
     if (expr.operator.type === TokenType.OR) {
-      if (this.isTruthy(left)) {
+      if (isTruthy(left)) {
         return left;
       }
     } else {
-      if (!this.isTruthy(left)) {
+      if (!isTruthy(left)) {
         return left;
       }
     }
@@ -548,13 +547,6 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
         throw new Error("Variable not found.");
       }
     }
-  }
-
-  private isTruthy(value: Value) {
-    if (value == null) return false;
-    if (typeof value === "boolean") return value;
-
-    return true;
   }
 
   private ensureNumberOperand(token: Token, a: Value) {

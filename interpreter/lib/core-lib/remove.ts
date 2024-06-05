@@ -1,7 +1,7 @@
 import { Value } from "../expr";
 import { SysCall, System } from "../interfaces";
 import { CoreLibError } from "../errors";
-import { isArray, isInteger, isNumber } from "./helpers";
+import { isArray, isInteger, isNumber } from "../helpers";
 
 class Remove extends SysCall {
   public arity(): number {

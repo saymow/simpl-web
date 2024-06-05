@@ -1,4 +1,4 @@
-import { Value } from "../../expr";
+import { Value } from "../expr";
 
 export const isArray = (value: Value) => Array.isArray(value);
 
@@ -13,3 +13,10 @@ export const isNil = (value: Value) => value === undefined || value === null;
 
 export const isObject = (value: Value) =>
   typeof value === "object" && !isArray(value) && value !== null;
+
+export const isTruthy = (value: Value) => {
+  if (value == null || value == undefined) return false;
+  if (typeof value === "boolean") return value;
+
+  return true;
+};

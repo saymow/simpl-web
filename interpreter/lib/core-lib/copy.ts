@@ -1,7 +1,7 @@
 import { Value } from "../expr";
 import { SysCall, System } from "../interfaces";
 import { CoreLibError } from "../errors";
-import { isArray } from "./helpers";
+import { isArray } from "../helpers";
 
 class Copy extends SysCall {
   public arity(): number {
