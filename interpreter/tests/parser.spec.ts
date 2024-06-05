@@ -582,37 +582,6 @@ describe("Parser", () => {
       ]);
     });
 
-    it("arr[0] += x;", () => {
-      expect(
-        new Parser([
-          new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1),
-          new Token(TokenType.LEFT_BRACKET, "[", undefined, 1, -1, -1),
-          new Token(TokenType.NUMBER, "0", 0, 1, -1, -1),
-          new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
-          new Token(TokenType.PLUS_EQUAL, "+=", undefined, 1, -1, -1),
-          new Token(TokenType.IDENTIFIER, "x", "x", 1, -1, -1),
-          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
-          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
-        ]).parse()
-      ).toEqual([
-        WrapExpr(
-          new AssignOperatorExpr(
-            new GetExpr(
-              new VariableExpr(
-                new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1)
-              ),
-              new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
-              new LiteralExpr(0)
-            ),
-            new Token(TokenType.PLUS_EQUAL, "+=", undefined, 1, -1, -1),
-            new VariableExpr(
-              new Token(TokenType.IDENTIFIER, "x", "x", 1, -1, -1)
-            )
-          )
-        ),
-      ]);
-    });
-
     it("a -= x;", () => {
       expect(
         new Parser([
@@ -661,37 +630,6 @@ describe("Parser", () => {
       ]);
     });
 
-    it("arr[0] *= x;", () => {
-      expect(
-        new Parser([
-          new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1),
-          new Token(TokenType.LEFT_BRACKET, "[", undefined, 1, -1, -1),
-          new Token(TokenType.NUMBER, "0", 0, 1, -1, -1),
-          new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
-          new Token(TokenType.STAR_EQUAL, "*=", undefined, 1, -1, -1),
-          new Token(TokenType.IDENTIFIER, "x", "x", 1, -1, -1),
-          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
-          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
-        ]).parse()
-      ).toEqual([
-        WrapExpr(
-          new AssignOperatorExpr(
-            new GetExpr(
-              new VariableExpr(
-                new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1)
-              ),
-              new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
-              new LiteralExpr(0)
-            ),
-            new Token(TokenType.STAR_EQUAL, "*=", undefined, 1, -1, -1),
-            new VariableExpr(
-              new Token(TokenType.IDENTIFIER, "x", "x", 1, -1, -1)
-            )
-          )
-        ),
-      ]);
-    });
-
     it("a /= x;", () => {
       expect(
         new Parser([
@@ -711,162 +649,6 @@ describe("Parser", () => {
             new VariableExpr(
               new Token(TokenType.IDENTIFIER, "x", "x", 1, -1, -1)
             )
-          )
-        ),
-      ]);
-    });
-
-    it("arr[1]++;", () => {
-      expect(
-        new Parser([
-          new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1),
-          new Token(TokenType.LEFT_BRACKET, "[", undefined, 1, -1, -1),
-          new Token(TokenType.NUMBER, "1", 1, 1, -1, -1),
-          new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
-          new Token(TokenType.PLUS_PLUS, "++", undefined, 1, -1, -1),
-          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
-          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
-        ]).parse()
-      ).toEqual([
-        WrapExpr(
-          new UnaryOperatorExpr(
-            new GetExpr(
-              new VariableExpr(
-                new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1)
-              ),
-              new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
-              new LiteralExpr(1)
-            ),
-            new Token(TokenType.PLUS_PLUS, "++", undefined, 1, -1, -1),
-            UnaryOperatorType.SUFFIX
-          )
-        ),
-      ]);
-    });
-
-    it("++arr[1];", () => {
-      expect(
-        new Parser([
-          new Token(TokenType.PLUS_PLUS, "++", undefined, 1, -1, -1),
-          new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1),
-          new Token(TokenType.LEFT_BRACKET, "[", undefined, 1, -1, -1),
-          new Token(TokenType.NUMBER, "1", 1, 1, -1, -1),
-          new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
-          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
-          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
-        ]).parse()
-      ).toEqual([
-        WrapExpr(
-          new UnaryOperatorExpr(
-            new GetExpr(
-              new VariableExpr(
-                new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1)
-              ),
-              new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
-              new LiteralExpr(1)
-            ),
-            new Token(TokenType.PLUS_PLUS, "++", undefined, 1, -1, -1),
-            UnaryOperatorType.PREFIX
-          )
-        ),
-      ]);
-    });
-
-    it("myStruct.propertyA++;", () => {
-      expect(
-        new Parser([
-          new Token(TokenType.IDENTIFIER, "myStruct", undefined, 1, -1, -1),
-          new Token(TokenType.DOT, ".", undefined, 1, -1, -1),
-          new Token(TokenType.IDENTIFIER, "propertyA", undefined, 1, -1, -1),
-          new Token(TokenType.PLUS_PLUS, "++", undefined, 1, -1, -1),
-          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
-          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
-        ]).parse()
-      ).toEqual([
-        WrapExpr(
-          new UnaryOperatorExpr(
-            new GetExpr(
-              new VariableExpr(
-                new Token(
-                  TokenType.IDENTIFIER,
-                  "myStruct",
-                  undefined,
-                  1,
-                  -1,
-                  -1
-                )
-              ),
-              new Token(
-                TokenType.IDENTIFIER,
-                "propertyA",
-                undefined,
-                1,
-                -1,
-                -1
-              ),
-              new VariableExpr(
-                new Token(
-                  TokenType.IDENTIFIER,
-                  "propertyA",
-                  undefined,
-                  1,
-                  -1,
-                  -1
-                )
-              )
-            ),
-            new Token(TokenType.PLUS_PLUS, "++", undefined, 1, -1, -1),
-            UnaryOperatorType.SUFFIX
-          )
-        ),
-      ]);
-    });
-
-    it("myStruct.propertyA++;", () => {
-      expect(
-        new Parser([
-          new Token(TokenType.PLUS_PLUS, "++", undefined, 1, -1, -1),
-          new Token(TokenType.IDENTIFIER, "myStruct", undefined, 1, -1, -1),
-          new Token(TokenType.DOT, ".", undefined, 1, -1, -1),
-          new Token(TokenType.IDENTIFIER, "propertyA", undefined, 1, -1, -1),
-          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
-          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
-        ]).parse()
-      ).toEqual([
-        WrapExpr(
-          new UnaryOperatorExpr(
-            new GetExpr(
-              new VariableExpr(
-                new Token(
-                  TokenType.IDENTIFIER,
-                  "myStruct",
-                  undefined,
-                  1,
-                  -1,
-                  -1
-                )
-              ),
-              new Token(
-                TokenType.IDENTIFIER,
-                "propertyA",
-                undefined,
-                1,
-                -1,
-                -1
-              ),
-              new VariableExpr(
-                new Token(
-                  TokenType.IDENTIFIER,
-                  "propertyA",
-                  undefined,
-                  1,
-                  -1,
-                  -1
-                )
-              )
-            ),
-            new Token(TokenType.PLUS_PLUS, "++", undefined, 1, -1, -1),
-            UnaryOperatorType.PREFIX
           )
         ),
       ]);
@@ -1692,6 +1474,124 @@ describe("Parser", () => {
         ),
       ]);
     });
+
+    it("arr[0] += x;", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1),
+          new Token(TokenType.LEFT_BRACKET, "[", undefined, 1, -1, -1),
+          new Token(TokenType.NUMBER, "0", 0, 1, -1, -1),
+          new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+          new Token(TokenType.PLUS_EQUAL, "+=", undefined, 1, -1, -1),
+          new Token(TokenType.IDENTIFIER, "x", "x", 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        WrapExpr(
+          new AssignOperatorExpr(
+            new GetExpr(
+              new VariableExpr(
+                new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1)
+              ),
+              new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+              new LiteralExpr(0)
+            ),
+            new Token(TokenType.PLUS_EQUAL, "+=", undefined, 1, -1, -1),
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "x", "x", 1, -1, -1)
+            )
+          )
+        ),
+      ]);
+    });
+
+    it("arr[0] *= x;", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1),
+          new Token(TokenType.LEFT_BRACKET, "[", undefined, 1, -1, -1),
+          new Token(TokenType.NUMBER, "0", 0, 1, -1, -1),
+          new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+          new Token(TokenType.STAR_EQUAL, "*=", undefined, 1, -1, -1),
+          new Token(TokenType.IDENTIFIER, "x", "x", 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        WrapExpr(
+          new AssignOperatorExpr(
+            new GetExpr(
+              new VariableExpr(
+                new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1)
+              ),
+              new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+              new LiteralExpr(0)
+            ),
+            new Token(TokenType.STAR_EQUAL, "*=", undefined, 1, -1, -1),
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "x", "x", 1, -1, -1)
+            )
+          )
+        ),
+      ]);
+    });
+
+    it("arr[1]++;", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1),
+          new Token(TokenType.LEFT_BRACKET, "[", undefined, 1, -1, -1),
+          new Token(TokenType.NUMBER, "1", 1, 1, -1, -1),
+          new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+          new Token(TokenType.PLUS_PLUS, "++", undefined, 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        WrapExpr(
+          new UnaryOperatorExpr(
+            new GetExpr(
+              new VariableExpr(
+                new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1)
+              ),
+              new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+              new LiteralExpr(1)
+            ),
+            new Token(TokenType.PLUS_PLUS, "++", undefined, 1, -1, -1),
+            UnaryOperatorType.SUFFIX
+          )
+        ),
+      ]);
+    });
+
+    it("++arr[1];", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.PLUS_PLUS, "++", undefined, 1, -1, -1),
+          new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1),
+          new Token(TokenType.LEFT_BRACKET, "[", undefined, 1, -1, -1),
+          new Token(TokenType.NUMBER, "1", 1, 1, -1, -1),
+          new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        WrapExpr(
+          new UnaryOperatorExpr(
+            new GetExpr(
+              new VariableExpr(
+                new Token(TokenType.IDENTIFIER, "a", "a", 1, -1, -1)
+              ),
+              new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+              new LiteralExpr(1)
+            ),
+            new Token(TokenType.PLUS_PLUS, "++", undefined, 1, -1, -1),
+            UnaryOperatorType.PREFIX
+          )
+        ),
+      ]);
+    });
   });
 
   describe("Structs", () => {
@@ -1890,6 +1790,106 @@ describe("Parser", () => {
             new VariableExpr(
               new Token(TokenType.IDENTIFIER, "propertyB", undefined, 1, -1, -1)
             )
+          )
+        ),
+      ]);
+    });
+
+    it("myStruct.propertyA++;", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.IDENTIFIER, "myStruct", undefined, 1, -1, -1),
+          new Token(TokenType.DOT, ".", undefined, 1, -1, -1),
+          new Token(TokenType.IDENTIFIER, "propertyA", undefined, 1, -1, -1),
+          new Token(TokenType.PLUS_PLUS, "++", undefined, 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        WrapExpr(
+          new UnaryOperatorExpr(
+            new GetExpr(
+              new VariableExpr(
+                new Token(
+                  TokenType.IDENTIFIER,
+                  "myStruct",
+                  undefined,
+                  1,
+                  -1,
+                  -1
+                )
+              ),
+              new Token(
+                TokenType.IDENTIFIER,
+                "propertyA",
+                undefined,
+                1,
+                -1,
+                -1
+              ),
+              new VariableExpr(
+                new Token(
+                  TokenType.IDENTIFIER,
+                  "propertyA",
+                  undefined,
+                  1,
+                  -1,
+                  -1
+                )
+              )
+            ),
+            new Token(TokenType.PLUS_PLUS, "++", undefined, 1, -1, -1),
+            UnaryOperatorType.SUFFIX
+          )
+        ),
+      ]);
+    });
+
+    it("++myStruct.propertyA;", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.PLUS_PLUS, "++", undefined, 1, -1, -1),
+          new Token(TokenType.IDENTIFIER, "myStruct", undefined, 1, -1, -1),
+          new Token(TokenType.DOT, ".", undefined, 1, -1, -1),
+          new Token(TokenType.IDENTIFIER, "propertyA", undefined, 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        WrapExpr(
+          new UnaryOperatorExpr(
+            new GetExpr(
+              new VariableExpr(
+                new Token(
+                  TokenType.IDENTIFIER,
+                  "myStruct",
+                  undefined,
+                  1,
+                  -1,
+                  -1
+                )
+              ),
+              new Token(
+                TokenType.IDENTIFIER,
+                "propertyA",
+                undefined,
+                1,
+                -1,
+                -1
+              ),
+              new VariableExpr(
+                new Token(
+                  TokenType.IDENTIFIER,
+                  "propertyA",
+                  undefined,
+                  1,
+                  -1,
+                  -1
+                )
+              )
+            ),
+            new Token(TokenType.PLUS_PLUS, "++", undefined, 1, -1, -1),
+            UnaryOperatorType.PREFIX
           )
         ),
       ]);
