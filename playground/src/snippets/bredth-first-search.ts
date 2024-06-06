@@ -1,3 +1,7 @@
+import HEADER_SNIPPET from "./header";
+
+export const BREADTH_FIRST_SEARCH_SNIPPET = `${HEADER_SNIPPET}
+
 var elements = [
     "A",
     "B",
@@ -94,3 +98,4 @@ fun bfs(matrix, elements, origin, target) {
 output("Select 2 elements: ");
 
 print bfs(matrix, elements, input("Origem: "), input("Target: "));
+`;

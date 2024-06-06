@@ -15,7 +15,7 @@ import Environment from "./components/Environment";
 import { CustomParserError, TokenError } from "./errors";
 import { bindTokens } from "./helpers";
 import { Terminal, TerminalIn, TerminalOut } from "./interfaces";
-import { INITIAL_PROGRAM } from "./data";
+import { makeSnippet } from "./snippets";
 
 type Program = Stmt[];
 
@@ -25,7 +25,7 @@ interface ProgramMetadata {
 }
 
 function App() {
-  const [source, setSource] = useState(INITIAL_PROGRAM);
+  const [source, setSource] = useState("");
   const [syntaxHighlightedSource, setSyntaxHighlightedSource] =
     useState<string>();
   const [programMetadata, setProgramMetadata] =
@@ -35,6 +35,12 @@ function App() {
     () => programMetadata != null,
     [programMetadata]
   );
+
+  useEffect(() => {
+    const params = new URLSearchParams(document.location.search);
+    const snippetName = params.get("snippet") ?? "";
+    setSource(makeSnippet(snippetName));
+  }, []);
 
   useEffect(() => {
     try {

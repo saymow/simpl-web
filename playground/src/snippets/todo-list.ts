@@ -1,17 +1,11 @@
-export const INITIAL_PROGRAM = `//        _______ __                         __ 
-//        |          __|__|.----------.-----.|    |
-//        |__          |    ||              |  _   ||    |
-//        |_______|__||__|__|__|     _||__|
-//                                           |__|                                                     
-//                                                                                           
-//                                        
+import HEADER_SNIPPET from "./header";
+
+export const TODO_LIST_SNIPPET = `${HEADER_SNIPPET} 
 //        ____           _            __      _         _   
 //       |_    _|___ _|   |___    |    |     |_|___|   |_
 //          |  |  |   .  |  .   |   .  |   |    |__ |  |_   -|    _|
 //          |_|  |___|___|___|   |_____|_|___|__|  
 //
-//                        
-//  https://github.com/saymow/simpl
 
 var running = true;
 var items = [];
