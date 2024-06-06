@@ -15,7 +15,7 @@
 - [Breadth First Search](https://saymow-simple.vercel.app?snippet=breadth_first_search)
 - [Insertion Sort](https://saymow-simple.vercel.app?snippet=insertion_sort)
 - [Linear Function](https://saymow-simple.vercel.app?snippet=linear_function)
-- [To-do list](https://saymow-simple.vercel.app?snippet=todo_list)
+- [To-do List](https://saymow-simple.vercel.app?snippet=todo_list)
 
 ## Syntax grammar
 
