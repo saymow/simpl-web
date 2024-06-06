@@ -4,7 +4,7 @@
 
 ## Playground
 
-<img src="./.github/linera-fn-example.gif"></img>
+<img src="./.github/demo-linear-fn.mp4"></img>
 
 ## Syntax grammar
 
