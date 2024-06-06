@@ -40,7 +40,8 @@ var matrix = [
     [0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 ];
-
+var origin;
+var target;
 
 fun fill(len, value) {
   var arr = [];
@@ -93,4 +94,10 @@ fun bfs(matrix, elements, origin, target) {
 
 output("Select 2 elements: ");
 
-print bfs(matrix, elements, input("Origem: "), input("Target: "));
+output("Origin: ");
+origin = input();
+
+output("Target: ");
+target = input();
+
+print bfs(matrix, elements, origin, target);
