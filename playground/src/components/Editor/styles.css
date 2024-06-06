@@ -11,19 +11,19 @@
 
 .input-container .lines-bar {
   position: absolute;
+  line-height: 22px;
   font-size: 16px;
   font: larger -moz-fixed;
   font: -webkit-medium-control;
-  text-align: right;
+  text-align: center;
 
   padding-top: 0.2rem;
   color: var(--border-color);
   z-index: 1;
-  left: 0.5rem;
+  left: 0;
   top: 0;
   bottom: 0;
-  font-size: 16px;
-  line-height: 22px;
+  width: 2rem;
   overflow-y: auto;
 }
 
