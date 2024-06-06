@@ -4,8 +4,8 @@
 
 ## Playground
 
-<img src="./.github/demo-linear-fn.gif"></img>
+<img width="100%" src="./.github/demo-linear-fn.gif"></img>
 
 ## Syntax grammar
 
-<img src="./.github/grammar.png"></img>
+<img width="100%" src="./.github/grammar.png"></img>
