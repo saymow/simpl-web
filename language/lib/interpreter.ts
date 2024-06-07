@@ -20,6 +20,7 @@ import {
 } from "./expr";
 import {
   BlockStmt,
+  BreakStmt,
   ExprStmt,
   FunctionStmt,
   IfStmt,
@@ -30,7 +31,7 @@ import {
   VarStmt,
   WhileStmt,
 } from "./stmt";
-import { CoreLibError, RuntimeError } from "./errors";
+import { BreakLoop, CoreLibError, RuntimeError } from "./errors";
 import { Callable, SysCall, System, UserCall } from "./interfaces";
 import TokenType from "./token-type";
 import Token from "./token";
@@ -76,6 +77,10 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
   private async evaluateExpr(expr: Expr): Promise<unknown> {
     return await expr.accept(this);
+  }
+
+  async visitBreakStmt(stmt: BreakStmt): Promise<void> {
+    throw new BreakLoop();
   }
 
   async visitStructExpr(expr: StructExpr): Promise<any> {
@@ -355,8 +360,16 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   }
 
   async visitWhileStmt(stmt: WhileStmt): Promise<void> {
-    while (await this.evaluateExpr(stmt.expr)) {
-      await this.evaluateStmt(stmt.stmt);
+    try {
+      while (await this.evaluateExpr(stmt.expr)) {
+        await this.evaluateStmt(stmt.stmt);
+      }
+    } catch (err) {
+      if (err instanceof BreakLoop) {
+        return;
+      }
+
+      throw err;
     }
   }
 

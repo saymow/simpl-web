@@ -16,6 +16,7 @@ import {
 import Interpreter from "../lib/interpreter";
 import {
   BlockStmt,
+  BreakStmt,
   ExprStmt,
   FunctionStmt,
   IfStmt,
@@ -30,10 +31,12 @@ import TokenType from "../lib/token-type";
 
 const makeSut = (ast: Stmt[]) => {
   const log = jest.fn((_: string) => {});
-  const input = jest.fn(async (_: string) => "test");
+  const input = jest.fn(async () => "test");
+  const clear = jest.fn(async () => {});
   const interpreter = new Interpreter(ast, {
     log,
     input,
+    clear,
   });
 
   return { interpreter, log, input };
@@ -835,6 +838,88 @@ describe("Interpreter", () => {
       expect(log.mock.calls[2][0]).toBe("2");
       expect(log.mock.calls[3][0]).toBe("3");
       expect(log.mock.calls[4][0]).toBe("4");
+    });
+
+    it("var i = 0; while (i < 5) { print i; break; }", async () => {
+      const { interpreter, log } = makeSut([
+        new VarStmt(
+          new Token(TokenType.IDENTIFIER, '"i"', "i", 1, -1, -1),
+          new LiteralExpr(0)
+        ),
+        new WhileStmt(
+          new BinaryExpr(
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, '"i"', "i", 1, -1, -1)
+            ),
+            new Token(TokenType.LESS, "<", undefined, 1, -1, -1),
+            new LiteralExpr(5)
+          ),
+          new BlockStmt([
+            new PrintStmt(
+              new VariableExpr(
+                new Token(TokenType.IDENTIFIER, '"i"', "i", 1, -1, -1)
+              )
+            ),
+            new BreakStmt(
+              new Token(TokenType.BREAK, "break", undefined, 1, -1, -1)
+            ),
+          ])
+        ),
+      ]);
+
+      await interpreter.interpret();
+
+      expect(log).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls[0][0]).toBe("0");
+    });
+
+    it("for (var i = 0; i < 5; i = i + 1) {print i; break;}", async () => {
+      const { interpreter, log } = makeSut([
+        new BlockStmt([
+          new VarStmt(
+            new Token(TokenType.IDENTIFIER, '"i"', "i", 1, -1, -1),
+            new LiteralExpr(0)
+          ),
+          new WhileStmt(
+            new BinaryExpr(
+              new VariableExpr(
+                new Token(TokenType.IDENTIFIER, '"i"', "i", 1, -1, -1)
+              ),
+              new Token(TokenType.LESS, "<", undefined, 1, -1, -1),
+              new LiteralExpr(5)
+            ),
+            new BlockStmt([
+              new BlockStmt([
+                new PrintStmt(
+                  new VariableExpr(
+                    new Token(TokenType.IDENTIFIER, '"i"', "i", 1, -1, -1)
+                  )
+                ),
+                new BreakStmt(
+                  new Token(TokenType.BREAK, "break", undefined, 1, -1, -1)
+                ),
+              ]),
+              new ExprStmt(
+                new AssignExpr(
+                  new Token(TokenType.IDENTIFIER, '"i"', "i", 1, -1, -1),
+                  new BinaryExpr(
+                    new VariableExpr(
+                      new Token(TokenType.IDENTIFIER, '"i"', "i", 1, -1, -1)
+                    ),
+                    new Token(TokenType.PLUS, "+", undefined, 1, -1, -1),
+                    new LiteralExpr(1)
+                  )
+                )
+              ),
+            ])
+          ),
+        ]),
+      ]);
+
+      await interpreter.interpret();
+
+      expect(log).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls[0][0]).toBe("0");
     });
   });
 
