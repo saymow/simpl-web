@@ -21,6 +21,7 @@ import {
 } from "../lib/expr";
 import {
   BlockStmt,
+  BreakStmt,
   ExprStmt,
   FunctionStmt,
   IfStmt,
@@ -1210,6 +1211,20 @@ describe("Parser", () => {
             ])
           ),
         ]),
+      ]);
+    });
+
+    it("break;", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.BREAK, "break", undefined, 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        new BreakStmt(
+          new Token(TokenType.BREAK, "break", undefined, 1, -1, -1)
+        ),
       ]);
     });
   });

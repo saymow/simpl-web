@@ -27,6 +27,7 @@ import {
   WhileStmt,
   FunctionStmt,
   ReturnStmt,
+  BreakStmt,
 } from "./stmt";
 import Token from "./token";
 import TokenType from "./token-type";
@@ -106,6 +107,9 @@ class Parser {
   }
 
   private statement(): Stmt {
+    if (this.match(TokenType.BREAK)) {
+      return this.breakStatement();
+    }
     if (this.match(TokenType.PRINT)) {
       return this.printStatement();
     }
@@ -123,6 +127,12 @@ class Parser {
     }
 
     return this.expressionStatement();
+  }
+
+  private breakStatement() {
+    const token = this.previous();
+    this.consume(TokenType.SEMICOLON, "Expected ';' after break.");
+    return new BreakStmt(token);
   }
 
   private returnStatement(): Stmt {
@@ -447,7 +457,7 @@ class Parser {
         );
         const propertyExpr = new VariableExpr(token);
         expr = new GetExpr(expr, token, propertyExpr);
-        
+
         if (this.match(TokenType.PLUS_PLUS, TokenType.MINUS_MINUS)) {
           const operator = this.previous();
 

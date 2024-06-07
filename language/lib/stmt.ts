@@ -1,5 +1,6 @@
 import { Expr } from "./expr";
 import Token from "./token";
+import TokenType from "./token-type";
 
 interface StmtVisitor<T> {
   visitVarStmt(stmt: VarStmt): Promise<T>;
@@ -10,6 +11,7 @@ interface StmtVisitor<T> {
   visitWhileStmt(stmt: WhileStmt): Promise<T>;
   visitFunctionStmt(stmt: FunctionStmt): Promise<T>;
   visitReturnStmt(stmt: ReturnStmt): Promise<T>;
+  visitBreakStmt(stmt: BreakStmt): Promise<T>;
 }
 
 abstract class Stmt {
@@ -104,6 +106,16 @@ class ReturnStmt extends Stmt {
   }
 }
 
+class BreakStmt extends Stmt {
+  public accept<T>(visitor: StmtVisitor<T>): Promise<T> {
+    return visitor.visitBreakStmt(this);
+  }
+
+  constructor(public keyword: Token<TokenType.BREAK>) {
+    super();
+  }
+}
+
 export type { StmtVisitor };
 export {
   Stmt,
@@ -115,4 +127,5 @@ export {
   WhileStmt,
   FunctionStmt,
   ReturnStmt,
+  BreakStmt,
 };
