@@ -18,6 +18,7 @@ class Lexer {
     ["true", TokenType.TRUE],
     ["var", TokenType.VAR],
     ["while", TokenType.WHILE],
+    ["break", TokenType.BREAK],
     ["error", TokenType.ERROR],
   ]);
 

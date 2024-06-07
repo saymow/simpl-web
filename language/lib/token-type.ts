@@ -39,6 +39,7 @@ enum TokenType {
   ELSE = "ELSE",
   FALSE = "FALSE",
   FOR = "FOR",
+  BREAK = "BREAK",
   FUN = "FUN",
   IF = "IF",
   NIL = "NIL",
