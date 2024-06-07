@@ -753,5 +753,39 @@ describe("e2e", () => {
         );
       });
     });
+
+    describe("Dijkstra", () => {
+      it("1", async () => {
+        const { interpreter, system } = await makeSutFileRead(
+          "./dijkstra.in"
+        );
+
+        system.input
+          .mockImplementationOnce(async () => "F")
+          .mockImplementationOnce(async () => "G");
+
+        await interpreter.interpret();
+
+        expect(system.log.mock.calls[system.log.mock.calls.length - 1][0]).toBe(
+          '["F","G"]'
+        );
+      });
+
+      it("2", async () => {
+        const { interpreter, system } = await makeSutFileRead(
+          "./dijkstra.in"
+        );
+
+        system.input
+          .mockImplementationOnce(async () => "D")
+          .mockImplementationOnce(async () => "FINAL");
+
+        await interpreter.interpret();
+
+        expect(system.log.mock.calls[system.log.mock.calls.length - 1][0]).toBe(
+          '["D","E","G","FINAL"]'
+        );
+      });
+    });
   });
 });
