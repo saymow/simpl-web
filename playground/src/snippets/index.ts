@@ -16,7 +16,7 @@ const SNIPPET_SLUG_MAP = {
 
 export const makeSnippet = (slug: string) => {
   if (!(slug in SNIPPET_SLUG_MAP)) {
-    return SNIPPET_SLUG_MAP.todo_list;
+    return "";
   }
 
   return SNIPPET_SLUG_MAP[slug as keyof typeof SNIPPET_SLUG_MAP];
