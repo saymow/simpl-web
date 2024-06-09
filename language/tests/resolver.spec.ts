@@ -149,4 +149,12 @@ describe("Resolver", () => {
 
     expect(resolve).rejects.toThrow("Can't redeclare local variable");
   });
+
+  it("❌ Can't return outside function.", async () => {
+    const { resolve } = await makeSut(`
+      return;
+    `);
+
+    expect(resolve).rejects.toThrow("Can't return outside function.");
+  });
 });

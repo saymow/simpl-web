@@ -34,8 +34,14 @@ import {
 import Token from "./token";
 import TokenType from "./token-type";
 
+enum FunctionScope {
+  None,
+  Function,
+}
+
 class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   private readonly scopes: Map<string, boolean>[] = [];
+  private functionScope: FunctionScope = FunctionScope.None;
 
   constructor(private readonly intepreter: WithVariableResolution) {}
 
@@ -200,6 +206,7 @@ class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   }
 
   private async resolveFunction(fun: FunctionStmt) {
+    this.functionScope = FunctionScope.Function;
     this.beginScope();
 
     for (const param of fun.parameters) {
@@ -209,6 +216,7 @@ class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
 
     await this.resolve(fun.body);
     this.endScope();
+    this.functionScope = FunctionScope.None;
   }
 
   async visitFunctionStmt(stmt: FunctionStmt): Promise<void> {
@@ -219,6 +227,9 @@ class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   }
 
   async visitReturnStmt(stmt: ReturnStmt): Promise<void> {
+    if (this.functionScope === FunctionScope.None) {
+      throw new ResolverError(stmt.keyword, "Can't return outside function.");
+    }
     if (stmt.expr) await this.resolveExpr(stmt.expr);
   }
 
