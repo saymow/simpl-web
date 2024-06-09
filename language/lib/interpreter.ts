@@ -93,7 +93,7 @@ class Interpreter
     return await expr.accept(this);
   }
 
-  async visitBreakStmt(stmt: BreakStmt): Promise<void> {
+  async visitBreakStmt(_: BreakStmt): Promise<void> {
     throw new BreakLoop();
   }
 
