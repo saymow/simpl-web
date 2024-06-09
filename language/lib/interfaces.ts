@@ -1,4 +1,8 @@
-import { Value } from "./expr";
+import { Expr, Value } from "./expr";
+
+export interface WithVariableResolution {
+  resolve: (expr: Expr, depth: number) => void;
+}
 
 export interface System {
   input(): Promise<string>;

@@ -17,7 +17,7 @@ import {
   UnaryOperatorExpr,
   VariableExpr,
 } from "./expr";
-import Interpreter from "./interpreter";
+import { WithVariableResolution } from "./interfaces";
 import {
   BlockStmt,
   BreakStmt,
@@ -37,7 +37,7 @@ import TokenType from "./token-type";
 class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   private readonly scopes: Map<string, boolean>[] = [];
 
-  constructor(private readonly intepreter: Interpreter) {}
+  constructor(private readonly intepreter: WithVariableResolution) {}
 
   async resolveExpr(expression: Expr) {
     await expression.accept(this);

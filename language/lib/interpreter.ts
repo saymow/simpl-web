@@ -32,7 +32,13 @@ import {
   WhileStmt,
 } from "./stmt";
 import { BreakLoop, CoreLibError, RuntimeError } from "./errors";
-import { Callable, SysCall, System, UserCall } from "./interfaces";
+import {
+  Callable,
+  SysCall,
+  System,
+  UserCall,
+  WithVariableResolution,
+} from "./interfaces";
 import TokenType from "./token-type";
 import Token from "./token";
 import Context, { VariableNotFound } from "./context";
@@ -40,7 +46,9 @@ import Function, { ReturnValue } from "./function";
 import * as lib from "./core-lib";
 import { isArray, isObject, isTruthy } from "./helpers";
 
-class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
+class Interpreter
+  implements ExprVisitor<Value>, StmtVisitor<void>, WithVariableResolution
+{
   private globalContext = new Context<Value>();
   private context = this.globalContext;
   private locals = new Map<Expr, number>();
