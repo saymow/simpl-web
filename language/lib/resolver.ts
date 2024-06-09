@@ -39,9 +39,15 @@ enum FunctionScope {
   Function,
 }
 
+enum LoopScope {
+  None,
+  Loop,
+}
+
 class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   private readonly scopes: Map<string, boolean>[] = [];
   private functionScope: FunctionScope = FunctionScope.None;
+  private loopScope: LoopScope = LoopScope.None;
 
   constructor(private readonly intepreter: WithVariableResolution) {}
 
@@ -202,7 +208,9 @@ class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
 
   async visitWhileStmt(stmt: WhileStmt): Promise<void> {
     await this.resolveExpr(stmt.expr);
+    this.loopScope = LoopScope.Loop;
     await this.resolveStmt(stmt.stmt);
+    this.loopScope = LoopScope.None;
   }
 
   private async resolveFunction(fun: FunctionStmt) {
@@ -233,7 +241,11 @@ class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     if (stmt.expr) await this.resolveExpr(stmt.expr);
   }
 
-  async visitBreakStmt(stmt: BreakStmt): Promise<void> {}
+  async visitBreakStmt(stmt: BreakStmt): Promise<void> {
+    if (this.loopScope === LoopScope.None) {
+      throw new ResolverError(stmt.keyword, "Can't break outside loop.");
+    }
+  }
 }
 
 export default Resolver;

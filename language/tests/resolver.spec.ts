@@ -150,11 +150,19 @@ describe("Resolver", () => {
     expect(resolve).rejects.toThrow("Can't redeclare local variable");
   });
 
-  it("❌ Can't return outside function.", async () => {
+  it('❌ Can\'t "return" outside function.', async () => {
     const { resolve } = await makeSut(`
       return;
     `);
 
     expect(resolve).rejects.toThrow("Can't return outside function.");
+  });
+
+  it('❌ Can\'t "break" outside loop.', async () => {
+    const { resolve } = await makeSut(`
+      break;
+    `);
+
+    expect(resolve).rejects.toThrow("Can't break outside loop.");
   });
 });
