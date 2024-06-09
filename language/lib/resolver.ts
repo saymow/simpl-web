@@ -64,18 +64,22 @@ class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   private declare(name: Token<TokenType.IDENTIFIER>) {
     if (this.scopes.length === 0) return;
 
-    this.scopes[this.scopes.length - 1].set(name.literal, false);
+    if (this.scopes[this.scopes.length - 1].get(name.lexeme) != undefined) {
+      throw new ResolverError(name, "Can't redeclare local variable");
+    }
+
+    this.scopes[this.scopes.length - 1].set(name.lexeme, false);
   }
 
   private define(name: Token<TokenType.IDENTIFIER>) {
     if (this.scopes.length === 0) return;
 
-    this.scopes[this.scopes.length - 1].set(name.literal, true);
+    this.scopes[this.scopes.length - 1].set(name.lexeme, true);
   }
 
   private resolveLocal(expr: Expr, name: Token<TokenType.IDENTIFIER>) {
     for (let idx = this.scopes.length - 1; idx >= 0; idx--) {
-      if (this.scopes[idx].has(name.literal)) {
+      if (this.scopes[idx].has(name.lexeme)) {
         this.intepreter.resolve(expr, this.scopes.length - 1 - idx);
         return;
       }
@@ -100,7 +104,7 @@ class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     if (this.scopes.length > 0) {
       const scope = this.scopes[this.scopes.length - 1];
 
-      if (scope.get(expr.name.literal) == false) {
+      if (scope.get(expr.name.lexeme) == false) {
         throw new ResolverError(
           expr.name,
           "Can't read local variable in its own initiliazer"

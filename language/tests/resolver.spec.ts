@@ -138,4 +138,15 @@ describe("Resolver", () => {
       "Can't read local variable in its own initiliazer"
     );
   });
+
+  it("❌ Can't redeclare local variable", async () => {
+    const { resolve } = await makeSut(`
+      if (true) {
+        var a = 1;
+        var a = 2;
+      }    
+    `);
+
+    expect(resolve).rejects.toThrow("Can't redeclare local variable");
+  });
 });
