@@ -165,4 +165,62 @@ describe("Resolver", () => {
 
     expect(resolve).rejects.toThrow("Can't break outside loop.");
   });
+
+  describe("❌ Can only call functions.", () => {
+    it("1", async () => {
+      const { resolve } = await makeSut(`
+        1();
+      `);
+
+      expect(resolve).rejects.toThrow("Can only call functions.");
+    });
+
+    it("2", async () => {
+      const { resolve } = await makeSut(`
+        "text"();
+      `);
+
+      expect(resolve).rejects.toThrow("Can only call functions.");
+    });
+
+    it("3", async () => {
+      const { resolve } = await makeSut(`
+        false();
+      `);
+
+      expect(resolve).rejects.toThrow("Can only call functions.");
+    });
+
+    it("4", async () => {
+      const { resolve } = await makeSut(`
+        true();
+      `);
+
+      expect(resolve).rejects.toThrow("Can only call functions.");
+    });
+
+    it("5", async () => {
+      const { resolve } = await makeSut(`
+        nil();
+      `);
+
+      expect(resolve).rejects.toThrow("Can only call functions.");
+    });
+
+    it("6", async () => {
+      const { resolve } = await makeSut(`
+        {}();
+      `);
+
+      expect(resolve).rejects.toThrow("Can only call functions.");
+    });
+
+    it("7", async () => {
+      const { resolve } = await makeSut(`
+        []();
+      `);
+
+      expect(resolve).rejects.toThrow("Can only call functions.");
+    });
+  });
 });

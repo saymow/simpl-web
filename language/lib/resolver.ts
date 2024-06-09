@@ -15,9 +15,11 @@ import {
   StructExpr,
   UnaryExpr,
   UnaryOperatorExpr,
+  Value,
   VariableExpr,
 } from "./expr";
-import { WithVariableResolution } from "./interfaces";
+import Function from "./function";
+import { Callable, WithVariableResolution } from "./interfaces";
 import {
   BlockStmt,
   BreakStmt,
@@ -33,6 +35,7 @@ import {
 } from "./stmt";
 import Token from "./token";
 import TokenType from "./token-type";
+import * as lib from "./core-lib";
 
 enum FunctionScope {
   None,
@@ -44,19 +47,43 @@ enum LoopScope {
   Loop,
 }
 
-class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
-  private readonly scopes: Map<string, boolean>[] = [];
+const UNDEFINED = Symbol("UNDEFINED");
+const UNKNOWN = Symbol("UNKNOWN");
+
+class Resolver implements ExprVisitor<Value>, StmtVisitor<void> {
+  private readonly global: Map<string, any> = new Map();
+  private readonly scopes: Map<string, any>[] = [];
   private functionScope: FunctionScope = FunctionScope.None;
   private loopScope: LoopScope = LoopScope.None;
 
-  constructor(private readonly intepreter: WithVariableResolution) {}
+  constructor(private readonly intepreter: WithVariableResolution) {
+    this.global.set("now", new lib.Now());
+    this.global.set("output", new lib.Output());
+    this.global.set("input", new lib.Input());
+    this.global.set("string", new lib.String());
+    this.global.set("number", new lib.Number());
+    this.global.set("int", new lib.Int());
+    this.global.set("abs", new lib.Abs());
+    this.global.set("len", new lib.Len());
+    this.global.set("push", new lib.Push());
+    this.global.set("pop", new lib.Pop());
+    this.global.set("shift", new lib.Shift());
+    this.global.set("unshift", new lib.Unshift());
+    this.global.set("copy", new lib.Copy());
+    this.global.set("insert", new lib.Insert());
+    this.global.set("remove", new lib.Remove());
+    this.global.set("indexOf", new lib.IndexOf());
+    this.global.set("boolean", new lib.Boolean());
+    this.global.set("clear", new lib.Clear());
+    this.global.set("sleep", new lib.Sleep());
+  }
 
-  async resolveExpr(expression: Expr) {
-    await expression.accept(this);
+  async resolveExpr(expression: Expr): Promise<Value> {
+    return await expression.accept(this);
   }
 
   async resolveStmt(statement: Stmt) {
-    await statement.accept(this);
+    return await statement.accept(this);
   }
 
   async resolve(statements: Stmt[]) {
@@ -74,28 +101,36 @@ class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   }
 
   private declare(name: Token<TokenType.IDENTIFIER>) {
-    if (this.scopes.length === 0) return;
+    if (this.scopes.length === 0) {
+      this.global.set(name.lexeme, UNDEFINED);
+      return;
+    }
 
-    if (this.scopes[this.scopes.length - 1].get(name.lexeme) != undefined) {
+    if (this.scopes[this.scopes.length - 1].get(name.lexeme) !== undefined) {
       throw new ResolverError(name, "Can't redeclare local variable");
     }
 
-    this.scopes[this.scopes.length - 1].set(name.lexeme, false);
+    this.scopes[this.scopes.length - 1].set(name.lexeme, UNDEFINED);
   }
 
-  private define(name: Token<TokenType.IDENTIFIER>) {
-    if (this.scopes.length === 0) return;
+  private define(name: Token<TokenType.IDENTIFIER>, value: any) {
+    if (this.scopes.length === 0) {
+      this.global.set(name.lexeme, value);
+      return;
+    }
 
-    this.scopes[this.scopes.length - 1].set(name.lexeme, true);
+    this.scopes[this.scopes.length - 1].set(name.lexeme, value);
   }
 
-  private resolveLocal(expr: Expr, name: Token<TokenType.IDENTIFIER>) {
+  private resolveLocal(expr: Expr, name: Token<TokenType.IDENTIFIER>): any {
     for (let idx = this.scopes.length - 1; idx >= 0; idx--) {
       if (this.scopes[idx].has(name.lexeme)) {
         this.intepreter.resolve(expr, this.scopes.length - 1 - idx);
-        return;
+        return this.scopes[idx].get(name.lexeme);
       }
     }
+
+    return this.global.get(name.lexeme);
   }
 
   async visitBlockStmt(stmt: BlockStmt): Promise<void> {
@@ -106,17 +141,18 @@ class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
 
   async visitVarStmt(stmt: VarStmt): Promise<void> {
     this.declare(stmt.token as Token<TokenType.IDENTIFIER>);
+    let initializer;
     if (stmt.initializer) {
-      await this.resolveExpr(stmt.initializer);
+      initializer = await this.resolveExpr(stmt.initializer);
     }
-    this.define(stmt.token as Token<TokenType.IDENTIFIER>);
+    this.define(stmt.token as Token<TokenType.IDENTIFIER>, initializer);
   }
 
   async visitVariableExpr(expr: VariableExpr): Promise<void> {
     if (this.scopes.length > 0) {
       const scope = this.scopes[this.scopes.length - 1];
 
-      if (scope.get(expr.name.lexeme) == false) {
+      if (scope.get(expr.name.lexeme) == UNDEFINED) {
         throw new ResolverError(
           expr.name,
           "Can't read local variable in its own initiliazer"
@@ -124,10 +160,12 @@ class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
       }
     }
 
-    this.resolveLocal(expr, expr.name as Token<TokenType.IDENTIFIER>);
+    return this.resolveLocal(expr, expr.name as Token<TokenType.IDENTIFIER>);
   }
 
-  async visitLiteralExpr(expr: LiteralExpr): Promise<void> {}
+  async visitLiteralExpr(expr: LiteralExpr): Promise<void> {
+    return expr.object;
+  }
 
   async visitUnaryExpr(expr: UnaryExpr): Promise<void> {
     await this.resolveExpr(expr.right);
@@ -148,7 +186,13 @@ class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   }
 
   async visitCallExpr(expr: CallExpr): Promise<void> {
-    await this.resolveExpr(expr.callee);
+    const callee = await this.resolveExpr(expr.callee);
+
+    if (callee !== UNKNOWN) {
+      if (!(callee instanceof Callable)) {
+        throw new ResolverError(expr.paren, "Can only call functions.");
+      }
+    }
 
     for (const argument of expr.args) {
       await this.resolveExpr(argument);
@@ -197,7 +241,7 @@ class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   }
 
   async visitPrintStmt(stmt: PrintStmt): Promise<void> {
-    this.resolveExpr(stmt.expr);
+    await this.resolveExpr(stmt.expr);
   }
 
   async visitIfStmt(stmt: IfStmt): Promise<void> {
@@ -213,25 +257,23 @@ class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     this.loopScope = LoopScope.None;
   }
 
-  private async resolveFunction(fun: FunctionStmt) {
+  async visitFunctionStmt(stmt: FunctionStmt): Promise<void> {
+    this.declare(stmt.name as Token<TokenType.IDENTIFIER>);
+    this.define(
+      stmt.name as Token<TokenType.IDENTIFIER>,
+      new Function(null as any, stmt)
+    );
     this.functionScope = FunctionScope.Function;
     this.beginScope();
 
-    for (const param of fun.parameters) {
+    for (const param of stmt.parameters) {
       this.declare(param as Token<TokenType.IDENTIFIER>);
-      this.define(param as Token<TokenType.IDENTIFIER>);
+      this.define(param as Token<TokenType.IDENTIFIER>, UNKNOWN);
     }
 
-    await this.resolve(fun.body);
+    await this.resolve(stmt.body);
     this.endScope();
     this.functionScope = FunctionScope.None;
-  }
-
-  async visitFunctionStmt(stmt: FunctionStmt): Promise<void> {
-    this.declare(stmt.name as Token<TokenType.IDENTIFIER>);
-    this.define(stmt.name as Token<TokenType.IDENTIFIER>);
-
-    await this.resolveFunction(stmt);
   }
 
   async visitReturnStmt(stmt: ReturnStmt): Promise<void> {
