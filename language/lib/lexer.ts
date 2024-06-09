@@ -19,6 +19,9 @@ class Lexer {
     ["var", TokenType.VAR],
     ["while", TokenType.WHILE],
     ["break", TokenType.BREAK],
+    ["switch", TokenType.SWITCH],
+    ["case", TokenType.CASE],
+    ["default", TokenType.DEFAULT],
     ["error", TokenType.ERROR],
   ]);
 

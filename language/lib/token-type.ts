@@ -51,6 +51,9 @@ enum TokenType {
   TRUE = "TRUE",
   VAR = "VAR",
   WHILE = "WHILE",
+  SWITCH = "SWITCH",
+  CASE = "CASE",
+  DEFAULT = "DEFAULT",
   ERROR = "ERROR",
   EOF = "EOF",
 }

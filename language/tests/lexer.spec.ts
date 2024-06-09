@@ -61,7 +61,7 @@ describe("Lexer", () => {
 
   it("Shoud handle keywords properly", () => {
     const tokens = new Lexer(
-      "and else false for fun if nil or print return true var while error break"
+      "and else false for fun if nil or print return true var while error break switch case default"
     ).scan();
 
     expect(tokens[0].type).toBe(TokenType.AND);
@@ -79,7 +79,10 @@ describe("Lexer", () => {
     expect(tokens[12].type).toBe(TokenType.WHILE);
     expect(tokens[13].type).toBe(TokenType.ERROR);
     expect(tokens[14].type).toBe(TokenType.BREAK);
-    expect(tokens[15].type).toBe(TokenType.EOF);
+    expect(tokens[15].type).toBe(TokenType.SWITCH);
+    expect(tokens[16].type).toBe(TokenType.CASE);
+    expect(tokens[17].type).toBe(TokenType.DEFAULT);
+    expect(tokens[18].type).toBe(TokenType.EOF);
   });
 
   it("Shoud handle lines properly", () => {
