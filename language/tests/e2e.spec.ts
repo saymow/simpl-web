@@ -782,5 +782,86 @@ describe("e2e", () => {
         );
       });
     });
+
+    it("Todo-list", async () => {
+      const { interpreter, system } = await makeSutFileRead("./todo-list.in");
+
+      system.input
+        .mockImplementationOnce(async () => "1")
+        .mockImplementationOnce(async () => "Item A")
+        .mockImplementationOnce(async () => "1")
+        .mockImplementationOnce(async () => "Item B")
+        .mockImplementationOnce(async () => "1")
+        .mockImplementationOnce(async () => "Item C")
+        .mockImplementationOnce(async () => "3")
+        .mockImplementationOnce(async () => "2")
+        .mockImplementationOnce(async () => "Item B")
+        .mockImplementationOnce(async () => "3");
+
+      system.input.mockImplementationOnce(async () => "4");
+
+      await interpreter.interpret();
+
+      expect(system.log.mock.calls.shift()![0]).toEqual("Select one option: ");
+      expect(system.log.mock.calls.shift()![0]).toEqual("  1)  Add item");
+      expect(system.log.mock.calls.shift()![0]).toEqual("  2)  Remove item");
+      expect(system.log.mock.calls.shift()![0]).toEqual("  3)  List items");
+      expect(system.log.mock.calls.shift()![0]).toEqual("  4)  Exit");
+
+      expect(system.log.mock.calls.shift()![0]).toEqual("Item name: ");
+
+      expect(system.log.mock.calls.shift()![0]).toEqual("Select one option: ");
+      expect(system.log.mock.calls.shift()![0]).toEqual("  1)  Add item");
+      expect(system.log.mock.calls.shift()![0]).toEqual("  2)  Remove item");
+      expect(system.log.mock.calls.shift()![0]).toEqual("  3)  List items");
+      expect(system.log.mock.calls.shift()![0]).toEqual("  4)  Exit");
+
+      expect(system.log.mock.calls.shift()![0]).toEqual("Item name: ");
+
+      expect(system.log.mock.calls.shift()![0]).toEqual("Select one option: ");
+      expect(system.log.mock.calls.shift()![0]).toEqual("  1)  Add item");
+      expect(system.log.mock.calls.shift()![0]).toEqual("  2)  Remove item");
+      expect(system.log.mock.calls.shift()![0]).toEqual("  3)  List items");
+      expect(system.log.mock.calls.shift()![0]).toEqual("  4)  Exit");
+
+      expect(system.log.mock.calls.shift()![0]).toEqual("Item name: ");
+
+      expect(system.log.mock.calls.shift()![0]).toEqual("Select one option: ");
+      expect(system.log.mock.calls.shift()![0]).toEqual("  1)  Add item");
+      expect(system.log.mock.calls.shift()![0]).toEqual("  2)  Remove item");
+      expect(system.log.mock.calls.shift()![0]).toEqual("  3)  List items");
+      expect(system.log.mock.calls.shift()![0]).toEqual("  4)  Exit");
+
+      expect(system.log.mock.calls.shift()![0]).toEqual("Items: ");
+      expect(system.log.mock.calls.shift()![0]).toEqual(" 1) Item A");
+      expect(system.log.mock.calls.shift()![0]).toEqual(" 2) Item B");
+      expect(system.log.mock.calls.shift()![0]).toEqual(" 3) Item C");
+
+      expect(system.log.mock.calls.shift()![0]).toEqual("Select one option: ");
+      expect(system.log.mock.calls.shift()![0]).toEqual("  1)  Add item");
+      expect(system.log.mock.calls.shift()![0]).toEqual("  2)  Remove item");
+      expect(system.log.mock.calls.shift()![0]).toEqual("  3)  List items");
+      expect(system.log.mock.calls.shift()![0]).toEqual("  4)  Exit");
+
+      expect(system.log.mock.calls.shift()![0]).toEqual("Item name: ");
+
+      expect(system.log.mock.calls.shift()![0]).toEqual("Select one option: ");
+      expect(system.log.mock.calls.shift()![0]).toEqual("  1)  Add item");
+      expect(system.log.mock.calls.shift()![0]).toEqual("  2)  Remove item");
+      expect(system.log.mock.calls.shift()![0]).toEqual("  3)  List items");
+      expect(system.log.mock.calls.shift()![0]).toEqual("  4)  Exit");
+
+      expect(system.log.mock.calls.shift()![0]).toEqual("Items: ");
+      expect(system.log.mock.calls.shift()![0]).toEqual(" 1) Item A");
+      expect(system.log.mock.calls.shift()![0]).toEqual(" 2) Item C");
+
+      expect(system.log.mock.calls.shift()![0]).toEqual("Select one option: ");
+      expect(system.log.mock.calls.shift()![0]).toEqual("  1)  Add item");
+      expect(system.log.mock.calls.shift()![0]).toEqual("  2)  Remove item");
+      expect(system.log.mock.calls.shift()![0]).toEqual("  3)  List items");
+      expect(system.log.mock.calls.shift()![0]).toEqual("  4)  Exit");
+
+      expect(system.log.mock.calls.shift()![0]).toEqual("END...");
+    });
   });
 });

@@ -7,7 +7,6 @@ export const TODO_LIST_SNIPPET = `${HEADER_SNIPPET}
 //          |_|  |___|___|___|   |_____|_|___|__|  
 //
 
-var running = true;
 var items = [];
 
 fun addItem(name) {
@@ -19,7 +18,7 @@ fun removeItem(name) {
    
    for (var idx = 0; idx < len(items); idx++) {
         if (items[idx].name != name) {
-            unshift(newItems, items[idx]);
+            push(newItems, items[idx]);
         }
    }
 
@@ -34,7 +33,7 @@ fun listItems() {
    }
 }
 
-while (running) {
+while (true) {
     clear();
     output("Select one option: ");
     output("  1)  Add item");
@@ -55,7 +54,7 @@ while (running) {
         listItems();
         sleep(2000); 
     } else if (option == 4) {
-        running = false;   
+        break;   
     } else {
         output("Invalid option.");
     }
@@ -63,4 +62,3 @@ while (running) {
 
 output("END...");
 `;
-
