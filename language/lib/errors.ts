@@ -12,6 +12,12 @@ export class ParserError extends Error {
   }
 }
 
+export class ResolverError extends Error {
+  constructor(public token: Token, message: string) {
+    super(message);
+  }
+}
+
 export class RuntimeError extends Error {
   constructor(public token: Token, message: string) {
     super(message);

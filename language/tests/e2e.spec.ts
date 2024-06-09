@@ -1,6 +1,7 @@
 import { readSample } from "./fixtures";
 import { Lexer, Parser, Interpreter, SysCall, System } from "../";
 import * as lib from "../lib/core-lib";
+import Resolver from "../lib/resolver";
 
 const makeSystem = () => {
   const log = jest.fn((_: string) => {});
@@ -15,18 +16,16 @@ const makeSut = async (source: string) => {
   const ast = new Parser(tokens).parse();
   const system = makeSystem();
   const interpreter = new Interpreter(ast, system);
+  const resolver = new Resolver(interpreter);
+
+  await resolver.resolve(ast);
 
   return { interpreter, system };
 };
 
 const makeSutFileRead = async (filename: string) => {
   const source = await readSample(filename);
-  const tokens = new Lexer(source).scan();
-  const ast = new Parser(tokens).parse();
-  const system = makeSystem();
-  const interpreter = new Interpreter(ast, system);
-
-  return { interpreter, system };
+  return await makeSut(source);
 };
 
 const expectCoreLib =
@@ -188,7 +187,7 @@ describe("e2e", () => {
       expect(system.log.mock.calls[0][0]).toBe("12");
     });
 
-    it("10", async () => {
+    it("choosen", async () => {
       const { interpreter, system } = await makeSut(`
         fun diff (a, b) { 
           if (a > b) 
@@ -206,7 +205,7 @@ describe("e2e", () => {
       expect(system.log.mock.calls[0][0]).toBe("8");
     });
 
-    it("10", async () => {
+    it("11", async () => {
       const { interpreter, system } = await makeSut(`
         var num = 1;
         var str = "";
@@ -233,7 +232,7 @@ describe("e2e", () => {
       expect(system.log.mock.calls[4][0]).toBe("test");
     });
 
-    it("11", async () => {
+    it("12", async () => {
       const { interpreter, system } = await makeSut(`
         var num = 1;
         
@@ -255,7 +254,7 @@ describe("e2e", () => {
       expect(system.log.mock.calls[5][0]).toBe("1");
     });
 
-    it("12", async () => {
+    it("13", async () => {
       const { interpreter, system } = await makeSut(`
         var arr = [1, 2, 3, 4, 5];
 
@@ -756,9 +755,7 @@ describe("e2e", () => {
 
     describe("Dijkstra", () => {
       it("1", async () => {
-        const { interpreter, system } = await makeSutFileRead(
-          "./dijkstra.in"
-        );
+        const { interpreter, system } = await makeSutFileRead("./dijkstra.in");
 
         system.input
           .mockImplementationOnce(async () => "F")
@@ -772,9 +769,7 @@ describe("e2e", () => {
       });
 
       it("2", async () => {
-        const { interpreter, system } = await makeSutFileRead(
-          "./dijkstra.in"
-        );
+        const { interpreter, system } = await makeSutFileRead("./dijkstra.in");
 
         system.input
           .mockImplementationOnce(async () => "D")

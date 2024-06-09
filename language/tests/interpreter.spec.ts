@@ -14,6 +14,7 @@ import {
   VariableExpr,
 } from "../lib/expr";
 import Interpreter from "../lib/interpreter";
+import Resolver from "../lib/resolver";
 import {
   BlockStmt,
   BreakStmt,
@@ -29,7 +30,7 @@ import {
 import Token from "../lib/token";
 import TokenType from "../lib/token-type";
 
-const makeSut = (ast: Stmt[]) => {
+const makeSut = async (ast: Stmt[]) => {
   const log = jest.fn((_: string) => {});
   const input = jest.fn(async () => "test");
   const clear = jest.fn(async () => {});
@@ -38,6 +39,9 @@ const makeSut = (ast: Stmt[]) => {
     input,
     clear,
   });
+  const resolver = new Resolver(interpreter);
+
+  await resolver.resolve(ast);
 
   return { interpreter, log, input };
 };
@@ -45,7 +49,7 @@ const makeSut = (ast: Stmt[]) => {
 describe("Interpreter", () => {
   describe("Expressions", () => {
     it("print 5 + 11;", async () => {
-      const { interpreter, log } = makeSut([
+      const { interpreter, log } = await makeSut([
         new PrintStmt(
           new BinaryExpr(
             new LiteralExpr(5),
@@ -62,7 +66,7 @@ describe("Interpreter", () => {
     });
 
     it('print "test" + "ab";', async () => {
-      const { interpreter, log } = makeSut([
+      const { interpreter, log } = await makeSut([
         new PrintStmt(
           new BinaryExpr(
             new LiteralExpr("test"),
@@ -79,7 +83,7 @@ describe("Interpreter", () => {
     });
 
     it("print 5 * (6 + 1) == 35;", async () => {
-      const { interpreter, log } = makeSut([
+      const { interpreter, log } = await makeSut([
         new PrintStmt(
           new BinaryExpr(
             new BinaryExpr(
@@ -108,7 +112,7 @@ describe("Interpreter", () => {
 
   describe("Variables", () => {
     it("var myVar = 77; print myVar;", async () => {
-      const { interpreter, log } = makeSut([
+      const { interpreter, log } = await makeSut([
         new VarStmt(
           new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
           new LiteralExpr(77)
@@ -127,7 +131,7 @@ describe("Interpreter", () => {
     });
 
     it("var myVar;", async () => {
-      const { interpreter } = makeSut([
+      const { interpreter } = await makeSut([
         new VarStmt(
           new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1)
         ),
@@ -137,7 +141,7 @@ describe("Interpreter", () => {
     });
 
     it("print myVar;", async () => {
-      const { interpreter } = makeSut([
+      const { interpreter } = await makeSut([
         new PrintStmt(
           new VariableExpr(
             new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1)
@@ -149,7 +153,7 @@ describe("Interpreter", () => {
     });
 
     it("var myVar = 77; myVar = 5; print myVar;", async () => {
-      const { interpreter, log } = makeSut([
+      const { interpreter, log } = await makeSut([
         new VarStmt(
           new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
           new LiteralExpr(77)
@@ -174,7 +178,7 @@ describe("Interpreter", () => {
     });
 
     it("var myVar = 10; myVar += 5; print myVar;", async () => {
-      const { interpreter, log } = makeSut([
+      const { interpreter, log } = await makeSut([
         new VarStmt(
           new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
           new LiteralExpr(10)
@@ -202,7 +206,7 @@ describe("Interpreter", () => {
     });
 
     it("var myVar = [1, 1]; myVar[0] += 5; print myVar[0];", async () => {
-      const { interpreter, log } = makeSut([
+      const { interpreter, log } = await makeSut([
         new VarStmt(
           new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
           new ArrayExpr(
@@ -241,7 +245,7 @@ describe("Interpreter", () => {
     });
 
     it('var myVar = "na"; myVar += "me"; print myVar;', async () => {
-      const { interpreter, log } = makeSut([
+      const { interpreter, log } = await makeSut([
         new VarStmt(
           new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
           new LiteralExpr("na")
@@ -269,7 +273,7 @@ describe("Interpreter", () => {
     });
 
     it("var myVar = 10; myVar -= 5; print myVar;", async () => {
-      const { interpreter, log } = makeSut([
+      const { interpreter, log } = await makeSut([
         new VarStmt(
           new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
           new LiteralExpr(10)
@@ -297,7 +301,7 @@ describe("Interpreter", () => {
     });
 
     it("var myVar = 10; myVar *= 5; print myVar;", async () => {
-      const { interpreter, log } = makeSut([
+      const { interpreter, log } = await makeSut([
         new VarStmt(
           new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
           new LiteralExpr(10)
@@ -325,7 +329,7 @@ describe("Interpreter", () => {
     });
 
     it("var myVar = [1, 1]; myVar[0] *= 5; print myVar[0];", async () => {
-      const { interpreter, log } = makeSut([
+      const { interpreter, log } = await makeSut([
         new VarStmt(
           new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
           new ArrayExpr(
@@ -364,7 +368,7 @@ describe("Interpreter", () => {
     });
 
     it("var myVar = 10; myVar /= 5; print myVar;", async () => {
-      const { interpreter, log } = makeSut([
+      const { interpreter, log } = await makeSut([
         new VarStmt(
           new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
           new LiteralExpr(10)
@@ -392,7 +396,7 @@ describe("Interpreter", () => {
     });
 
     it("var myVar = 1; print myVar++; print myVar;", async () => {
-      const { interpreter, log } = makeSut([
+      const { interpreter, log } = await makeSut([
         new VarStmt(
           new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
           new LiteralExpr(1)
@@ -420,7 +424,7 @@ describe("Interpreter", () => {
     });
 
     it("var myVar = 1; print myVar--; print myVar;", async () => {
-      const { interpreter, log } = makeSut([
+      const { interpreter, log } = await makeSut([
         new VarStmt(
           new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
           new LiteralExpr(1)
@@ -448,7 +452,7 @@ describe("Interpreter", () => {
     });
 
     it("var myVar = 1; print ++myVar;", async () => {
-      const { interpreter, log } = makeSut([
+      const { interpreter, log } = await makeSut([
         new VarStmt(
           new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
           new LiteralExpr(1)
@@ -470,7 +474,7 @@ describe("Interpreter", () => {
     });
 
     it("var myVar = 1; print --myVar;", async () => {
-      const { interpreter, log } = makeSut([
+      const { interpreter, log } = await makeSut([
         new VarStmt(
           new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
           new LiteralExpr(1)
@@ -492,7 +496,7 @@ describe("Interpreter", () => {
     });
 
     it("var arr = [1]; print --arr[0]; print arr[0];", async () => {
-      const { interpreter, log } = makeSut([
+      const { interpreter, log } = await makeSut([
         new VarStmt(
           new Token(TokenType.IDENTIFIER, "arr", undefined, 1, -1, -1),
           new ArrayExpr(
@@ -533,7 +537,7 @@ describe("Interpreter", () => {
 
   describe("Blocks", () => {
     it("{var myVar = 5; print myVar;}", async () => {
-      const { interpreter, log } = makeSut([
+      const { interpreter, log } = await makeSut([
         new BlockStmt([
           new VarStmt(
             new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
@@ -554,7 +558,7 @@ describe("Interpreter", () => {
     });
 
     it("{var myVar = 5;} print myVar;", async () => {
-      const { interpreter, log } = makeSut([
+      const { interpreter, log } = await makeSut([
         new BlockStmt([
           new VarStmt(
             new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
@@ -576,7 +580,7 @@ describe("Interpreter", () => {
 
   describe("Conditionals", () => {
     it('if (2 > 1) print "maior";', async () => {
-      const { interpreter, log } = makeSut([
+      const { interpreter, log } = await makeSut([
         new IfStmt(
           new BinaryExpr(
             new LiteralExpr(2),
@@ -594,7 +598,7 @@ describe("Interpreter", () => {
     });
 
     it('if (2 < 1) print "maior";', async () => {
-      const { interpreter, log } = makeSut([
+      const { interpreter, log } = await makeSut([
         new IfStmt(
           new BinaryExpr(
             new LiteralExpr(2),
@@ -611,7 +615,7 @@ describe("Interpreter", () => {
     });
 
     it('if (2 < 1) print "menor"; else print "maior";', async () => {
-      const { interpreter, log } = makeSut([
+      const { interpreter, log } = await makeSut([
         new IfStmt(
           new BinaryExpr(
             new LiteralExpr(2),
@@ -632,7 +636,7 @@ describe("Interpreter", () => {
 
   describe("Loops", () => {
     it('while (2 < 1) print "never";', async () => {
-      const { interpreter, log } = makeSut([
+      const { interpreter, log } = await makeSut([
         new WhileStmt(
           new BinaryExpr(
             new LiteralExpr(2),
@@ -649,7 +653,7 @@ describe("Interpreter", () => {
     });
 
     it("var i = 0; while (i < 5) { print i; i = i + 1; }", async () => {
-      const { interpreter, log } = makeSut([
+      const { interpreter, log } = await makeSut([
         new VarStmt(
           new Token(TokenType.IDENTIFIER, '"i"', "i", 1, -1, -1),
           new LiteralExpr(0)
@@ -695,7 +699,7 @@ describe("Interpreter", () => {
     });
 
     it("for (var i = 0; i < 5; i = i + 1) print i;", async () => {
-      const { interpreter, log } = makeSut([
+      const { interpreter, log } = await makeSut([
         new BlockStmt([
           new VarStmt(
             new Token(TokenType.IDENTIFIER, '"i"', "i", 1, -1, -1),
@@ -743,7 +747,7 @@ describe("Interpreter", () => {
     });
 
     it("var i = 0; for (; i < 5; i = i + 1) print i;", async () => {
-      const { interpreter, log } = makeSut([
+      const { interpreter, log } = await makeSut([
         new VarStmt(
           new Token(TokenType.IDENTIFIER, '"i"', "i", 1, -1, -1),
           new LiteralExpr(0)
@@ -791,7 +795,7 @@ describe("Interpreter", () => {
     });
 
     it("var i = 0; for (;i < 5;) { print i; i = i + 1; }", async () => {
-      const { interpreter, log } = makeSut([
+      const { interpreter, log } = await makeSut([
         new VarStmt(
           new Token(TokenType.IDENTIFIER, '"i"', "i", 1, -1, -1),
           new LiteralExpr(0)
@@ -841,7 +845,7 @@ describe("Interpreter", () => {
     });
 
     it("var i = 0; while (i < 5) { print i; break; }", async () => {
-      const { interpreter, log } = makeSut([
+      const { interpreter, log } = await makeSut([
         new VarStmt(
           new Token(TokenType.IDENTIFIER, '"i"', "i", 1, -1, -1),
           new LiteralExpr(0)
@@ -874,7 +878,7 @@ describe("Interpreter", () => {
     });
 
     it("for (var i = 0; i < 5; i = i + 1) {print i; break;}", async () => {
-      const { interpreter, log } = makeSut([
+      const { interpreter, log } = await makeSut([
         new BlockStmt([
           new VarStmt(
             new Token(TokenType.IDENTIFIER, '"i"', "i", 1, -1, -1),
@@ -925,7 +929,7 @@ describe("Interpreter", () => {
 
   describe("Functions", () => {
     it('fun fn (arg1, arg2) { print arg2; } fn("_", "test");', async () => {
-      const { log, interpreter } = makeSut([
+      const { log, interpreter } = await makeSut([
         new FunctionStmt(
           new Token(TokenType.IDENTIFIER, '"fn"', "fn", 1, -1, -1),
           [
@@ -958,7 +962,7 @@ describe("Interpreter", () => {
     });
 
     it("fun sum (a, b) { print a + b; } sum(3, 4);", async () => {
-      const { log, interpreter } = makeSut([
+      const { log, interpreter } = await makeSut([
         new FunctionStmt(
           new Token(TokenType.IDENTIFIER, '"sum"', "sum", 1, -1, -1),
           [
@@ -997,7 +1001,7 @@ describe("Interpreter", () => {
     });
 
     it("fun multiply (a, b) { print a + b; } multiply(3, 4);", async () => {
-      const { log, interpreter } = makeSut([
+      const { log, interpreter } = await makeSut([
         new FunctionStmt(
           new Token(TokenType.IDENTIFIER, '"multiply"', "multiply", 1, -1, -1),
           [
@@ -1043,7 +1047,7 @@ describe("Interpreter", () => {
     });
 
     it("fun division (a, b) { return a + b; } print division(12, 4);", async () => {
-      const { log, interpreter } = makeSut([
+      const { log, interpreter } = await makeSut([
         new FunctionStmt(
           new Token(TokenType.IDENTIFIER, '"division"', "division", 1, -1, -1),
           [
@@ -1090,7 +1094,7 @@ describe("Interpreter", () => {
     });
 
     it("fun diff (a, b) { if (a > b) return a - b; else return b - a; } print diff(12, 4);", async () => {
-      const { log, interpreter } = makeSut([
+      const { log, interpreter } = await makeSut([
         new FunctionStmt(
           new Token(TokenType.IDENTIFIER, '"diff"', "diff", 1, -1, -1),
           [
@@ -1154,7 +1158,7 @@ describe("Interpreter", () => {
 
   describe("Arrays", () => {
     it('var arr = [1, "test"]; print arr[1];', async () => {
-      const { log, interpreter } = makeSut([
+      const { log, interpreter } = await makeSut([
         new VarStmt(
           new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1),
           new ArrayExpr(
@@ -1180,7 +1184,7 @@ describe("Interpreter", () => {
     });
 
     it("var identity = [[1, 0], [0, 1]]; print arr[0][0];", async () => {
-      const { log, interpreter } = makeSut([
+      const { log, interpreter } = await makeSut([
         new VarStmt(
           new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1),
           new ArrayExpr(
@@ -1219,7 +1223,7 @@ describe("Interpreter", () => {
     });
 
     it('var arr = [1, "test"]; arr[1] = "not-a-test"; print arr[1];', async () => {
-      const { log, interpreter } = makeSut([
+      const { log, interpreter } = await makeSut([
         new VarStmt(
           new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1),
           new ArrayExpr(
@@ -1255,7 +1259,7 @@ describe("Interpreter", () => {
     });
 
     it('var identity = [[1, 0], [0, 1]]; arr[0][0] = "test"; print arr[0][0];', async () => {
-      const { log, interpreter } = makeSut([
+      const { log, interpreter } = await makeSut([
         new VarStmt(
           new Token(TokenType.IDENTIFIER, '"arr"', "arr", 1, -1, -1),
           new ArrayExpr(
@@ -1310,7 +1314,7 @@ describe("Interpreter", () => {
 
   describe("Structs", () => {
     it('var struct = { a: 5, b: "test" }; print struct;', async () => {
-      const { log, interpreter } = makeSut([
+      const { log, interpreter } = await makeSut([
         new VarStmt(
           new Token(TokenType.IDENTIFIER, '"struct"', "struct", 1, -1, -1),
           new StructExpr(
@@ -1341,7 +1345,7 @@ describe("Interpreter", () => {
     });
 
     it('var struct = { a: 5, b: "test" }; print struct.a;', async () => {
-      const { log, interpreter } = makeSut([
+      const { log, interpreter } = await makeSut([
         new VarStmt(
           new Token(TokenType.IDENTIFIER, "struct", "struct", 1, -1, -1),
           new StructExpr(
@@ -1378,7 +1382,7 @@ describe("Interpreter", () => {
     });
 
     it('var struct = { a: 5, b: "test" }; print --struct.a;', async () => {
-      const { log, interpreter } = makeSut([
+      const { log, interpreter } = await makeSut([
         new VarStmt(
           new Token(TokenType.IDENTIFIER, "struct", "struct", 1, -1, -1),
           new StructExpr(
@@ -1419,7 +1423,7 @@ describe("Interpreter", () => {
     });
 
     it('var struct = { a: 5, b: "test" }; struct.a += 10; print struct.a;', async () => {
-      const { log, interpreter } = makeSut([
+      const { log, interpreter } = await makeSut([
         new VarStmt(
           new Token(TokenType.IDENTIFIER, "struct", "struct", 1, -1, -1),
           new StructExpr(
@@ -1471,7 +1475,7 @@ describe("Interpreter", () => {
     });
 
     it('var struct = { a: 5, b: "test" }; struct.a = []; print struct.a;', async () => {
-      const { log, interpreter } = makeSut([
+      const { log, interpreter } = await makeSut([
         new VarStmt(
           new Token(TokenType.IDENTIFIER, "struct", "struct", 1, -1, -1),
           new StructExpr(
@@ -1513,14 +1517,14 @@ describe("Interpreter", () => {
         ),
       ]);
 
-      await interpreter.interpret().catch((e) => console.log(e.token));
+      await interpreter.interpret();
 
       expect(log).toHaveBeenCalledTimes(1);
       expect(log.mock.calls[0][0]).toBe("[]");
     });
 
     it('var struct = { a: 5, b: "test" }; struct.c = "new"; print struct.c;', async () => {
-      const { log, interpreter } = makeSut([
+      const { log, interpreter } = await makeSut([
         new VarStmt(
           new Token(TokenType.IDENTIFIER, "struct", "struct", 1, -1, -1),
           new StructExpr(
@@ -1562,7 +1566,7 @@ describe("Interpreter", () => {
         ),
       ]);
 
-      await interpreter.interpret().catch((e) => console.log(e.token));
+      await interpreter.interpret();
 
       expect(log).toHaveBeenCalledTimes(1);
       expect(log.mock.calls[0][0]).toBe("new");

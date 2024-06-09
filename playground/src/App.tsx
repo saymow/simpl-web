@@ -1,21 +1,29 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Interpreter,
   Lexer,
   LexerError,
   Parser,
   ParserError,
+  Resolver,
   RuntimeError,
+  ResolverError,
   Stmt,
   Token,
 } from "../../language";
 import "./App.css";
 import Button from "./components/Button";
 import Environment from "./components/Environment";
-import { CustomParserError, TokenError } from "./errors";
+import { TokenError } from "./errors";
 import { bindTokens } from "./helpers";
 import { Terminal, TerminalIn, TerminalOut } from "./interfaces";
 import { makeSnippet } from "./snippets";
+
+const mockSystem = () => ({
+  input: async () => "test",
+  log: () => {},
+  clear: () => {},
+});
 
 type Program = Stmt[];
 
@@ -36,31 +44,16 @@ function App() {
     [programMetadata]
   );
 
-  useEffect(() => {
-    const params = new URLSearchParams(document.location.search);
-    const snippetName = params.get("snippet") ?? "";
-    setSource(makeSnippet(snippetName));
-  }, []);
+  const handleResolve = useCallback(async () => {
+    let tokens;
 
-  useEffect(() => {
     try {
-      const tokens = new Lexer(source).scan();
-      let syntaxTree;
+      tokens = new Lexer(source).scan();
+      const syntaxTree = new Parser(tokens).parse();
+      const interpreter = new Interpreter(syntaxTree, mockSystem());
+      const resolver = new Resolver(interpreter);
 
-      try {
-        syntaxTree = new Parser(tokens).parse();
-      } catch (err) {
-        if (err instanceof ParserError) {
-          throw new CustomParserError(
-            tokens,
-            err.token,
-            err.message,
-            err.stack
-          );
-        }
-
-        throw Error("Unexpected error");
-      }
+      await resolver.resolve(syntaxTree);
 
       setProgramMetadata({ program: syntaxTree, tokens });
       setSyntaxHighlightedSource(bindTokens(source, tokens));
@@ -68,17 +61,27 @@ function App() {
       setProgramMetadata(null);
       if (err instanceof LexerError) {
         setSyntaxHighlightedSource(bindTokens(source, err.tokens));
-      } else if (err instanceof CustomParserError) {
+      } else if (err instanceof ParserError || err instanceof ResolverError) {
         console.log(err);
         setSyntaxHighlightedSource(
-          bindTokens(source, err.tokens, new TokenError(err.token, err.message))
+          bindTokens(source, tokens!, new TokenError(err.token, err.message))
         );
       } else {
         setSyntaxHighlightedSource(undefined);
         console.error("Unexpected error: ", err);
       }
     }
-  }, [source, setProgramMetadata]);
+  }, [source]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(document.location.search);
+    const snippetName = params.get("snippet") ?? "";
+    setSource(makeSnippet(snippetName));
+  }, []);
+
+  useEffect(() => {
+    handleResolve();
+  }, [handleResolve]);
 
   const handleOutputLine = (message: string) => {
     setTerminal((prev) => [...prev, new TerminalOut(message)]);
@@ -107,9 +110,12 @@ function App() {
         input: handleInputLine,
         clear: handleClearTerminal,
       });
+      const resolver = new Resolver(interpreter);
+
+      await resolver.resolve(programMetadata.program);
       await interpreter.interpret();
     } catch (err) {
-      if (err instanceof RuntimeError) {
+      if (err instanceof ResolverError || err instanceof RuntimeError) {
         console.log(err.token, err.message);
         setSyntaxHighlightedSource(
           bindTokens(

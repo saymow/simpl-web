@@ -41,34 +41,40 @@ import * as lib from "./core-lib";
 import { isArray, isObject, isTruthy } from "./helpers";
 
 class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
-  private context = new Context<Value>();
+  private globalContext = new Context<Value>();
+  private context = this.globalContext;
+  private locals = new Map<Expr, number>();
 
   constructor(private ast: Stmt[], private system: System) {
-    this.context.define("now", new lib.Now());
-    this.context.define("output", new lib.Output());
-    this.context.define("input", new lib.Input());
-    this.context.define("string", new lib.String());
-    this.context.define("number", new lib.Number());
-    this.context.define("int", new lib.Int());
-    this.context.define("abs", new lib.Abs());
-    this.context.define("len", new lib.Len());
-    this.context.define("push", new lib.Push());
-    this.context.define("pop", new lib.Pop());
-    this.context.define("shift", new lib.Shift());
-    this.context.define("unshift", new lib.Unshift());
-    this.context.define("copy", new lib.Copy());
-    this.context.define("insert", new lib.Insert());
-    this.context.define("remove", new lib.Remove());
-    this.context.define("indexOf", new lib.IndexOf());
-    this.context.define("boolean", new lib.Boolean());
-    this.context.define("clear", new lib.Clear());
-    this.context.define("sleep", new lib.Sleep());
+    this.globalContext.define("now", new lib.Now());
+    this.globalContext.define("output", new lib.Output());
+    this.globalContext.define("input", new lib.Input());
+    this.globalContext.define("string", new lib.String());
+    this.globalContext.define("number", new lib.Number());
+    this.globalContext.define("int", new lib.Int());
+    this.globalContext.define("abs", new lib.Abs());
+    this.globalContext.define("len", new lib.Len());
+    this.globalContext.define("push", new lib.Push());
+    this.globalContext.define("pop", new lib.Pop());
+    this.globalContext.define("shift", new lib.Shift());
+    this.globalContext.define("unshift", new lib.Unshift());
+    this.globalContext.define("copy", new lib.Copy());
+    this.globalContext.define("insert", new lib.Insert());
+    this.globalContext.define("remove", new lib.Remove());
+    this.globalContext.define("indexOf", new lib.IndexOf());
+    this.globalContext.define("boolean", new lib.Boolean());
+    this.globalContext.define("clear", new lib.Clear());
+    this.globalContext.define("sleep", new lib.Sleep());
   }
 
   public async interpret() {
     for (const stmt of this.ast) {
       await this.evaluateStmt(stmt);
     }
+  }
+
+  public resolve(expr: Expr, depth: number) {
+    return this.locals.set(expr, depth);
   }
 
   private async evaluateStmt(stmt: Stmt): Promise<unknown> {
@@ -239,6 +245,7 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
       }
     } else if (expr.nameExpr instanceof VariableExpr) {
       this.assignVariable(
+        expr.nameExpr,
         expr.nameExpr.name as Token<TokenType.IDENTIFIER>,
         newValue
       );
@@ -341,6 +348,7 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
       }
     } else if (expr.nameExpr instanceof VariableExpr) {
       this.assignVariable(
+        expr.nameExpr,
         expr.nameExpr.name as Token<TokenType.IDENTIFIER>,
         value
       );
@@ -419,7 +427,7 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   }
 
   async visitVariableExpr(expr: VariableExpr): Promise<Value> {
-    return this.getVariable(expr.name as Token<TokenType.IDENTIFIER>);
+    return this.lookupVariable(expr.name as Token<TokenType.IDENTIFIER>, expr);
   }
 
   async visitUnaryExpr(expr: UnaryExpr): Promise<Value> {
@@ -539,12 +547,21 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
 
   async visitAssignExpr(expr: AssignExpr): Promise<Value> {
     const value = await this.evaluateExpr(expr.value);
-    this.assignVariable(expr.name as Token<TokenType.IDENTIFIER>, value);
+    this.assignVariable(expr, expr.name as Token<TokenType.IDENTIFIER>, value);
   }
 
-  private getVariable(token: Token<TokenType.IDENTIFIER>): Value {
+  private lookupVariable(
+    token: Token<TokenType.IDENTIFIER>,
+    expr: Expr
+  ): Value {
     try {
-      return this.context.get(token.literal);
+      const distance = this.locals.get(expr);
+
+      if (distance === undefined) {
+        return this.globalContext.get(token.literal);
+      } else {
+        return this.context.getAt(distance, token.literal);
+      }
     } catch (err) {
       if (err instanceof VariableNotFound) {
         throw new RuntimeError(token, "Variable not found.");
@@ -553,11 +570,18 @@ class Interpreter implements ExprVisitor<Value>, StmtVisitor<void> {
   }
 
   private assignVariable(
+    expr: Expr,
     token: Token<TokenType.IDENTIFIER>,
     value: Value
-  ): Value {
+  ): void {
     try {
-      this.context.assign(token.literal, value);
+      const distance = this.locals.get(expr);
+
+      if (distance === undefined) {
+        this.globalContext.assign(token.literal, value);
+      } else {
+        this.context.assignAt(distance, token.literal, value);
+      }
     } catch (err) {
       if (err instanceof VariableNotFound) {
         throw new Error("Variable not found.");
