@@ -21,9 +21,7 @@ const makeSut = async (source: string) => {
   const interpreter = { resolve: jest.fn((_: Expr, __: number) => {}) };
   const resolver = new Resolver(interpreter);
 
-  await resolver.resolve(ast);
-
-  return interpreter;
+  return { resolve: () => resolver.resolve(ast) };
 };
 
 const makeSutFromAST = async (ast: Stmt[]) => {
@@ -127,5 +125,17 @@ describe("Resolver", () => {
       expect(resolve.mock.calls[4][0]).toStrictEqual(VARIABLE_EXPRS[4]);
       expect(resolve.mock.calls[4][1]).toBe(0);
     });
+  });
+
+  it("❌ Can't read local variable in its own initiliazer", async () => {
+    const { resolve } = await makeSut(`
+      if (true) {
+        var a = a + 1;
+      }    
+    `);
+
+    expect(resolve).rejects.toThrow(
+      "Can't read local variable in its own initiliazer"
+    );
   });
 });
