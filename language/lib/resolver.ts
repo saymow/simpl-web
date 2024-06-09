@@ -192,6 +192,13 @@ class Resolver implements ExprVisitor<Value>, StmtVisitor<void> {
       if (!(callee instanceof Callable)) {
         throw new ResolverError(expr.paren, "Can only call functions.");
       }
+
+      if (expr.args.length !== callee.arity()) {
+        throw new ResolverError(
+          expr.paren,
+          `Expected ${callee.arity()} arguments but got ${expr.args.length}.`
+        );
+      }
     }
 
     for (const argument of expr.args) {

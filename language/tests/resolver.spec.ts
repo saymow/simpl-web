@@ -223,4 +223,48 @@ describe("Resolver", () => {
       expect(resolve).rejects.toThrow("Can only call functions.");
     });
   });
+
+  describe("❌ Expected x arguments but got y.", () => {
+    it("1", async () => {
+      const { resolve } = await makeSut(`
+        fun fn(a, b) {}
+
+        fn();
+      `);
+
+      expect(resolve).rejects.toThrow("Expected 2 arguments but got 0.");
+    });
+
+    it("2", async () => {
+      const { resolve } = await makeSut(`
+        fun fn(a, b) {}
+
+        fn(1);
+      `);
+
+      expect(resolve).rejects.toThrow("Expected 2 arguments but got 1.");
+    });
+
+    it("3", async () => {
+      const { resolve } = await makeSut(`
+        fun fn(a, b) {}
+
+        fn(1, 2, 3);
+      `);
+
+      expect(resolve).rejects.toThrow("Expected 2 arguments but got 3.");
+    });
+
+    it("4", async () => {
+      const { resolve } = await makeSut(`
+        fun fn() {}
+
+        fn(1);
+      `);
+
+      expect(resolve).rejects.toThrow("Expected 0 arguments but got 1.");
+    });
+  });
 });
+
+function test(a: any, b: any, c: any) {}
