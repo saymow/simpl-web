@@ -139,7 +139,7 @@ describe("Resolver", () => {
     );
   });
 
-  it("❌ Can't redeclare local variable", async () => {
+  it("❌ Can't redeclare local variable.", async () => {
     const { resolve } = await makeSut(`
       if (true) {
         var a = 1;
@@ -147,7 +147,7 @@ describe("Resolver", () => {
       }    
     `);
 
-    expect(resolve).rejects.toThrow("Can't redeclare local variable");
+    expect(resolve).rejects.toThrow("Can't redeclare local variable.");
   });
 
   it('❌ Can\'t "return" outside function.', async () => {
@@ -266,14 +266,20 @@ describe("Resolver", () => {
     });
   });
 
-  it("❌ Can't redeclare global variable", async () => {
+  it("❌ Can't redeclare global variable.", async () => {
     const { resolve } = await makeSut(`
       var a = 1;
       var a = 2;
     `);
 
-    expect(resolve).rejects.toThrow("Can't redeclare global variable");
+    expect(resolve).rejects.toThrow("Can't redeclare global variable.");
+  });
+
+  it("❌ Can't find variable 'x'.", async () => {
+    const { resolve } = await makeSut(`
+      myVariable;
+    `);
+
+    expect(resolve).rejects.toThrow("Can't find variable 'myVariable'.");
   });
 });
-
-function test(a: any, b: any, c: any) {}

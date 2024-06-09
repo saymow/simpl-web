@@ -130,7 +130,7 @@ class Parser {
   }
 
   private breakStatement() {
-    const token = this.previous();
+    const token = this.previous<TokenType.BREAK>();
     this.consume(TokenType.SEMICOLON, "Expected ';' after break.");
     return new BreakStmt(token);
   }

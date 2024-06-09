@@ -140,18 +140,6 @@ describe("Interpreter", () => {
       expect(interpreter.interpret()).resolves.not.toThrow();
     });
 
-    it("print myVar;", async () => {
-      const { interpreter } = await makeSut([
-        new PrintStmt(
-          new VariableExpr(
-            new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1)
-          )
-        ),
-      ]);
-
-      expect(interpreter.interpret()).rejects.toThrow();
-    });
-
     it("var myVar = 77; myVar = 5; print myVar;", async () => {
       const { interpreter, log } = await makeSut([
         new VarStmt(
@@ -555,26 +543,6 @@ describe("Interpreter", () => {
 
       expect(log).toHaveBeenCalledTimes(1);
       expect(log.mock.calls[0][0]).toBe("5");
-    });
-
-    it("{var myVar = 5;} print myVar;", async () => {
-      const { interpreter, log } = await makeSut([
-        new BlockStmt([
-          new VarStmt(
-            new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1),
-            new LiteralExpr(5)
-          ),
-        ]),
-        new PrintStmt(
-          new VariableExpr(
-            new Token(TokenType.IDENTIFIER, "myVar", undefined, 1, -1, -1)
-          )
-        ),
-      ]);
-
-      expect(interpreter.interpret()).rejects.toThrow();
-
-      expect(log).not.toHaveBeenCalled();
     });
   });
 

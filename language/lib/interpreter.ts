@@ -572,7 +572,7 @@ class Interpreter
       }
     } catch (err) {
       if (err instanceof VariableNotFound) {
-        throw new RuntimeError(token, "Variable not found.");
+        throw new RuntimeError(token, `Variable '${token.lexeme}' not found.`);
       }
     }
   }
@@ -592,7 +592,7 @@ class Interpreter
       }
     } catch (err) {
       if (err instanceof VariableNotFound) {
-        throw new Error("Variable not found.");
+        throw new Error(`Variable '${token.lexeme}' not found.`);
       }
     }
   }

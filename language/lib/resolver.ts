@@ -103,7 +103,7 @@ class Resolver implements ExprVisitor<Value>, StmtVisitor<void> {
   private declare(name: Token<TokenType.IDENTIFIER>) {
     if (this.scopes.length === 0) {
       if (this.global.get(name.lexeme) !== undefined) {
-        throw new ResolverError(name, "Can't redeclare global variable");
+        throw new ResolverError(name, "Can't redeclare global variable.");
       }
 
       this.global.set(name.lexeme, UNDEFINED);
@@ -111,7 +111,7 @@ class Resolver implements ExprVisitor<Value>, StmtVisitor<void> {
     }
 
     if (this.scopes[this.scopes.length - 1].get(name.lexeme) !== undefined) {
-      throw new ResolverError(name, "Can't redeclare local variable");
+      throw new ResolverError(name, "Can't redeclare local variable.");
     }
 
     this.scopes[this.scopes.length - 1].set(name.lexeme, UNDEFINED);
@@ -134,7 +134,11 @@ class Resolver implements ExprVisitor<Value>, StmtVisitor<void> {
       }
     }
 
-    return this.global.get(name.lexeme);
+    if (this.global.has(name.lexeme)) {
+      return this.global.get(name.lexeme);
+    }
+
+    throw new ResolverError(name, `Can't find variable '${name.lexeme}'.`);
   }
 
   async visitBlockStmt(stmt: BlockStmt): Promise<void> {
@@ -232,12 +236,16 @@ class Resolver implements ExprVisitor<Value>, StmtVisitor<void> {
 
   async visitGetExpr(expr: GetExpr): Promise<void> {
     await this.resolveExpr(expr.callee);
-    await this.resolveExpr(expr.expr);
+    if (expr.token.type === TokenType.RIGHT_BRACKET) {
+      await this.resolveExpr(expr.expr);
+    }
   }
 
   async visitSetExpr(expr: SetExpr): Promise<void> {
     await this.resolveExpr(expr.callee);
-    await this.resolveExpr(expr.expr);
+    if (expr.token.type === TokenType.RIGHT_BRACKET) {
+      await this.resolveExpr(expr.expr);
+    }
     await this.resolveExpr(expr.valueExpr);
   }
 
