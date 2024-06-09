@@ -265,6 +265,15 @@ describe("Resolver", () => {
       expect(resolve).rejects.toThrow("Expected 0 arguments but got 1.");
     });
   });
+
+  it("❌ Can't redeclare global variable", async () => {
+    const { resolve } = await makeSut(`
+      var a = 1;
+      var a = 2;
+    `);
+
+    expect(resolve).rejects.toThrow("Can't redeclare global variable");
+  });
 });
 
 function test(a: any, b: any, c: any) {}

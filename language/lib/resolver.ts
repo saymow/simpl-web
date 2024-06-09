@@ -102,6 +102,10 @@ class Resolver implements ExprVisitor<Value>, StmtVisitor<void> {
 
   private declare(name: Token<TokenType.IDENTIFIER>) {
     if (this.scopes.length === 0) {
+      if (this.global.get(name.lexeme) !== undefined) {
+        throw new ResolverError(name, "Can't redeclare global variable");
+      }
+
       this.global.set(name.lexeme, UNDEFINED);
       return;
     }
