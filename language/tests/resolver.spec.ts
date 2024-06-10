@@ -163,7 +163,9 @@ describe("Resolver", () => {
       break;
     `);
 
-    expect(resolve).rejects.toThrow("Can't break outside loop or switch statement.");
+    expect(resolve).rejects.toThrow(
+      "Can't break outside loop or switch statement."
+    );
   });
 
   describe("❌ Can only call functions.", () => {

@@ -152,7 +152,7 @@ class Parser {
         const expr = this.expression();
         let stmt;
 
-        this.consume(TokenType.COLON, "Expect ':' case expression.");
+        this.consume(TokenType.COLON, "Expect ':' after case expression.");
 
         if (this.match(TokenType.LEFT_BRACE)) {
           stmt = new BlockStmt(this.block());
@@ -166,13 +166,13 @@ class Parser {
         let stmt;
 
         if (dflt) {
-          this.error(
+          throw this.error(
             token,
-            "Default clase cannot appear more than once in switch statement."
+            "Default clause cannot appear more than once in switch statement."
           );
         }
 
-        this.consume(TokenType.COLON, "Expect ':' default.");
+        this.consume(TokenType.COLON, "Expect ':' after default.");
 
         if (this.match(TokenType.LEFT_BRACE)) {
           stmt = new BlockStmt(this.block());
@@ -182,7 +182,7 @@ class Parser {
 
         dflt = { token, stmt };
       } else {
-        this.error(
+        throw this.error(
           this.previous(),
           "Expect 'case' or 'default' inside switch body."
         );

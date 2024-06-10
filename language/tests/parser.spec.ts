@@ -869,23 +869,19 @@ describe("Parser", () => {
     });
 
     it('switch ("test") {}', () => {
-      expect(
-        new Parser([
-          new Token(TokenType.SWITCH, "switch", undefined, 1, -1, -1),
-          new Token(TokenType.LEFT_PAREN, "(", undefined, 1, -1, -1),
-          new Token(TokenType.STRING, '"test"', "test", 1, -1, -1),
-          new Token(TokenType.RIGHT_PAREN, ")", undefined, 1, -1, -1),
-          new Token(TokenType.LEFT_BRACE, "{", undefined, 1, -1, -1),
-          new Token(TokenType.RIGHT_BRACE, "}", undefined, 1, -1, -1),
-          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
-        ]).parse()
-      ).toEqual([
-        new SwitchStmt(
-          new Token(TokenType.SWITCH, "switch", undefined, 1, -1, -1),
-          new LiteralExpr("test"),
-          []
-        ),
+      const parser = new Parser([
+        new Token(TokenType.SWITCH, "switch", undefined, 1, -1, -1),
+        new Token(TokenType.LEFT_PAREN, "(", undefined, 1, -1, -1),
+        new Token(TokenType.STRING, '"test"', "test", 1, -1, -1),
+        new Token(TokenType.RIGHT_PAREN, ")", undefined, 1, -1, -1),
+        new Token(TokenType.LEFT_BRACE, "{", undefined, 1, -1, -1),
+        new Token(TokenType.RIGHT_BRACE, "}", undefined, 1, -1, -1),
+        new Token(TokenType.EOF, "", undefined, 2, -1, -1),
       ]);
+
+      expect(parser.parse.bind(parser)).toThrow(
+        "Expect 'case' or 'default' inside switch body."
+      );
     });
 
     it('switch ("test") { default: expr; }', () => {
@@ -1010,7 +1006,9 @@ describe("Parser", () => {
           {
             token: new Token(TokenType.DEFAULT, "default", undefined, 1, -1, 1),
             stmt: new ExprStmt(
-              new VariableExpr(new Token(TokenType.IDENTIFIER, "expr3", undefined, 1, -1, -1))
+              new VariableExpr(
+                new Token(TokenType.IDENTIFIER, "expr3", undefined, 1, -1, -1)
+              )
             ),
           }
         ),
