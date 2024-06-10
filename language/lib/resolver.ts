@@ -323,7 +323,7 @@ class Resolver implements ExprVisitor<Value>, StmtVisitor<void> {
 
   async visitBreakStmt(stmt: BreakStmt): Promise<void> {
     if (this.breakableScope === BreakableScope.None) {
-      throw new ResolverError(stmt.keyword, "Can't break outside loop.");
+      throw new ResolverError(stmt.keyword, "Can't break outside loop or switch statement.");
     }
   }
 }

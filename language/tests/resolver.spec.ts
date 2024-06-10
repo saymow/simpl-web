@@ -158,12 +158,12 @@ describe("Resolver", () => {
     expect(resolve).rejects.toThrow("Can't return outside function.");
   });
 
-  it('❌ Can\'t "break" outside loop.', async () => {
+  it('❌ Can\'t "break" outside loop or switch statement.', async () => {
     const { resolve } = await makeSut(`
       break;
     `);
 
-    expect(resolve).rejects.toThrow("Can't break outside loop.");
+    expect(resolve).rejects.toThrow("Can't break outside loop or switch statement.");
   });
 
   describe("❌ Can only call functions.", () => {
