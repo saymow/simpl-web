@@ -28,6 +28,7 @@ import {
   FunctionStmt,
   ReturnStmt,
   BreakStmt,
+  SwitchStmt,
 } from "./stmt";
 import Token from "./token";
 import TokenType from "./token-type";
@@ -107,6 +108,9 @@ class Parser {
   }
 
   private statement(): Stmt {
+    if (this.match(TokenType.SWITCH)) {
+      return this.switchStatement();
+    }
     if (this.match(TokenType.BREAK)) {
       return this.breakStatement();
     }
@@ -129,9 +133,74 @@ class Parser {
     return this.expressionStatement();
   }
 
+  private switchStatement() {
+    const switchToken = this.previous<TokenType.SWITCH>();
+    const cases: Array<{
+      token: Token<TokenType.CASE>;
+      expr: Expr;
+      stmt: Stmt;
+    }> = [];
+    let dflt:
+      | {
+          token: Token<TokenType.DEFAULT>;
+          stmt: Stmt;
+        }
+      | undefined = undefined;
+
+    this.consume(TokenType.LEFT_PAREN, "Expect '(' after switch.");
+    const switchExpression = this.expression();
+    this.consume(TokenType.RIGHT_PAREN, "Expect ')' after switch expression.");
+
+    this.consume(TokenType.LEFT_BRACE, "Expect '{' after switch expression.");
+
+    do {
+      if (this.match(TokenType.CASE)) {
+        const token = this.previous<TokenType.CASE>();
+        const expr = this.expression();
+        let stmt;
+
+        this.consume(TokenType.COLON, "Expect ':' case expression.");
+
+        if (this.match(TokenType.LEFT_BRACE)) {
+          stmt = new BlockStmt(this.block());
+        } else {
+          stmt = this.statement();
+        }
+
+        cases.push({ token, expr, stmt });
+      } else if (this.match(TokenType.DEFAULT)) {
+        const token = this.previous<TokenType.DEFAULT>();
+        let stmt;
+
+        if (dflt) {
+          this.error(
+            token,
+            "Default clase cannot appear more than once in switch statement."
+          );
+        }
+
+        this.consume(TokenType.COLON, "Expect ':' default.");
+
+        if (this.match(TokenType.LEFT_BRACE)) {
+          stmt = new BlockStmt(this.block());
+        } else {
+          stmt = this.statement();
+        }
+
+        dflt = { token, stmt };
+      } else {
+        this.error(this.previous(), "Expect 'case' or 'default' inside switch body.");
+      }
+    } while (this.peek().type !== TokenType.RIGHT_BRACE);
+
+    this.consume(TokenType.RIGHT_BRACE, "Expect '}' after switch body.");
+
+    return new SwitchStmt(switchToken, switchExpression, cases, dflt);
+  }
+
   private breakStatement() {
     const token = this.previous<TokenType.BREAK>();
-    this.consume(TokenType.SEMICOLON, "Expected ';' after break.");
+    this.consume(TokenType.SEMICOLON, "Expect ';' after break.");
     return new BreakStmt(token);
   }
 

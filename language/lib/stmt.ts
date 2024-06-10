@@ -12,6 +12,7 @@ interface StmtVisitor<T> {
   visitFunctionStmt(stmt: FunctionStmt): Promise<T>;
   visitReturnStmt(stmt: ReturnStmt): Promise<T>;
   visitBreakStmt(stmt: BreakStmt): Promise<T>;
+  visitSwitchStmt(stmt: SwitchStmt): Promise<T>;
 }
 
 abstract class Stmt {
@@ -23,7 +24,7 @@ class ExprStmt extends Stmt {
     return visitor.visitExprStmt(this);
   }
 
-  constructor(public expr: Expr) {
+  constructor(public readonly expr: Expr) {
     super();
   }
 }
@@ -33,7 +34,7 @@ class BlockStmt extends Stmt {
     return visitor.visitBlockStmt(this);
   }
 
-  constructor(public stmts: Stmt[]) {
+  constructor(public readonly stmts: Stmt[]) {
     super();
   }
 }
@@ -43,7 +44,7 @@ class PrintStmt extends Stmt {
     return visitor.visitPrintStmt(this);
   }
 
-  constructor(public expr: Expr) {
+  constructor(public readonly expr: Expr) {
     super();
   }
 }
@@ -53,7 +54,10 @@ class VarStmt extends Stmt {
     return visitor.visitVarStmt(this);
   }
 
-  constructor(public token: Token, public initializer?: Expr) {
+  constructor(
+    public readonly token: Token,
+    public readonly initializer?: Expr
+  ) {
     super();
   }
 }
@@ -64,9 +68,9 @@ class IfStmt extends Stmt {
   }
 
   constructor(
-    public expr: Expr,
-    public thenStmt: Stmt,
-    public elseStmt?: Stmt
+    public readonly expr: Expr,
+    public readonly thenStmt: Stmt,
+    public readonly elseStmt?: Stmt
   ) {
     super();
   }
@@ -77,7 +81,7 @@ class WhileStmt extends Stmt {
     return visitor.visitWhileStmt(this);
   }
 
-  constructor(public expr: Expr, public stmt: Stmt) {
+  constructor(public readonly expr: Expr, public readonly stmt: Stmt) {
     super();
   }
 }
@@ -88,9 +92,9 @@ class FunctionStmt extends Stmt {
   }
 
   constructor(
-    public name: Token,
-    public parameters: Token[],
-    public body: Stmt[]
+    public readonly name: Token,
+    public readonly parameters: Token[],
+    public readonly body: Stmt[]
   ) {
     super();
   }
@@ -101,7 +105,7 @@ class ReturnStmt extends Stmt {
     return visitor.visitReturnStmt(this);
   }
 
-  constructor(public keyword: Token, public expr?: Expr) {
+  constructor(public readonly keyword: Token, public readonly expr?: Expr) {
     super();
   }
 }
@@ -111,7 +115,22 @@ class BreakStmt extends Stmt {
     return visitor.visitBreakStmt(this);
   }
 
-  constructor(public keyword: Token<TokenType.BREAK>) {
+  constructor(public readonly keyword: Token<TokenType.BREAK>) {
+    super();
+  }
+}
+
+class SwitchStmt extends Stmt {
+  public accept<T>(visitor: StmtVisitor<T>): Promise<T> {
+    return visitor.visitSwitchStmt(this);
+  }
+
+  constructor(
+    public readonly token: Token<TokenType.SWITCH>,
+    public readonly expr: Expr,
+    public readonly cases: Array<{ token: Token<TokenType.CASE>; expr: Expr; stmt: Stmt }>,
+    public readonly dflt?: { token: Token<TokenType.DEFAULT>; stmt: Stmt }
+  ) {
     super();
   }
 }
@@ -128,4 +147,5 @@ export {
   FunctionStmt,
   ReturnStmt,
   BreakStmt,
+  SwitchStmt
 };

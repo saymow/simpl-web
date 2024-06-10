@@ -27,6 +27,7 @@ import {
   IfStmt,
   PrintStmt,
   ReturnStmt,
+  SwitchStmt,
   VarStmt,
   WhileStmt,
 } from "../lib/stmt";
@@ -863,6 +864,155 @@ describe("Parser", () => {
           ),
           new PrintStmt(new LiteralExpr("maior")),
           new PrintStmt(new LiteralExpr("menor"))
+        ),
+      ]);
+    });
+
+    it('switch ("test") {}', () => {
+      expect(
+        new Parser([
+          new Token(TokenType.SWITCH, "switch", undefined, 1, -1, -1),
+          new Token(TokenType.LEFT_PAREN, "(", undefined, 1, -1, -1),
+          new Token(TokenType.STRING, '"test"', "test", 1, -1, -1),
+          new Token(TokenType.RIGHT_PAREN, ")", undefined, 1, -1, -1),
+          new Token(TokenType.LEFT_BRACE, "{", undefined, 1, -1, -1),
+          new Token(TokenType.RIGHT_BRACE, "}", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        new SwitchStmt(
+          new Token(TokenType.SWITCH, "switch", undefined, 1, -1, -1),
+          new LiteralExpr("test"),
+          []
+        ),
+      ]);
+    });
+
+    it('switch ("test") { default: expr; }', () => {
+      expect(
+        new Parser([
+          new Token(TokenType.SWITCH, "switch", undefined, 1, -1, -1),
+          new Token(TokenType.LEFT_PAREN, "(", undefined, 1, -1, -1),
+          new Token(TokenType.STRING, '"test"', "test", 1, -1, -1),
+          new Token(TokenType.RIGHT_PAREN, ")", undefined, 1, -1, -1),
+          new Token(TokenType.LEFT_BRACE, "{", undefined, 1, -1, -1),
+          new Token(TokenType.DEFAULT, "default", undefined, 1, -1, -1),
+          new Token(TokenType.COLON, ":", undefined, 1, -1, -1),
+          new Token(TokenType.IDENTIFIER, "expr", undefined, 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.RIGHT_BRACE, "}", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        new SwitchStmt(
+          new Token(TokenType.SWITCH, "switch", undefined, 1, -1, -1),
+          new LiteralExpr("test"),
+          [],
+          {
+            token: new Token(
+              TokenType.DEFAULT,
+              "default",
+              undefined,
+              1,
+              -1,
+              -1
+            ),
+            stmt: new ExprStmt(
+              new VariableExpr(
+                new Token(TokenType.IDENTIFIER, "expr", undefined, 1, -1, -1)
+              )
+            ),
+          }
+        ),
+      ]);
+    });
+
+    it('switch ("test") { case "1": expr; }', () => {
+      expect(
+        new Parser([
+          new Token(TokenType.SWITCH, "switch", undefined, 1, -1, -1),
+          new Token(TokenType.LEFT_PAREN, "(", undefined, 1, -1, -1),
+          new Token(TokenType.STRING, '"test"', "test", 1, -1, -1),
+          new Token(TokenType.RIGHT_PAREN, ")", undefined, 1, -1, -1),
+          new Token(TokenType.LEFT_BRACE, "{", undefined, 1, -1, -1),
+          new Token(TokenType.CASE, "case", undefined, 1, -1, 1),
+          new Token(TokenType.STRING, '"1"', "1", 1, -1, -1),
+          new Token(TokenType.COLON, ":", undefined, 1, -1, 1),
+          new Token(TokenType.IDENTIFIER, "expr", undefined, 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.RIGHT_BRACE, "}", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        new SwitchStmt(
+          new Token(TokenType.SWITCH, "switch", undefined, 1, -1, -1),
+          new LiteralExpr("test"),
+          [
+            {
+              token: new Token(TokenType.CASE, "case", undefined, 1, -1, 1),
+              expr: new LiteralExpr("1"),
+              stmt: new ExprStmt(
+                new VariableExpr(
+                  new Token(TokenType.IDENTIFIER, "expr", undefined, 1, -1, -1)
+                )
+              ),
+            },
+          ]
+        ),
+      ]);
+    });
+
+    it('switch ("test") { case "1": {} case "2": expr2; default: expr3; }', () => {
+      expect(
+        new Parser([
+          new Token(TokenType.SWITCH, "switch", undefined, 1, -1, -1),
+          new Token(TokenType.LEFT_PAREN, "(", undefined, 1, -1, -1),
+          new Token(TokenType.STRING, '"test"', "test", 1, -1, -1),
+          new Token(TokenType.RIGHT_PAREN, ")", undefined, 1, -1, -1),
+          new Token(TokenType.LEFT_BRACE, "{", undefined, 1, -1, -1),
+          new Token(TokenType.CASE, "case", undefined, 1, -1, 1),
+          new Token(TokenType.STRING, '"1"', "1", 1, -1, -1),
+          new Token(TokenType.COLON, ":", undefined, 1, -1, 1),
+          new Token(TokenType.LEFT_BRACE, "{", undefined, 1, -1, -1),
+          new Token(TokenType.RIGHT_BRACE, "}", undefined, 1, -1, -1),
+          new Token(TokenType.CASE, "case", undefined, 1, -1, 1),
+          new Token(TokenType.STRING, '"2"', "2", 1, -1, -1),
+          new Token(TokenType.COLON, ":", undefined, 1, -1, 1),
+          new Token(TokenType.IDENTIFIER, "expr2", undefined, 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.DEFAULT, "default", undefined, 1, -1, 1),
+          new Token(TokenType.COLON, ":", undefined, 1, -1, 1),
+          new Token(TokenType.IDENTIFIER, "expr3", undefined, 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.RIGHT_BRACE, "}", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        new SwitchStmt(
+          new Token(TokenType.SWITCH, "switch", undefined, 1, -1, -1),
+          new LiteralExpr("test"),
+          [
+            {
+              token: new Token(TokenType.CASE, "case", undefined, 1, -1, 1),
+              expr: new LiteralExpr("1"),
+              stmt: new BlockStmt([]),
+            },
+            {
+              token: new Token(TokenType.CASE, "case", undefined, 1, -1, 1),
+              expr: new LiteralExpr("2"),
+              stmt: new ExprStmt(
+                new VariableExpr(
+                  new Token(TokenType.IDENTIFIER, "expr2", undefined, 1, -1, -1)
+                )
+              ),
+            },
+          ],
+          {
+            token: new Token(TokenType.DEFAULT, "default", undefined, 1, -1, 1),
+            stmt: new ExprStmt(
+              new VariableExpr(new Token(TokenType.IDENTIFIER, "expr3", undefined, 1, -1, -1))
+            ),
+          }
         ),
       ]);
     });
