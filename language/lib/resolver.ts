@@ -30,6 +30,7 @@ import {
   ReturnStmt,
   Stmt,
   StmtVisitor,
+  SwitchStmt,
   VarStmt,
   WhileStmt,
 } from "./stmt";
@@ -42,9 +43,10 @@ enum FunctionScope {
   Function,
 }
 
-enum LoopScope {
+enum BreakableScope {
   None,
   Loop,
+  Switch,
 }
 
 const UNDEFINED = Symbol("UNDEFINED");
@@ -54,7 +56,7 @@ class Resolver implements ExprVisitor<Value>, StmtVisitor<void> {
   private readonly global: Map<string, any> = new Map();
   private readonly scopes: Map<string, any>[] = [];
   private functionScope: FunctionScope = FunctionScope.None;
-  private loopScope: LoopScope = LoopScope.None;
+  private breakableScope: BreakableScope = BreakableScope.None;
 
   constructor(private readonly intepreter: WithVariableResolution) {
     this.global.set("now", new lib.Now());
@@ -139,6 +141,23 @@ class Resolver implements ExprVisitor<Value>, StmtVisitor<void> {
     }
 
     throw new ResolverError(name, `Can't find variable '${name.lexeme}'.`);
+  }
+
+  async visitSwitchStmt(stmt: SwitchStmt): Promise<void> {
+    await this.resolveExpr(stmt.expr);
+
+    this.breakableScope = BreakableScope.Switch;
+
+    for (const item of stmt.cases) {
+      await this.resolveExpr(item.expr);
+      await this.resolveStmt(item.stmt);
+    }
+
+    if (stmt.dflt) {
+      await this.resolveStmt(stmt.dflt.stmt);
+    }
+
+    this.breakableScope = BreakableScope.None;
   }
 
   async visitBlockStmt(stmt: BlockStmt): Promise<void> {
@@ -271,9 +290,9 @@ class Resolver implements ExprVisitor<Value>, StmtVisitor<void> {
 
   async visitWhileStmt(stmt: WhileStmt): Promise<void> {
     await this.resolveExpr(stmt.expr);
-    this.loopScope = LoopScope.Loop;
+    this.breakableScope = BreakableScope.Loop;
     await this.resolveStmt(stmt.stmt);
-    this.loopScope = LoopScope.None;
+    this.breakableScope = BreakableScope.None;
   }
 
   async visitFunctionStmt(stmt: FunctionStmt): Promise<void> {
@@ -303,7 +322,7 @@ class Resolver implements ExprVisitor<Value>, StmtVisitor<void> {
   }
 
   async visitBreakStmt(stmt: BreakStmt): Promise<void> {
-    if (this.loopScope === LoopScope.None) {
+    if (this.breakableScope === BreakableScope.None) {
       throw new ResolverError(stmt.keyword, "Can't break outside loop.");
     }
   }

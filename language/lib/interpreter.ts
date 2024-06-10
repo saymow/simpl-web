@@ -28,10 +28,11 @@ import {
   ReturnStmt,
   Stmt,
   StmtVisitor,
+  SwitchStmt,
   VarStmt,
   WhileStmt,
 } from "./stmt";
-import { BreakLoop, CoreLibError, RuntimeError } from "./errors";
+import { BreakStmtException, CoreLibError, RuntimeError } from "./errors";
 import {
   Callable,
   SysCall,
@@ -93,8 +94,34 @@ class Interpreter
     return await expr.accept(this);
   }
 
+  async visitSwitchStmt(stmt: SwitchStmt): Promise<void> {
+    const expr = await this.evaluateExpr(stmt.expr);
+    let truthyConditionReached = false;
+
+    try {
+      for (const item of stmt.cases) {
+        const caseExpr = await this.evaluateExpr(item.expr);
+
+        if (truthyConditionReached || this.isEqual(expr, caseExpr)) {
+          truthyConditionReached = true;
+          await this.evaluateStmt(item.stmt);
+        }
+      }
+
+      if (!truthyConditionReached && stmt.dflt) {
+        await this.evaluateStmt(stmt.dflt.stmt);
+      }
+    } catch (errOrBreak) {
+      if (errOrBreak instanceof BreakStmtException) {
+        return;
+      }
+
+      throw errOrBreak;
+    }
+  }
+
   async visitBreakStmt(_: BreakStmt): Promise<void> {
-    throw new BreakLoop();
+    throw new BreakStmtException();
   }
 
   async visitStructExpr(expr: StructExpr): Promise<any> {
@@ -381,7 +408,7 @@ class Interpreter
         await this.evaluateStmt(stmt.stmt);
       }
     } catch (err) {
-      if (err instanceof BreakLoop) {
+      if (err instanceof BreakStmtException) {
         return;
       }
 

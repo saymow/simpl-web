@@ -24,6 +24,6 @@ export class RuntimeError extends Error {
   }
 }
 
-export class BreakLoop extends Error {}
+export class BreakStmtException extends Error {}
 
 export class CoreLibError extends Error {}

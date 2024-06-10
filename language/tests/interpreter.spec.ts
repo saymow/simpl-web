@@ -24,6 +24,7 @@ import {
   PrintStmt,
   ReturnStmt,
   Stmt,
+  SwitchStmt,
   VarStmt,
   WhileStmt,
 } from "../lib/stmt";
@@ -599,6 +600,164 @@ describe("Interpreter", () => {
 
       expect(log).toHaveBeenCalledTimes(1);
       expect(log.mock.calls[0][0]).toBe("maior");
+    });
+
+    it('switch ("test") { default: print "default"; }', async () => {
+      const { interpreter, log } = await makeSut([
+        new SwitchStmt(
+          new Token(TokenType.SWITCH, "switch", undefined, 1, -1, -1),
+          new LiteralExpr("test"),
+          [],
+          {
+            token: new Token(
+              TokenType.DEFAULT,
+              "default",
+              undefined,
+              1,
+              -1,
+              -1
+            ),
+            stmt: new PrintStmt(new LiteralExpr("default")),
+          }
+        ),
+      ]);
+
+      await interpreter.interpret();
+
+      expect(log.mock.calls[0][0]).toEqual("default");
+    });
+
+    it('switch ("test") { case "test": print "test"; }', async () => {
+      const { interpreter, log } = await makeSut([
+        new SwitchStmt(
+          new Token(TokenType.SWITCH, "switch", undefined, 1, -1, -1),
+          new LiteralExpr("test"),
+          [
+            {
+              token: new Token(TokenType.CASE, "case", undefined, 1, -1, 1),
+              expr: new LiteralExpr("test"),
+              stmt: new PrintStmt(new LiteralExpr("test")),
+            },
+          ]
+        ),
+      ]);
+
+      await interpreter.interpret();
+
+      expect(log.mock.calls[0][0]).toEqual("test");
+    });
+
+    it('switch ("test") { case "test": print "test"; case "def-not-a-test": print "def-not-a-test"; }', async () => {
+      const { interpreter, log } = await makeSut([
+        new SwitchStmt(
+          new Token(TokenType.SWITCH, "switch", undefined, 1, -1, -1),
+          new LiteralExpr("test"),
+          [
+            {
+              token: new Token(TokenType.CASE, "case", undefined, 1, -1, 1),
+              expr: new LiteralExpr("test"),
+              stmt: new PrintStmt(new LiteralExpr("test")),
+            },
+            {
+              token: new Token(TokenType.CASE, "case", undefined, 1, -1, 1),
+              expr: new LiteralExpr("def-not-a-test"),
+              stmt: new PrintStmt(new LiteralExpr("def-not-a-test")),
+            },
+          ]
+        ),
+      ]);
+
+      await interpreter.interpret();
+
+      expect(log.mock.calls[0][0]).toEqual("test");
+      expect(log.mock.calls[1][0]).toEqual("def-not-a-test");
+    });
+
+    it('switch ("test") { case "test": { print "test"; break; }; case "def-not-a-test": print "def-not-a-test"; }', async () => {
+      const { interpreter, log } = await makeSut([
+        new SwitchStmt(
+          new Token(TokenType.SWITCH, "switch", undefined, 1, -1, -1),
+          new LiteralExpr("test"),
+          [
+            {
+              token: new Token(TokenType.CASE, "case", undefined, 1, -1, 1),
+              expr: new LiteralExpr("test"),
+              stmt: new BlockStmt([
+                new PrintStmt(new LiteralExpr("test")),
+                new BreakStmt(
+                  new Token(TokenType.BREAK, "break", undefined, 1, -1, -1)
+                ),
+              ]),
+            },
+            {
+              token: new Token(TokenType.CASE, "case", undefined, 1, -1, 1),
+              expr: new LiteralExpr("def-not-a-test"),
+              stmt: new PrintStmt(new LiteralExpr("def-not-a-test")),
+            },
+          ]
+        ),
+      ]);
+
+      await interpreter.interpret();
+
+      expect(log).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls[0][0]).toEqual("test");
+    });
+
+    it('switch ("test") { case "not-here": print "not-here"; case "test": print "test"; }', async () => {
+      const { interpreter, log } = await makeSut([
+        new SwitchStmt(
+          new Token(TokenType.SWITCH, "switch", undefined, 1, -1, -1),
+          new LiteralExpr("test"),
+          [
+            {
+              token: new Token(TokenType.CASE, "case", undefined, 1, -1, 1),
+              expr: new LiteralExpr("not-here"),
+              stmt: new PrintStmt(new LiteralExpr("not-here")),
+            },
+            {
+              token: new Token(TokenType.CASE, "case", undefined, 1, -1, 1),
+              expr: new LiteralExpr("test"),
+              stmt: new PrintStmt(new LiteralExpr("test")),
+            },
+          ]
+        ),
+      ]);
+
+      await interpreter.interpret();
+
+      expect(log).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls[0][0]).toEqual("test");
+    });
+
+    it('switch ("test") { case "test": print "test"; default: print "default"; }', async () => {
+      const { interpreter, log } = await makeSut([
+        new SwitchStmt(
+          new Token(TokenType.SWITCH, "switch", undefined, 1, -1, -1),
+          new LiteralExpr("test"),
+          [
+            {
+              token: new Token(TokenType.CASE, "case", undefined, 1, -1, 1),
+              expr: new LiteralExpr("test"),
+              stmt: new BlockStmt([
+                new PrintStmt(new LiteralExpr("test")),
+                new BreakStmt(
+                  new Token(TokenType.BREAK, "break", undefined, 1, -1, -1)
+                ),
+              ]),
+            },
+          ],
+          {
+            token: new Token(TokenType.DEFAULT, "default", undefined, 1, -1, 1),
+            stmt: new PrintStmt(new LiteralExpr("default")),
+          }
+        ),
+      ]);
+
+      await interpreter.interpret();
+
+      expect(log).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls[0][0]).toEqual("test");
     });
   });
 
