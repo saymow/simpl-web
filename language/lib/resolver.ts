@@ -146,6 +146,7 @@ class Resolver implements ExprVisitor<Value>, StmtVisitor<void> {
   async visitSwitchStmt(stmt: SwitchStmt): Promise<void> {
     await this.resolveExpr(stmt.expr);
 
+    const prevBreakableScope = this.breakableScope;
     this.breakableScope = BreakableScope.Switch;
 
     for (const item of stmt.cases) {
@@ -159,7 +160,7 @@ class Resolver implements ExprVisitor<Value>, StmtVisitor<void> {
       await this.resolveStmt(stmt.dflt.stmt);
     }
 
-    this.breakableScope = BreakableScope.None;
+    this.breakableScope = prevBreakableScope;
   }
 
   async visitBlockStmt(stmt: BlockStmt): Promise<void> {
@@ -292,9 +293,10 @@ class Resolver implements ExprVisitor<Value>, StmtVisitor<void> {
 
   async visitWhileStmt(stmt: WhileStmt): Promise<void> {
     await this.resolveExpr(stmt.expr);
+    const prevBreakableScope = this.breakableScope;
     this.breakableScope = BreakableScope.Loop;
     await this.resolveStmt(stmt.stmt);
-    this.breakableScope = BreakableScope.None;
+    this.breakableScope = prevBreakableScope;
   }
 
   async visitFunctionStmt(stmt: FunctionStmt): Promise<void> {
@@ -303,6 +305,7 @@ class Resolver implements ExprVisitor<Value>, StmtVisitor<void> {
       stmt.name as Token<TokenType.IDENTIFIER>,
       new Function(null as any, stmt)
     );
+    const prevScope = this.functionScope;
     this.functionScope = FunctionScope.Function;
     this.beginScope();
 
@@ -313,7 +316,7 @@ class Resolver implements ExprVisitor<Value>, StmtVisitor<void> {
 
     await this.resolve(stmt.body);
     this.endScope();
-    this.functionScope = FunctionScope.None;
+    this.functionScope = prevScope;
   }
 
   async visitReturnStmt(stmt: ReturnStmt): Promise<void> {
