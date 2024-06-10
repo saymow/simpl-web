@@ -122,7 +122,7 @@ class BreakStmt extends Stmt {
 
 interface SwitchCaseClause {
   token: Token<TokenType.CASE>;
-  expr: Expr;
+  exprs: Expr[];
   stmt: Stmt;
 }
 

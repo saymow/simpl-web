@@ -148,11 +148,16 @@ class Parser {
 
     do {
       if (this.match(TokenType.CASE)) {
-        const token = this.previous<TokenType.CASE>();
-        const expr = this.expression();
+        const exprs = [];
+        let token;
         let stmt;
 
-        this.consume(TokenType.COLON, "Expect ':' after case expression.");
+        do {
+          token = this.previous<TokenType.CASE>();
+          exprs.push(this.expression());
+
+          this.consume(TokenType.COLON, "Expect ':' after case expression.");
+        } while (this.match(TokenType.CASE));
 
         if (this.match(TokenType.LEFT_BRACE)) {
           stmt = new BlockStmt(this.block());
@@ -160,7 +165,7 @@ class Parser {
           stmt = this.statement();
         }
 
-        cases.push({ token, expr, stmt });
+        cases.push({ token, exprs, stmt });
       } else if (this.match(TokenType.DEFAULT)) {
         const token = this.previous<TokenType.DEFAULT>();
         let stmt;

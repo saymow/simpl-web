@@ -100,9 +100,14 @@ class Interpreter
 
     try {
       for (const item of stmt.cases) {
-        const caseExpr = await this.evaluateExpr(item.expr);
+        const caseExprs = await Promise.all(
+          item.exprs.map((caseExpr) => this.evaluateExpr(caseExpr))
+        );
 
-        if (truthyConditionReached || this.isEqual(expr, caseExpr)) {
+        if (
+          truthyConditionReached ||
+          caseExprs.some((caseExpr) => this.isEqual(expr, caseExpr))
+        ) {
           truthyConditionReached = true;
           await this.evaluateStmt(item.stmt);
         }

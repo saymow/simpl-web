@@ -635,7 +635,7 @@ describe("Interpreter", () => {
           [
             {
               token: new Token(TokenType.CASE, "case", undefined, 1, -1, 1),
-              expr: new LiteralExpr("test"),
+              exprs: [new LiteralExpr("test")],
               stmt: new PrintStmt(new LiteralExpr("test")),
             },
           ]
@@ -655,12 +655,12 @@ describe("Interpreter", () => {
           [
             {
               token: new Token(TokenType.CASE, "case", undefined, 1, -1, 1),
-              expr: new LiteralExpr("test"),
+              exprs: [new LiteralExpr("test")],
               stmt: new PrintStmt(new LiteralExpr("test")),
             },
             {
               token: new Token(TokenType.CASE, "case", undefined, 1, -1, 1),
-              expr: new LiteralExpr("def-not-a-test"),
+              exprs: [new LiteralExpr("def-not-a-test")],
               stmt: new PrintStmt(new LiteralExpr("def-not-a-test")),
             },
           ]
@@ -681,7 +681,7 @@ describe("Interpreter", () => {
           [
             {
               token: new Token(TokenType.CASE, "case", undefined, 1, -1, 1),
-              expr: new LiteralExpr("test"),
+              exprs: [new LiteralExpr("test")],
               stmt: new BlockStmt([
                 new PrintStmt(new LiteralExpr("test")),
                 new BreakStmt(
@@ -691,7 +691,7 @@ describe("Interpreter", () => {
             },
             {
               token: new Token(TokenType.CASE, "case", undefined, 1, -1, 1),
-              expr: new LiteralExpr("def-not-a-test"),
+              exprs: [new LiteralExpr("def-not-a-test")],
               stmt: new PrintStmt(new LiteralExpr("def-not-a-test")),
             },
           ]
@@ -712,12 +712,12 @@ describe("Interpreter", () => {
           [
             {
               token: new Token(TokenType.CASE, "case", undefined, 1, -1, 1),
-              expr: new LiteralExpr("not-here"),
+              exprs: [new LiteralExpr("not-here")],
               stmt: new PrintStmt(new LiteralExpr("not-here")),
             },
             {
               token: new Token(TokenType.CASE, "case", undefined, 1, -1, 1),
-              expr: new LiteralExpr("test"),
+              exprs: [new LiteralExpr("test")],
               stmt: new PrintStmt(new LiteralExpr("test")),
             },
           ]
@@ -738,7 +738,7 @@ describe("Interpreter", () => {
           [
             {
               token: new Token(TokenType.CASE, "case", undefined, 1, -1, 1),
-              expr: new LiteralExpr("test"),
+              exprs: [new LiteralExpr("test")],
               stmt: new BlockStmt([
                 new PrintStmt(new LiteralExpr("test")),
                 new BreakStmt(
@@ -768,7 +768,7 @@ describe("Interpreter", () => {
           [
             {
               token: new Token(TokenType.CASE, "case", undefined, 1, -1, 1),
-              expr: new LiteralExpr("test"),
+              exprs: [new LiteralExpr("test")],
               stmt: new PrintStmt(new LiteralExpr("test")),
             },
           ],
@@ -784,6 +784,27 @@ describe("Interpreter", () => {
       expect(log).toHaveBeenCalledTimes(2);
       expect(log.mock.calls[0][0]).toEqual("test");
       expect(log.mock.calls[1][0]).toEqual("default");
+    });
+
+    it('switch ("1") { case "1": case "2": print "2"; }', async () => {
+      const { interpreter, log } = await makeSut([
+        new SwitchStmt(
+          new Token(TokenType.SWITCH, "switch", undefined, 1, -1, -1),
+          new LiteralExpr("1"),
+          [
+            {
+              token: new Token(TokenType.CASE, "case", undefined, 1, -1, 1),
+              exprs: [new LiteralExpr("1"), new LiteralExpr("2")],
+              stmt: new PrintStmt(new LiteralExpr("2")),
+            },
+          ]
+        ),
+      ]);
+
+      await interpreter.interpret();
+
+      expect(log).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls[0][0]).toEqual("2");
     });
   });
 

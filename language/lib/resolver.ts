@@ -149,7 +149,9 @@ class Resolver implements ExprVisitor<Value>, StmtVisitor<void> {
     this.breakableScope = BreakableScope.Switch;
 
     for (const item of stmt.cases) {
-      await this.resolveExpr(item.expr);
+      for (const expr of item.exprs) {
+        await this.resolveExpr(expr);
+      }
       await this.resolveStmt(item.stmt);
     }
 
@@ -323,7 +325,10 @@ class Resolver implements ExprVisitor<Value>, StmtVisitor<void> {
 
   async visitBreakStmt(stmt: BreakStmt): Promise<void> {
     if (this.breakableScope === BreakableScope.None) {
-      throw new ResolverError(stmt.keyword, "Can't break outside loop or switch statement.");
+      throw new ResolverError(
+        stmt.keyword,
+        "Can't break outside loop or switch statement."
+      );
     }
   }
 }
