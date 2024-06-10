@@ -219,8 +219,15 @@ class Lexer {
     this.advance();
     this.addToken(
       TokenType.STRING,
-      this.source.substring(this.start + 1, this.current - 1)
+      this.unscapeStr(this.source.substring(this.start + 1, this.current - 1))
     );
+  }
+
+  private unscapeStr(str: string) {
+    return str
+      .replace(/\\n/g, "\n")
+      .replace(/\\r/g, "\r")
+      .replace(/\\t/g, "\t");
   }
 
   private addToken(tokenType: TokenType, literal?: any) {
