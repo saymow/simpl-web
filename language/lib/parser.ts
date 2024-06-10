@@ -29,6 +29,8 @@ import {
   ReturnStmt,
   BreakStmt,
   SwitchStmt,
+  SwitchCaseClause,
+  SwitchDefaultClause,
 } from "./stmt";
 import Token from "./token";
 import TokenType from "./token-type";
@@ -135,17 +137,8 @@ class Parser {
 
   private switchStatement() {
     const switchToken = this.previous<TokenType.SWITCH>();
-    const cases: Array<{
-      token: Token<TokenType.CASE>;
-      expr: Expr;
-      stmt: Stmt;
-    }> = [];
-    let dflt:
-      | {
-          token: Token<TokenType.DEFAULT>;
-          stmt: Stmt;
-        }
-      | undefined = undefined;
+    const cases: Array<SwitchCaseClause> = [];
+    let dflt: SwitchDefaultClause | undefined;
 
     this.consume(TokenType.LEFT_PAREN, "Expect '(' after switch.");
     const switchExpression = this.expression();
@@ -189,7 +182,10 @@ class Parser {
 
         dflt = { token, stmt };
       } else {
-        this.error(this.previous(), "Expect 'case' or 'default' inside switch body.");
+        this.error(
+          this.previous(),
+          "Expect 'case' or 'default' inside switch body."
+        );
       }
     } while (this.peek().type !== TokenType.RIGHT_BRACE);
 

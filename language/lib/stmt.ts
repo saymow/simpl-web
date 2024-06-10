@@ -120,6 +120,17 @@ class BreakStmt extends Stmt {
   }
 }
 
+interface SwitchCaseClause {
+  token: Token<TokenType.CASE>;
+  expr: Expr;
+  stmt: Stmt;
+}
+
+interface SwitchDefaultClause {
+  token: Token<TokenType.DEFAULT>;
+  stmt: Stmt;
+}
+
 class SwitchStmt extends Stmt {
   public accept<T>(visitor: StmtVisitor<T>): Promise<T> {
     return visitor.visitSwitchStmt(this);
@@ -128,8 +139,8 @@ class SwitchStmt extends Stmt {
   constructor(
     public readonly token: Token<TokenType.SWITCH>,
     public readonly expr: Expr,
-    public readonly cases: Array<{ token: Token<TokenType.CASE>; expr: Expr; stmt: Stmt }>,
-    public readonly dflt?: { token: Token<TokenType.DEFAULT>; stmt: Stmt }
+    public readonly cases: Array<SwitchCaseClause>,
+    public readonly dflt?: SwitchDefaultClause
   ) {
     super();
   }
@@ -147,5 +158,7 @@ export {
   FunctionStmt,
   ReturnStmt,
   BreakStmt,
-  SwitchStmt
+  SwitchStmt,
+  SwitchCaseClause,
+  SwitchDefaultClause,
 };
