@@ -45,7 +45,7 @@ import Token from "./token";
 import Context, { VariableNotFound } from "./context";
 import Function, { ReturnValue } from "./function";
 import * as lib from "./core-lib";
-import { isArray, isObject, isTruthy } from "./helpers";
+import { isArray, isObject, isString, isTruthy } from "./helpers";
 
 class Interpreter
   implements ExprVisitor<Value>, StmtVisitor<void>, WithVariableResolution
@@ -185,8 +185,23 @@ class Interpreter
   async visitGetExpr(expr: GetExpr): Promise<any> {
     const callee = await this.evaluateExpr(expr.callee);
 
+    if (expr.token.type === TokenType.RIGHT_BRACKET) {
+      const idx = await this.evaluateExpr(expr.expr);
+
+      if (!(typeof idx === "number")) {
+        throw new RuntimeError(expr.token, "Index must be a number.");
+      }
+      if (!(isArray(callee) || isString(callee))) {
+        throw new RuntimeError(expr.token, `Cannot access property '${idx}.'`);
+      }
+      if (idx >= (callee as string | any[]).length) {
+        throw new RuntimeError(expr.token, "Index out of bounds.");
+      }
+
+      return (callee as string | any[])[idx];
+    }
     // Resolve as struct access
-    if (expr.token.type === TokenType.IDENTIFIER) {
+    else {
       if (!(expr.expr instanceof VariableExpr)) {
         throw new RuntimeError(expr.token, "Invalid struct property access.");
       }
@@ -198,22 +213,6 @@ class Interpreter
       }
 
       return (callee as Record<string, Value>)[expr.expr.name.lexeme];
-    }
-    // Resolve as array access
-    else {
-      const idx = await this.evaluateExpr(expr.expr);
-
-      if (!(typeof idx === "number")) {
-        throw new RuntimeError(expr.token, "Index must be a number.");
-      }
-      if (!(callee instanceof Array)) {
-        throw new RuntimeError(expr.token, `Cannot access property '${idx}.'`);
-      }
-      if (idx >= callee.length) {
-        throw new RuntimeError(expr.token, "Index out of bounds.");
-      }
-
-      return callee[idx];
     }
   }
 

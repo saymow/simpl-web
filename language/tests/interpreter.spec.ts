@@ -522,6 +522,38 @@ describe("Interpreter", () => {
       expect(log.mock.calls[0][0]).toBe("0");
       expect(log.mock.calls[1][0]).toBe("0");
     });
+
+    it('var str = "abc"; print str[0]; print str[2];', async () => {
+      const { interpreter, log } = await makeSut([
+        new VarStmt(
+          new Token(TokenType.IDENTIFIER, "str", undefined, 1, -1, -1),
+          new LiteralExpr("abc")
+        ),
+        new PrintStmt(
+          new GetExpr(
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "str", undefined, 1, -1, -1)
+            ),
+            new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+            new LiteralExpr(0)
+          )
+        ),
+        new PrintStmt(
+          new GetExpr(
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "str", undefined, 1, -1, -1)
+            ),
+            new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+            new LiteralExpr(2)
+          )
+        ),
+      ]);
+
+      await interpreter.interpret();
+
+      expect(log.mock.calls[0][0]).toBe("a");
+      expect(log.mock.calls[1][0]).toBe("c");
+    });
   });
 
   describe("Blocks", () => {
