@@ -20,6 +20,9 @@ export const wrapTokenLexeme = (
     case TokenType.PRINT:
     case TokenType.BREAK:
     case TokenType.RETURN:
+    case TokenType.SWITCH:
+    case TokenType.CASE:
+    case TokenType.DEFAULT:
       classNames.push("statement");
       break;
     case TokenType.LEFT_BRACE:
