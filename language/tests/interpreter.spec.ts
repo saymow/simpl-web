@@ -730,7 +730,7 @@ describe("Interpreter", () => {
       expect(log.mock.calls[0][0]).toEqual("test");
     });
 
-    it('switch ("test") { case "test": print "test"; default: print "default"; }', async () => {
+    it('switch ("test") { case "test": { print "test"; break; }; default: print "default"; }', async () => {
       const { interpreter, log } = await makeSut([
         new SwitchStmt(
           new Token(TokenType.SWITCH, "switch", undefined, 1, -1, -1),
@@ -758,6 +758,32 @@ describe("Interpreter", () => {
 
       expect(log).toHaveBeenCalledTimes(1);
       expect(log.mock.calls[0][0]).toEqual("test");
+    });
+
+    it('switch ("test") { case "test": print "test"; default: print "default"; }', async () => {
+      const { interpreter, log } = await makeSut([
+        new SwitchStmt(
+          new Token(TokenType.SWITCH, "switch", undefined, 1, -1, -1),
+          new LiteralExpr("test"),
+          [
+            {
+              token: new Token(TokenType.CASE, "case", undefined, 1, -1, 1),
+              expr: new LiteralExpr("test"),
+              stmt: new PrintStmt(new LiteralExpr("test")),
+            },
+          ],
+          {
+            token: new Token(TokenType.DEFAULT, "default", undefined, 1, -1, 1),
+            stmt: new PrintStmt(new LiteralExpr("default")),
+          }
+        ),
+      ]);
+
+      await interpreter.interpret();
+
+      expect(log).toHaveBeenCalledTimes(2);
+      expect(log.mock.calls[0][0]).toEqual("test");
+      expect(log.mock.calls[1][0]).toEqual("default");
     });
   });
 

@@ -108,7 +108,7 @@ class Interpreter
         }
       }
 
-      if (!truthyConditionReached && stmt.dflt) {
+      if (stmt.dflt) {
         await this.evaluateStmt(stmt.dflt.stmt);
       }
     } catch (errOrBreak) {
