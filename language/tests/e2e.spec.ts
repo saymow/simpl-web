@@ -1004,5 +1004,62 @@ describe("e2e", () => {
 
       expect(system.log.mock.calls.shift()![0]).toEqual("END...");
     });
+
+    describe("Lexer", () => {
+      it("1", async () => {
+        const { interpreter, system } = await makeSutFileRead("./lexer.in");
+
+        const source = 'var str = "string"';
+        const tokens = new Lexer(source).scan();
+        system.input.mockImplementationOnce(async () => source);
+
+        await interpreter.interpret();
+
+        expect(system.log).toHaveBeenCalledTimes(1);
+        expect(system.log.mock.calls[0][0]).toEqual(
+          JSON.stringify(tokens, null, 2)
+        );
+      });
+
+      it("2", async () => {
+        const { interpreter, system } = await makeSutFileRead("./lexer.in");
+
+        const source = `
+          var a = 5;
+    
+          if (a > 3) {
+              print "maior";
+          } else {
+              print "menor";
+          }
+        `;
+        const tokens = new Lexer(source).scan();
+        system.input.mockImplementationOnce(async () => source);
+
+        await interpreter.interpret();
+
+        expect(system.log).toHaveBeenCalledTimes(1);
+        expect(system.log.mock.calls[0][0]).toEqual(
+          JSON.stringify(tokens, null, 2)
+        );
+      });
+
+      it("3", async () => {
+        const [{ interpreter, system }, source] = await Promise.all([
+          makeSutFileRead("./lexer.in"),
+          readSample("./todo-list.in"),
+        ]);
+
+        const tokens = new Lexer(source).scan();
+        system.input.mockImplementationOnce(async () => source);
+
+        await interpreter.interpret();
+
+        expect(system.log).toHaveBeenCalledTimes(1);
+        expect(system.log.mock.calls[0][0]).toEqual(
+          JSON.stringify(tokens, null, 2)
+        );
+      });
+    });
   });
 });

@@ -1,0 +1,313 @@
+var TokenType = {
+  EQUAL: "EQUAL",
+  EQUAL_EQUAL: "EQUAL_EQUAL",
+  PLUS: "PLUS",
+  PLUS_EQUAL: "PLUS_EQUAL",
+  MINUS: "MINUS",
+  MINUS_EQUAL: "MINUS_EQUAL", 
+  STAR: "STAR",
+  STAR_EQUAL: "STAR_EQUAL",
+  SLASH: "SLASH",
+  BACK_SLASH: "BACK_SLASH",
+  SLASH_EQUAL: "SLASH_EQUAL",
+  GREATER: "GREATER",
+  GREATER_EQUAL: "GREATER_EQUAL",
+  LESS: "LESS",
+  LESS_EQUAL: "LESS_EQUAL",
+  BANG: "BANG",
+  BANG_EQUAL: "BANG_EQUAL",
+  LEFT_PAREN: "LEFT_PAREN",
+  RIGH_PAREN: "RIGHT_PAREN",
+  LEFT_BRACE: "LEFT_BRACE",
+  RIGH_BRACE: "RIGHT_BRACE",
+  LEFT_BRACKET: "LEFT_BRACKET",
+  RIGH_BRACKET: "RIGHT_BRACKET",
+  COMMA: "COMMA",
+  DOT: "DOT",
+  COLON: "COLON",
+  SEMICOLON: "SEMICOLON",
+  STRING: "STRING",
+  NUMBER: "NUMBER",
+  IDENTIFIER: "IDENTIFIER",
+  IF: "IF",
+  ELSE: "ELSE",
+  TRUE: "TRUE",
+  FALSE: "FALSE",
+  FOR: "FOR",
+  FUN: "FUN",
+  NIL: "NIL",
+  OR: "OR",
+  AND: "AND",
+  PRINT: "PRINT",
+  RETURN: "RETURN",
+  VAR: "VAR",
+  WHILE: "WHILE",
+  BREAK: "BREAK",
+  SWITCH: "SWITCH",
+  CASE: "CASE",
+  DEFAULT: "DEFAULT"
+};
+
+var Keywords = {
+  if: TokenType.IF,
+  else: TokenType.ELSE,
+  true: TokenType.TRUE,
+  false: TokenType.FALSE,
+  for: TokenType.FOR,
+  fun: TokenType.FUN,
+  nil: TokenType.NIL,
+  or: TokenType.OR,
+  and: TokenType.AND,
+  print: TokenType.PRINT,
+  return: TokenType.RETURN,
+  var: TokenType.VAR,
+  while: TokenType.WHILE,
+  break: TokenType.BREAK,
+  switch: TokenType.SWITCH,
+  case: TokenType.CASE,
+  default: TokenType.DEFAULT
+};
+
+fun lexer(source) {
+  var tokens = [];
+  var idx = 0;
+  var startIdx =  -1;
+  var line = 1;
+
+  fun addToken(tokenType, literal) {
+    push(tokens, { 
+      type: tokenType, 
+      lexeme: slice(source, startIdx, idx),
+      literal: literal,
+      line: line, 
+      startIdx: startIdx,
+      endIdx: idx 
+    });
+  }
+
+  fun atEnd() {
+    return idx >= len(source);
+  }
+
+  fun advance() {
+    if (atEnd()) return;
+    return source[idx++];
+  }
+
+  fun match(char) {
+    if (atEnd()) return false;
+    if (source[idx] != char) return false;
+
+    advance();
+
+    return true;
+  }
+
+  fun peek() {
+    return source[idx];
+  }
+
+  fun err(message) {
+    output("[line " + string(line) +  "]: " + message);
+  }
+
+  fun handleString() {
+    while (!atEnd() and peek() != "\"") {
+      if (advance() == "\n") line++;
+    }
+
+    if (atEnd()) {
+      err("Unterminated string");
+      return false;
+    }
+
+    advance();
+
+    addToken(TokenType.STRING, slice(source, startIdx + 1, idx - 1));
+  }
+
+  fun isDigit(char) {
+    return char >= "0" and char <= "9"; 
+  }
+
+  fun handleNumber() {
+    while (!atEnd() and isDigit(peek())) {
+      advance();
+    }
+
+    if (match(".")) {
+     while (!atEnd() and isDigit(peek())) {
+       advance();
+     }
+    }
+
+    addToken(TokenType.NUMBER, number(slice(source, startIdx, idx)));
+  }
+
+  fun isAlpha(char) {
+    return (
+      (char >= "a" and char <= "z") or
+      (char >= "A" and char <= "Z") or
+      char == "_"
+    );
+  }
+
+  fun isAlphaNumeric(char) {
+    return isAlpha(char) or isDigit(char);
+  }
+
+  fun handleIdentifier() {
+    while (!atEnd() and isAlphaNumeric(peek())) {
+      advance();
+    }
+
+    var text = slice(source, startIdx, idx);
+    var tokenType = TokenType.IDENTIFIER;
+
+    if (Keywords[text] != nil) {
+      tokenType = Keywords[text];
+    }
+
+    addToken(tokenType, nil);
+  }
+ 
+  fun scan() {
+    var char = advance(); 
+
+    switch (char) {
+      case "(": return addToken(TokenType.LEFT_PAREN, nil);
+      case ")": return addToken(TokenType.RIGHT_PAREN, nil);
+      case "[": return addToken(TokenType.LEFT_BRACKET, nil);
+      case "]": return addToken(TokenType.RIGHT_BRACKET, nil);
+      case "{": return addToken(TokenType.LEFT_BRACE, nil);
+      case "}": return addToken(TokenType.RIGHT_BRACE, nil);
+      case ",": return addToken(TokenType.COMMA, nil);
+      case ".": return addToken(TokenType.DOT, nil);
+      case ";": return addToken(TokenType.SEMICOLON, nil);
+      case ":": return addToken(TokenType.COLON, nil);
+      case ">": {
+        if (match("=")) {
+          return addToken(TokenType.GREATER_EQUAL, nil);
+        } 
+        return addToken(TokenType.GREATER, nil);
+      }
+      case "<": {
+        if (match("=")) {
+          return addToken(TokenType.LESS_EQUAL, nil);
+        } 
+        return addToken(TokenType.LESS, nil);
+      }
+      case "!": {
+        if (match("=")) {
+          return addToken(TokenType.BANG_EQUAL, nil);
+        } 
+        return addToken(TokenType.BANG, nil);
+      }
+      case "=": {
+        if (match("=")) {
+          return addToken(TokenType.EQUAL_EQUAL, nil);
+        } 
+        return addToken(TokenType.EQUAL, nil);
+      }
+      case "+": {
+        if (match("=")) {
+          return addToken(TokenType.PLUS_EQUAL, nil);
+        } 
+        return addToken(TokenType.PLUS, nil);
+      }
+      case "-": {
+        if (match("=")) {
+          return addToken(TokenType.MINUS_EQUAL, nil);
+        } 
+        return addToken(TokenType.MINUS, nil);
+      }
+      case "*": {
+        if (match("=")) {
+          return addToken(TokenType.STAR_EQUAL, nil);
+        } 
+        return addToken(TokenType.STAR, nil);
+      }
+      case "/": {
+        if (match("=")) {
+          return addToken(TokenType.SLASH_EQUAL, nil);
+        } else if (match("/")) {
+          while (peek() != "\n" and !atEnd()) {
+            advance();
+          }
+        } else {
+          return addToken(TokenType.SLASH, nil);
+        }
+      }
+      case " ":
+      case "\r":
+      case "\t":
+        break;
+      case "\n": {
+        line++;
+        break;
+      }
+      case "\"":
+        return handleString();
+      default: {
+        if (isDigit(char)) {
+          handleNumber();
+        } else if (isAlpha(char)) {
+          handleIdentifier();
+        } else {
+          err("Unexpected character " + char);
+          return false;
+        }
+      }
+    }
+  }
+
+  while (idx < len(source)) {
+    startIdx = idx;
+    if (scan() == false) {
+      print tokens;
+      return nil; 
+    }
+  }
+
+  return tokens;
+}
+
+print lexer("
+  var a_x;
+  var a_y;
+  var b_x;
+  var b_y;
+  var slope;
+  var y_intercept;
+
+  fun compute_slope(x0, y0, x, y) {
+      return (y - y0) / (x - x0);
+  }
+
+  fun compute_y_intercept(x, y, slope) {
+      return y - x * slope;
+  }
+
+  output(\"1° point x: \");
+  a_x = number(input());
+
+  output(\"1° point y: \");
+  a_y = number(input());
+
+  output(\"2° point x: \");
+  b_x = number(input());
+
+  output(\"2° point y: \");
+  b_y = number(input());
+
+  slope = compute_slope(a_x, a_y, b_x, b_y);
+  y_intercept = compute_y_intercept(a_x, a_y, slope);
+
+  if (y_intercept  > 0) {
+      output(\"y = \" + string(slope) + \"x + \" + string(y_intercept));
+  } else if (y_intercept < 0) {
+      output(\"y = \" + string(slope) + \"x - \" + string(abs(y_intercept)));
+  } else {
+      output(\"y = \" + string(slope) + \"x\");
+  }
+");

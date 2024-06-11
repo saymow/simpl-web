@@ -7,6 +7,7 @@
     "test": "tests"
   },
   "scripts": {
+    "exec": "ts-node-dev --respawn --rs --watch ./program.simpl ./main.ts ./program.simpl",
     "test": "jest",
     "test:watch": "jest --watch"
   },
@@ -22,6 +23,7 @@
   "devDependencies": {
     "@babel/preset-env": "^7.24.7",
     "@babel/preset-typescript": "^7.24.7",
-    "@types/jest": "^29.5.12"
+    "@types/jest": "^29.5.12",
+    "ts-node-dev": "^2.0.0"
   }
 }
