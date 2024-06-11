@@ -10,12 +10,14 @@
 
 ## Playground Snippets
 
-- [Average Calculator](https://saymow-simple.vercel.app?snippet=avg)
-- [Body Mass Index Calculator](https://saymow-simple.vercel.app?snippet=bmi)
+- [Lexer](https://saymow-simple.vercel.app?snippet=lexer)
+- [Dijkstra](https://saymow-simple.vercel.app?snippet=dijkstra)
 - [Breadth First Search](https://saymow-simple.vercel.app?snippet=breadth_first_search)
-- [Insertion Sort](https://saymow-simple.vercel.app?snippet=insertion_sort)
 - [Linear Function](https://saymow-simple.vercel.app?snippet=linear_function)
 - [To-do List](https://saymow-simple.vercel.app?snippet=todo_list)
+- [Insertion Sort](https://saymow-simple.vercel.app?snippet=insertion_sort)
+- [Average Calculator](https://saymow-simple.vercel.app?snippet=avg)
+- [Body Mass Index Calculator](https://saymow-simple.vercel.app?snippet=bmi)
 
 ## Syntax grammar
 
