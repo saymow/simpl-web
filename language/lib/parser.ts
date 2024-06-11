@@ -572,7 +572,7 @@ class Parser {
     } else if (this.match(TokenType.FALSE)) {
       return new LiteralExpr(false);
     } else if (this.match(TokenType.NIL)) {
-      return new LiteralExpr(null);
+      return new LiteralExpr(undefined);
     } else if (this.match(TokenType.NUMBER, TokenType.STRING)) {
       return new LiteralExpr(this.previous().literal);
     } else if (this.match(TokenType.LEFT_BRACKET)) {

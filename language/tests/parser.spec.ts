@@ -67,7 +67,7 @@ describe("Parser", () => {
       ).toEqual([
         WrapExpr(new LiteralExpr(true)),
         WrapExpr(new LiteralExpr(false)),
-        WrapExpr(new LiteralExpr(null)),
+        WrapExpr(new LiteralExpr(undefined)),
         WrapExpr(new LiteralExpr("77")),
         WrapExpr(new LiteralExpr("some-string")),
         WrapExpr(
@@ -1931,7 +1931,7 @@ describe("Parser", () => {
               },
               {
                 key: new Token(TokenType.IDENTIFIER, "d", undefined, 1, -1, -1),
-                value: new LiteralExpr(null),
+                value: new LiteralExpr(undefined),
               },
             ]
           )
