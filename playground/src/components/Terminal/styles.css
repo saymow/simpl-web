@@ -8,3 +8,8 @@
   padding-bottom: 5rem;
   background: black;
 }
+
+.terminal p {
+  white-space: break-spaces;
+  word-break: break-all;
+}
