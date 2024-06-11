@@ -317,17 +317,7 @@ class Interpreter
 
     switch (expr.operator.type) {
       case TokenType.PLUS_EQUAL:
-        if (
-          !(
-            (typeof current === "number" && typeof increment === "number") ||
-            (typeof current === "string" && typeof increment === "string")
-          )
-        ) {
-          throw new RuntimeError(
-            expr.operator,
-            "Operands must be numbers or strings."
-          );
-        }
+        this.ensureNumberOrStringOperands(expr.operator, current, increment);
 
         value = ((current as any) + increment) as any;
 
@@ -492,17 +482,9 @@ class Interpreter
 
     switch (expr.operator.type) {
       case TokenType.PLUS: {
-        if (typeof left === "number" && typeof right === "number") {
-          return left + right;
-        }
-        if (typeof left === "string" && typeof right === "string") {
-          return left + right;
-        }
+        this.ensureNumberOrStringOperands(expr.operator, left, right);
 
-        throw new RuntimeError(
-          expr.operator,
-          "Operands must be numbers or strings."
-        );
+        return (left as any) + (right as any);
       }
       case TokenType.MINUS:
         this.ensureNumberOperands(expr.operator, left, right);
@@ -653,7 +635,7 @@ class Interpreter
       return;
     }
 
-    throw new RuntimeError(token, "Operands must be numbers.");
+    throw new RuntimeError(token, "Operands must be numbers or strings.");
   }
 
   private isEqual(a: Value, b: Value) {
