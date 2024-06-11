@@ -78,6 +78,7 @@ class Resolver implements ExprVisitor<Value>, StmtVisitor<void> {
     this.global.set("boolean", new lib.Boolean());
     this.global.set("clear", new lib.Clear());
     this.global.set("sleep", new lib.Sleep());
+    this.global.set("slice", new lib.Slice());
   }
 
   async resolveExpr(expression: Expr): Promise<Value> {

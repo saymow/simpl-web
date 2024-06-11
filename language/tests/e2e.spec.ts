@@ -397,7 +397,7 @@ describe("e2e", () => {
     });
 
     describe("insert(Value[], number, Value)", () => {
-      it("✔️", async () => {
+      it("✔️ Pass", async () => {
         const arr = [1, 2, 3];
 
         await expectCoreLib(new lib.Insert())(arr, 0, -1);
@@ -472,7 +472,7 @@ describe("e2e", () => {
     });
 
     describe("remove(Value[], number)", () => {
-      it("✔️", async () => {
+      it("✔️ Pass", async () => {
         const arr = [1, 2, 3];
 
         await expectCoreLib(new lib.Remove())(arr, 0);
@@ -535,7 +535,7 @@ describe("e2e", () => {
     });
 
     describe("indexOf(Value[], Value)", () => {
-      it("✔️", async () => {
+      it("✔️ Pass", async () => {
         (
           await expectCoreLib(new lib.IndexOf())([1, 2, 3, 2, "test", null], 2)
         ).toBe(1);
@@ -577,6 +577,76 @@ describe("e2e", () => {
       (await expectCoreLib(new lib.Boolean())("")).toBe(true);
       (await expectCoreLib(new lib.Boolean())(0)).toBe(true);
       (await expectCoreLib(new lib.Boolean())({ test: "true" })).toBe(true);
+    });
+
+    describe("slice(Value[] | string, integer, integer)", () => {
+      it("✔️ Pass", async () => {
+        (await expectCoreLib(new lib.Slice())([1, 2, 3, 4, 5], 0, 1)).toEqual([
+          1,
+        ]);
+        (await expectCoreLib(new lib.Slice())([1, 2, 3, 4, 5], 0, 4)).toEqual([
+          1, 2, 3, 4,
+        ]);
+        (await expectCoreLib(new lib.Slice())([1, 2, 3, 4, 5], 0, 0)).toEqual(
+          []
+        );
+        (await expectCoreLib(new lib.Slice())([1, 2, 3, 4, 5], 1, -1)).toEqual([
+          2, 3, 4,
+        ]);
+        (
+          await expectCoreLib(new lib.Slice())([1, 2, 3, 4, 5], 2, null)
+        ).toEqual([3, 4, 5]);
+        (await expectCoreLib(new lib.Slice())("abcde", 0, 1)).toEqual("a");
+        (await expectCoreLib(new lib.Slice())("abcde", 0, 4)).toEqual("abcd");
+        (await expectCoreLib(new lib.Slice())("abcde", 0, 0)).toEqual("");
+        (await expectCoreLib(new lib.Slice())("abcde", 1, -1)).toEqual("bcd");
+        (await expectCoreLib(new lib.Slice())("abcde", 2, null)).toEqual("cde");
+      });
+
+      it("❌: Expected value to be string or array.", async () => {
+        (
+          await expectCoreLibException(new lib.Slice())(null, 0, 0)
+        ).rejects.toThrow("Expected value to be string or array.");
+        (
+          await expectCoreLibException(new lib.Slice())(4, 0, 0)
+        ).rejects.toThrow("Expected value to be string or array.");
+        (
+          await expectCoreLibException(new lib.Slice())({}, 0, 0)
+        ).rejects.toThrow("Expected value to be string or array.");
+      });
+
+      it("❌: startIdx must be an integer.", async () => {
+        (
+          await expectCoreLibException(new lib.Slice())([], null, 0)
+        ).rejects.toThrow("startIdx must be an integer.");
+        (
+          await expectCoreLibException(new lib.Slice())([], 4.5, 0)
+        ).rejects.toThrow("startIdx must be an integer.");
+        (
+          await expectCoreLibException(new lib.Slice())([], {}, 0)
+        ).rejects.toThrow("startIdx must be an integer.");
+        (
+          await expectCoreLibException(new lib.Slice())([], [], 0)
+        ).rejects.toThrow("startIdx must be an integer.");
+        (
+          await expectCoreLibException(new lib.Slice())([], "", 0)
+        ).rejects.toThrow("startIdx must be an integer.");
+      });
+
+      it("❌: endIdx must be an integer or nil.", async () => {
+        (
+          await expectCoreLibException(new lib.Slice())([], 0, 5.5)
+        ).rejects.toThrow("endIdx must be an integer or nil.");
+        (
+          await expectCoreLibException(new lib.Slice())([], 0, {})
+        ).rejects.toThrow("endIdx must be an integer or nil.");
+        (
+          await expectCoreLibException(new lib.Slice())([], 0, [])
+        ).rejects.toThrow("endIdx must be an integer or nil.");
+        (
+          await expectCoreLibException(new lib.Slice())([], 0, "")
+        ).rejects.toThrow("endIdx must be an integer or nil.");
+      });
     });
   });
 

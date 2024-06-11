@@ -74,6 +74,7 @@ class Interpreter
     this.globalContext.define("boolean", new lib.Boolean());
     this.globalContext.define("clear", new lib.Clear());
     this.globalContext.define("sleep", new lib.Sleep());
+    this.globalContext.define('slice', new lib.Slice());
   }
 
   public async interpret() {
@@ -526,7 +527,7 @@ class Interpreter
         return (left as unknown as number) <= (right as unknown as number);
       case TokenType.EQUAL_EQUAL:
         return this.isEqual(left, right);
-      case TokenType.BANG_EQUAL:
+        case TokenType.BANG_EQUAL:
         return !this.isEqual(left, right);
     }
   }
