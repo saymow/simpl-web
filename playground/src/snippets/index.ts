@@ -1,6 +1,7 @@
 import { AVG_SNIPPET } from "./avg";
 import { BMI_CALC_SNIPPET } from "./bmi-calc";
 import { BREADTH_FIRST_SEARCH_SNIPPET } from "./bredth-first-search";
+import { DIJKSTRA } from "./dijkstra";
 import { INSERTION_SORT_SNIPPET } from "./insertion-sort";
 import { LEXER } from "./lexer";
 import { LINEAR_FUNCTION_SNIPPET } from "./linear-function";
@@ -13,7 +14,8 @@ const SNIPPET_SLUG_MAP = {
   insertion_sort: INSERTION_SORT_SNIPPET,
   linear_function: LINEAR_FUNCTION_SNIPPET,
   todo_list: TODO_LIST_SNIPPET,
-  lexer: LEXER
+  lexer: LEXER,
+  dijkstra: DIJKSTRA,
 } as const;
 
 export const makeSnippet = (slug: string) => {
