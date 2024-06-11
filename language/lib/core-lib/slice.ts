@@ -1,7 +1,7 @@
 import { Value } from "../expr";
 import { SysCall, System } from "../interfaces";
 import { CoreLibError } from "../errors";
-import { isArray, isInteger, isNumber, isString } from "../helpers";
+import { isArray, isInteger, isString } from "../helpers";
 
 class Slice extends SysCall {
   public arity(): number {

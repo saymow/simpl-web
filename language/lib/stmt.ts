@@ -146,7 +146,7 @@ class SwitchStmt extends Stmt {
   }
 }
 
-export type { StmtVisitor };
+export type { StmtVisitor, SwitchCaseClause, SwitchDefaultClause };
 export {
   Stmt,
   ExprStmt,
@@ -159,6 +159,4 @@ export {
   ReturnStmt,
   BreakStmt,
   SwitchStmt,
-  SwitchCaseClause,
-  SwitchDefaultClause,
 };
