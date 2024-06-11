@@ -45,7 +45,7 @@ import Token from "./token";
 import Context, { VariableNotFound } from "./context";
 import Function, { ReturnValue } from "./function";
 import * as lib from "./core-lib";
-import { isArray, isObject, isString, isTruthy } from "./helpers";
+import { isArray, isEqual, isObject, isString, isTruthy } from "./helpers";
 
 class Interpreter
   implements ExprVisitor<Value>, StmtVisitor<void>, WithVariableResolution
@@ -696,7 +696,7 @@ class Interpreter
   }
 
   private isEqual(a: Value, b: Value) {
-    return a === b;
+    return isEqual(a, b);
   }
 
   private log(message: any) {

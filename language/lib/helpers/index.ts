@@ -20,3 +20,9 @@ export const isTruthy = (value: Value) => {
 
   return true;
 };
+
+export const isEqual = (a: Value, b: Value) => {
+  if (isNil(a) && isNil(b)) return true;
+
+  return a === b;
+};
