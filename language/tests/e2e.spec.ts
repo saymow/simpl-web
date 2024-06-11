@@ -187,7 +187,7 @@ describe("e2e", () => {
       expect(system.log.mock.calls[0][0]).toBe("12");
     });
 
-    it("choosen", async () => {
+    it("10", async () => {
       const { interpreter, system } = await makeSut(`
         fun diff (a, b) { 
           if (a > b) 
@@ -301,6 +301,65 @@ describe("e2e", () => {
       ].forEach((ans, idx) => {
         expect(system.log.mock.calls[idx][0]).toBe(ans);
       });
+    });
+
+    it("14", async () => {
+      const { interpreter, system } = await makeSut(`
+        fun isDigit(char) {
+          return char >= "0" and char <= "9";
+        }
+
+        fun isAlpha(char) {
+          return (
+            (char >= "a" and char <= "z") or
+            (char >= "A" and char <= "Z") or
+            char == "_"
+          );
+        }
+
+        print isDigit("0") == true;
+        print isDigit("1") == true;
+        print isDigit("2") == true;
+        print isDigit("3") == true;
+        print isDigit("4") == true;
+        print isDigit("5") == true;
+        print isDigit("6") == true;
+        print isDigit("7") == true;
+        print isDigit("8") == true;
+        print isDigit("9") == true;
+
+        print isDigit("a") == false;
+        print isDigit("K") == false;
+        print isDigit("/") == false;
+        print isDigit("-") == false;
+        print isDigit(".") == false;
+        print isDigit(",") == false;
+
+        print isAlpha("a") == true;
+        print isAlpha("Z") == true;
+        print isAlpha("d") == true;
+        print isAlpha("e") == true;
+        print isAlpha("E") == true;
+        print isAlpha("n") == true;
+        print isAlpha("M") == true;
+        print isAlpha("z") == true;
+        print isAlpha("l") == true;
+        print isAlpha("p") == true;
+        print isAlpha("_") == true;
+
+        print isAlpha("0") == false;
+        print isAlpha("8") == false;
+        print isAlpha("/") == false;
+        print isAlpha("-") == false;
+        print isAlpha(".") == false;
+        print isAlpha(",") == false;
+      `);
+
+      await interpreter.interpret();
+
+      for (const call of system.log.mock.calls) {
+        expect(call[0]).toBe("true");
+      }
     });
   });
 

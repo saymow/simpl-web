@@ -74,7 +74,7 @@ class Interpreter
     this.globalContext.define("boolean", new lib.Boolean());
     this.globalContext.define("clear", new lib.Clear());
     this.globalContext.define("sleep", new lib.Sleep());
-    this.globalContext.define('slice', new lib.Slice());
+    this.globalContext.define("slice", new lib.Slice());
   }
 
   public async interpret() {
@@ -514,20 +514,20 @@ class Interpreter
         this.ensureNumberOperands(expr.operator, left, right);
         return (left as unknown as number) / (right as unknown as number);
       case TokenType.GREATER:
-        this.ensureNumberOperands(expr.operator, left, right);
+        this.ensureNumberOrStringOperands(expr.operator, left, right);
         return (left as unknown as number) > (right as unknown as number);
       case TokenType.GREATER_EQUAL:
-        this.ensureNumberOperands(expr.operator, left, right);
+        this.ensureNumberOrStringOperands(expr.operator, left, right);
         return (left as unknown as number) >= (right as unknown as number);
       case TokenType.LESS:
-        this.ensureNumberOperands(expr.operator, left, right);
+        this.ensureNumberOrStringOperands(expr.operator, left, right);
         return (left as unknown as number) < (right as unknown as number);
       case TokenType.LESS_EQUAL:
-        this.ensureNumberOperands(expr.operator, left, right);
+        this.ensureNumberOrStringOperands(expr.operator, left, right);
         return (left as unknown as number) <= (right as unknown as number);
       case TokenType.EQUAL_EQUAL:
         return this.isEqual(left, right);
-        case TokenType.BANG_EQUAL:
+      case TokenType.BANG_EQUAL:
         return !this.isEqual(left, right);
     }
   }
@@ -639,6 +639,17 @@ class Interpreter
 
   private ensureNumberOperands(token: Token, a: Value, b: Value) {
     if (typeof a === "number" && typeof b === "number") {
+      return;
+    }
+
+    throw new RuntimeError(token, "Operands must be numbers.");
+  }
+
+  private ensureNumberOrStringOperands(token: Token, a: Value, b: Value) {
+    if (typeof a === "number" && typeof b === "number") {
+      return;
+    }
+    if (typeof a === "string" && typeof b === "string") {
       return;
     }
 
