@@ -1587,7 +1587,7 @@ describe("Interpreter", () => {
       expect(log.mock.calls[0][0]).toBe("5");
     });
 
-    it('var struct = { a: 5, b: "test" }; print --struct.a;', async () => {
+    it('var struct = { a: 5, b: "test" }; print --struct.a; print struct.a;', async () => {
       const { log, interpreter } = await makeSut([
         new VarStmt(
           new Token(TokenType.IDENTIFIER, "struct", "struct", 1, -1, -1),
@@ -1620,12 +1620,23 @@ describe("Interpreter", () => {
             UnaryOperatorType.PREFIX
           )
         ),
+        new PrintStmt(
+          new GetExpr(
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "struct", "struct", 1, -1, -1)
+            ),
+            new Token(TokenType.IDENTIFIER, "a", undefined, 1, -1, -1),
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "a", undefined, 1, -1, -1)
+            )
+          )
+        ),
       ]);
 
       await interpreter.interpret();
 
-      expect(log).toHaveBeenCalledTimes(1);
       expect(log.mock.calls[0][0]).toBe("4");
+      expect(log.mock.calls[1][0]).toBe("4");
     });
 
     it('var struct = { a: 5, b: "test" }; struct.a += 10; print struct.a;', async () => {
@@ -1768,6 +1779,227 @@ describe("Interpreter", () => {
             new VariableExpr(
               new Token(TokenType.IDENTIFIER, "c", undefined, 1, -1, -1)
             )
+          )
+        ),
+      ]);
+
+      await interpreter.interpret();
+
+      expect(log).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls[0][0]).toBe("new");
+    });
+
+    it('var struct = { a: 5, b: "test" }; print struct["a"];', async () => {
+      const { log, interpreter } = await makeSut([
+        new VarStmt(
+          new Token(TokenType.IDENTIFIER, "struct", "struct", 1, -1, -1),
+          new StructExpr(
+            new Token(TokenType.RIGHT_BRACE, "}", undefined, 1, -1, -1),
+            [
+              {
+                key: new Token(TokenType.IDENTIFIER, "a", undefined, 1, -1, -1),
+                value: new LiteralExpr(5),
+              },
+              {
+                key: new Token(TokenType.IDENTIFIER, "b", undefined, 1, -1, -1),
+                value: new LiteralExpr("test"),
+              },
+            ]
+          )
+        ),
+        new PrintStmt(
+          new GetExpr(
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "struct", "struct", 1, -1, -1)
+            ),
+            new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+            new LiteralExpr("a")
+          )
+        ),
+      ]);
+
+      await interpreter.interpret();
+
+      expect(log).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls[0][0]).toBe("5");
+    });
+
+    it('var struct = { a: 5, b: "test" }; print --struct["a"]; print struct["a"];', async () => {
+      const { log, interpreter } = await makeSut([
+        new VarStmt(
+          new Token(TokenType.IDENTIFIER, "struct", "struct", 1, -1, -1),
+          new StructExpr(
+            new Token(TokenType.RIGHT_BRACE, "}", undefined, 1, -1, -1),
+            [
+              {
+                key: new Token(TokenType.IDENTIFIER, "a", undefined, 1, -1, -1),
+                value: new LiteralExpr(5),
+              },
+              {
+                key: new Token(TokenType.IDENTIFIER, "b", undefined, 1, -1, -1),
+                value: new LiteralExpr("test"),
+              },
+            ]
+          )
+        ),
+        new PrintStmt(
+          new UnaryOperatorExpr(
+            new GetExpr(
+              new VariableExpr(
+                new Token(TokenType.IDENTIFIER, "struct", "struct", 1, -1, -1)
+              ),
+              new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+              new LiteralExpr("a")
+            ),
+            new Token(TokenType.MINUS_MINUS, "--", undefined, 1, -1, -1),
+            UnaryOperatorType.PREFIX
+          )
+        ),
+        new PrintStmt(
+          new GetExpr(
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "struct", "struct", 1, -1, -1)
+            ),
+            new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+            new LiteralExpr("a")
+          )
+        ),
+      ]);
+
+      await interpreter.interpret();
+
+      expect(log.mock.calls[0][0]).toBe("4");
+      expect(log.mock.calls[1][0]).toBe("4");
+    });
+
+    it('var struct = { a: 5, b: "test" }; struct["a"] += 10; print struct["a"];', async () => {
+      const { log, interpreter } = await makeSut([
+        new VarStmt(
+          new Token(TokenType.IDENTIFIER, "struct", "struct", 1, -1, -1),
+          new StructExpr(
+            new Token(TokenType.RIGHT_BRACE, "}", undefined, 1, -1, -1),
+            [
+              {
+                key: new Token(TokenType.IDENTIFIER, "a", undefined, 1, -1, -1),
+                value: new LiteralExpr(5),
+              },
+              {
+                key: new Token(TokenType.IDENTIFIER, "b", undefined, 1, -1, -1),
+                value: new LiteralExpr("test"),
+              },
+            ]
+          )
+        ),
+        new ExprStmt(
+          new AssignOperatorExpr(
+            new GetExpr(
+              new VariableExpr(
+                new Token(TokenType.IDENTIFIER, "struct", "struct", 1, -1, -1)
+              ),
+              new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+              new LiteralExpr("a")
+            ),
+            new Token(TokenType.PLUS_EQUAL, "+=", undefined, 1, -1, -1),
+            new LiteralExpr(10)
+          )
+        ),
+        new PrintStmt(
+          new GetExpr(
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "struct", "struct", 1, -1, -1)
+            ),
+            new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+            new LiteralExpr("a")
+          )
+        ),
+      ]);
+
+      await interpreter.interpret();
+
+      expect(log).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls[0][0]).toBe("15");
+    });
+
+    it('var struct = { a: 5, b: "test" }; struct["a"] = []; print struct["a"];', async () => {
+      const { log, interpreter } = await makeSut([
+        new VarStmt(
+          new Token(TokenType.IDENTIFIER, "struct", "struct", 1, -1, -1),
+          new StructExpr(
+            new Token(TokenType.RIGHT_BRACE, "}", undefined, 1, -1, -1),
+            [
+              {
+                key: new Token(TokenType.IDENTIFIER, "a", undefined, 1, -1, -1),
+                value: new LiteralExpr(5),
+              },
+              {
+                key: new Token(TokenType.IDENTIFIER, "b", undefined, 1, -1, -1),
+                value: new LiteralExpr("test"),
+              },
+            ]
+          )
+        ),
+        new ExprStmt(
+          new SetExpr(
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "struct", "struct", 1, -1, -1)
+            ),
+            new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+            new LiteralExpr("a"),
+            new LiteralExpr([])
+          )
+        ),
+        new PrintStmt(
+          new GetExpr(
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "struct", "struct", 1, -1, -1)
+            ),
+            new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+            new LiteralExpr("a")
+          )
+        ),
+      ]);
+
+      await interpreter.interpret();
+
+      expect(log).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls[0][0]).toBe("[]");
+    });
+
+    it('var struct = { a: 5, b: "test" }; struct["c"] = "new"; print struct["c"];', async () => {
+      const { log, interpreter } = await makeSut([
+        new VarStmt(
+          new Token(TokenType.IDENTIFIER, "struct", "struct", 1, -1, -1),
+          new StructExpr(
+            new Token(TokenType.RIGHT_BRACE, "}", undefined, 1, -1, -1),
+            [
+              {
+                key: new Token(TokenType.IDENTIFIER, "a", undefined, 1, -1, -1),
+                value: new LiteralExpr(5),
+              },
+              {
+                key: new Token(TokenType.IDENTIFIER, "b", undefined, 1, -1, -1),
+                value: new LiteralExpr("test"),
+              },
+            ]
+          )
+        ),
+        new ExprStmt(
+          new SetExpr(
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "struct", "struct", 1, -1, -1)
+            ),
+            new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+            new LiteralExpr("c"),
+            new LiteralExpr("new")
+          )
+        ),
+        new PrintStmt(
+          new GetExpr(
+            new VariableExpr(
+              new Token(TokenType.IDENTIFIER, "struct", "struct", 1, -1, -1)
+            ),
+            new Token(TokenType.RIGHT_BRACKET, "]", undefined, 1, -1, -1),
+            new LiteralExpr("c")
           )
         ),
       ]);
