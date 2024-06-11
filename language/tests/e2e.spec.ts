@@ -817,7 +817,11 @@ describe("e2e", () => {
         await interpreter.interpret();
 
         expect(system.log.mock.calls[system.log.mock.calls.length - 1][0]).toBe(
-          JSON.stringify(arr.sort((a, b) => a - b))
+          JSON.stringify(
+            arr.sort((a, b) => a - b),
+            null,
+            2
+          )
         );
       });
 
@@ -843,7 +847,11 @@ describe("e2e", () => {
         await interpreter.interpret();
 
         expect(system.log.mock.calls[system.log.mock.calls.length - 1][0]).toBe(
-          JSON.stringify(arr.sort((a, b) => a - b))
+          JSON.stringify(
+            arr.sort((a, b) => a - b),
+            null,
+            2
+          )
         );
       });
     });
@@ -861,7 +869,11 @@ describe("e2e", () => {
         await interpreter.interpret();
 
         expect(system.log.mock.calls[system.log.mock.calls.length - 1][0]).toBe(
-          '["A","B","P","C","K","L","E","F","G","FINAL"]'
+          JSON.stringify(
+            ["A", "B", "P", "C", "K", "L", "E", "F", "G", "FINAL"],
+            null,
+            2
+          )
         );
       });
 
@@ -877,7 +889,7 @@ describe("e2e", () => {
         await interpreter.interpret();
 
         expect(system.log.mock.calls[system.log.mock.calls.length - 1][0]).toBe(
-          '["D","N","F","G","FINAL"]'
+          JSON.stringify(["D", "N", "F", "G", "FINAL"], null, 2)
         );
       });
     });
@@ -893,7 +905,7 @@ describe("e2e", () => {
         await interpreter.interpret();
 
         expect(system.log.mock.calls[system.log.mock.calls.length - 1][0]).toBe(
-          '["F","G"]'
+          JSON.stringify(["F", "G"], null, 2)
         );
       });
 
@@ -907,7 +919,7 @@ describe("e2e", () => {
         await interpreter.interpret();
 
         expect(system.log.mock.calls[system.log.mock.calls.length - 1][0]).toBe(
-          '["D","E","G","FINAL"]'
+          JSON.stringify(["D", "E", "G", "FINAL"], null, 2)
         );
       });
     });

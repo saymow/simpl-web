@@ -45,7 +45,7 @@ import Token from "./token";
 import Context, { VariableNotFound } from "./context";
 import Function, { ReturnValue } from "./function";
 import * as lib from "./core-lib";
-import { isArray, isEqual, isObject, isString, isTruthy } from "./helpers";
+import { isArray, isEqual, isNil, isObject, isString, isTruthy } from "./helpers";
 
 class Interpreter
   implements ExprVisitor<Value>, StmtVisitor<void>, WithVariableResolution
@@ -700,9 +700,9 @@ class Interpreter
   }
 
   private log(message: any) {
-    if (message !== undefined && message !== null) {
+    if (!isNil(message)) {
       if (isArray(message) || isObject(message)) {
-        message = JSON.stringify(message);
+        message = JSON.stringify(message, null, 2);
       } else {
         message = message.toString();
       }

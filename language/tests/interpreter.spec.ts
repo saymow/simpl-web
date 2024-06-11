@@ -1547,7 +1547,9 @@ describe("Interpreter", () => {
       await interpreter.interpret();
 
       expect(log).toHaveBeenCalledTimes(1);
-      expect(log.mock.calls[0][0]).toBe('{"a":5,"b":"test"}');
+      expect(log.mock.calls[0][0]).toBe(
+        JSON.stringify({ a: 5, b: "test" }, null, 2)
+      );
     });
 
     it('var struct = { a: 5, b: "test" }; print struct.a;', async () => {
