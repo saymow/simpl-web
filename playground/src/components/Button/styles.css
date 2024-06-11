@@ -6,9 +6,19 @@ button {
   padding: 0.5rem 1rem;
   cursor: pointer;
   background: var(--primary-color);
+  transition: all 200ms ease;
 }
 
 button[disabled] {
   cursor: initial;
   opacity: 0.4;
+}
+
+button:active,
+button[data-loading] {
+  opacity: 0.6;
+}
+
+button[data-loading] {
+  pointer-events: none;
 }

@@ -7,7 +7,16 @@ export class TerminalOut extends Terminal {
 }
 
 export class TerminalIn extends Terminal {
-  constructor(public readonly handler: (input: string) => void) {
+  public active: boolean = true;
+  public input: string = "";
+
+  handle(input: string) {
+    this.active = false;
+    this.input = input;
+    this.handler(input);
+  }
+
+  constructor(private readonly handler: (input: string) => void) {
     super();
   }
 }

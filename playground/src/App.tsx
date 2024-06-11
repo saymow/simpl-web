@@ -39,6 +39,7 @@ function App() {
   const [programMetadata, setProgramMetadata] =
     useState<ProgramMetadata | null>(null);
   const [terminal, setTerminal] = useState<Terminal[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const isValidState = useMemo(
     () => programMetadata != null,
     [programMetadata]
@@ -112,6 +113,7 @@ function App() {
       });
       const resolver = new Resolver(interpreter);
 
+      setIsLoading(true);
       await resolver.resolve(programMetadata.program);
       await interpreter.interpret();
     } catch (err) {
@@ -128,13 +130,19 @@ function App() {
       }
 
       console.error("Unexpected error: ", err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <main className="container">
       <header>
-        <Button disabled={!isValidState} onClick={handleRun}>
+        <Button
+          disabled={!isValidState}
+          isLoading={isLoading}
+          onClick={handleRun}
+        >
           Run
         </Button>
       </header>
@@ -143,6 +151,7 @@ function App() {
         onSourceChange={setSource}
         syntaxHighlightedSource={syntaxHighlightedSource}
         terminal={terminal}
+        isLoading={isLoading}
       />
     </main>
   );

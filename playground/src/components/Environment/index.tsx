@@ -18,10 +18,17 @@ interface Props {
   source: string;
   onSourceChange: (source: string) => void;
   syntaxHighlightedSource?: string;
+  isLoading: boolean;
 }
 
 const Environment: React.FC<Props> = (props) => {
-  const { source, onSourceChange, syntaxHighlightedSource, terminal } = props;
+  const {
+    source,
+    onSourceChange,
+    syntaxHighlightedSource,
+    terminal,
+    isLoading,
+  } = props;
   const environmentRef = useRef<HTMLDivElement>(null);
   const editorWrapperRef = useRef<HTMLDivElement>(null);
   const terminalWrapperRef = useRef<HTMLDivElement>(null);
@@ -188,7 +195,7 @@ const Environment: React.FC<Props> = (props) => {
         ></span>
       </div>
       <div ref={terminalWrapperRef} className="terminal-wrapper">
-        <TerminalComponent lines={terminal} />
+        <TerminalComponent isLoading={isLoading} lines={terminal} />
       </div>
     </article>
   );
