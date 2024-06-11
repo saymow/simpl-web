@@ -58,6 +58,9 @@ class Lexer {
       case ".":
         this.addToken(TokenType.DOT);
         break;
+      case "\\":
+        this.addToken(TokenType.BACK_SLASH);
+        break;
       case "-":
         if (this.match("-")) {
           this.addToken(TokenType.MINUS_MINUS);
