@@ -1964,6 +1964,64 @@ describe("Parser", () => {
       }
     });
 
+    it("{ if: 0, for: 0, default: 0, fun: 0, break: 0 };", () => {
+      expect(
+        new Parser([
+          new Token(TokenType.LEFT_BRACE, "{", undefined, 1, -1, -1),
+          new Token(TokenType.IF, "if", undefined, 1, -1, -1),
+          new Token(TokenType.COLON, ":", undefined, 1, -1, -1),
+          new Token(TokenType.NUMBER, "0", 0, 1, -1, -1),
+          new Token(TokenType.COMMA, ",", undefined, 1, -1, -1),
+          new Token(TokenType.FOR, "for", undefined, 1, -1, -1),
+          new Token(TokenType.COLON, ":", undefined, 1, -1, -1),
+          new Token(TokenType.NUMBER, "0", 0, 1, -1, -1),
+          new Token(TokenType.COMMA, ",", undefined, 1, -1, -1),
+          new Token(TokenType.DEFAULT, "default", undefined, 1, -1, -1),
+          new Token(TokenType.COLON, ":", undefined, 1, -1, -1),
+          new Token(TokenType.NUMBER, "0", 0, 1, -1, -1),
+          new Token(TokenType.COMMA, ",", undefined, 1, -1, -1),
+          new Token(TokenType.FUN, "fun", undefined, 1, -1, -1),
+          new Token(TokenType.COLON, ":", undefined, 1, -1, -1),
+          new Token(TokenType.NUMBER, "0", 0, 1, -1, -1),
+          new Token(TokenType.COMMA, ",", undefined, 1, -1, -1),
+          new Token(TokenType.BREAK, "break", undefined, 1, -1, -1),
+          new Token(TokenType.COLON, ":", undefined, 1, -1, -1),
+          new Token(TokenType.NUMBER, "0", 0, 1, -1, -1),
+          new Token(TokenType.RIGHT_BRACE, "}", undefined, 1, -1, -1),
+          new Token(TokenType.SEMICOLON, ";", undefined, 1, -1, -1),
+          new Token(TokenType.EOF, "", undefined, 2, -1, -1),
+        ]).parse()
+      ).toEqual([
+        WrapExpr(
+          new StructExpr(
+            new Token(TokenType.RIGHT_BRACE, "}", undefined, 1, -1, -1),
+            [
+              {
+                key: new Token(TokenType.IDENTIFIER, "if", undefined, 1, -1, -1),
+                value: new LiteralExpr(0),
+              },
+              {
+                key: new Token(TokenType.IDENTIFIER, "for", undefined, 1, -1, -1),
+                value: new LiteralExpr(0),
+              },
+              {
+                key: new Token(TokenType.IDENTIFIER, "default", undefined, 1, -1, -1),
+                value: new LiteralExpr(0),
+              },
+              {
+                key: new Token(TokenType.IDENTIFIER, "fun", undefined, 1, -1, -1),
+                value: new LiteralExpr(0),
+              },
+              {
+                key: new Token(TokenType.IDENTIFIER, "break", undefined, 1, -1, -1),
+                value: new LiteralExpr(0),
+              },
+            ]
+          )
+        ),
+      ]);
+    });
+
     it("myStruct.propertyA;", () => {
       expect(
         new Parser([

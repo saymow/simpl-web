@@ -58,4 +58,27 @@ enum TokenType {
   EOF = "EOF",
 }
 
+const Keywords = new Map([
+  ["and", TokenType.AND],
+  ["class", TokenType.CLASS],
+  ["else", TokenType.ELSE],
+  ["false", TokenType.FALSE],
+  ["for", TokenType.FOR],
+  ["fun", TokenType.FUN],
+  ["if", TokenType.IF],
+  ["nil", TokenType.NIL],
+  ["or", TokenType.OR],
+  ["print", TokenType.PRINT],
+  ["return", TokenType.RETURN],
+  ["true", TokenType.TRUE],
+  ["var", TokenType.VAR],
+  ["while", TokenType.WHILE],
+  ["break", TokenType.BREAK],
+  ["switch", TokenType.SWITCH],
+  ["case", TokenType.CASE],
+  ["default", TokenType.DEFAULT],
+  ["error", TokenType.ERROR],
+]);
+
+export { Keywords };
 export default TokenType;

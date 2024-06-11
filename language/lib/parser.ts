@@ -33,7 +33,7 @@ import {
   SwitchDefaultClause,
 } from "./stmt";
 import Token from "./token";
-import TokenType from "./token-type";
+import TokenType, { Keywords } from "./token-type";
 import { ParserError } from "./errors";
 
 class Parser {
@@ -598,14 +598,19 @@ class Parser {
 
     if (!this.check(TokenType.RIGHT_BRACE)) {
       do {
-        const identifier = this.consume(
-          TokenType.IDENTIFIER,
-          "Expect identifier for struct property."
-        );
+        let token = this.advance();
 
-        if (identifiersUsed.has(identifier.lexeme)) {
+        if (token.type === TokenType.IDENTIFIER) {
+          token = token as Token<TokenType.IDENTIFIER>;
+        } else if (Keywords.has(token.lexeme)) {
+          token = this.identifierFromKeyword(token);
+        } else {
+          throw this.error(token, "Unexpected token for struct identifier.");
+        }
+
+        if (identifiersUsed.has(token.lexeme)) {
           throw this.error(
-            identifier,
+            token,
             "Structs cannot have multiple properties with the same name."
           );
         }
@@ -616,8 +621,8 @@ class Parser {
         );
         const expr = this.expression();
 
-        properties.push({ key: identifier, value: expr });
-        identifiersUsed.add(identifier.lexeme);
+        properties.push({ key: token as Token<TokenType.IDENTIFIER>, value: expr });
+        identifiersUsed.add(token.lexeme);
       } while (this.match(TokenType.COMMA));
     }
 
@@ -627,6 +632,17 @@ class Parser {
     );
 
     return new StructExpr(brace, properties);
+  }
+
+  private identifierFromKeyword(keyword: Token): Token<TokenType.IDENTIFIER> {
+    return new Token(
+      TokenType.IDENTIFIER,
+      keyword.lexeme,
+      keyword.literal,
+      keyword.line,
+      keyword.startIdx,
+      keyword.length
+    );
   }
 
   private array(): Expr {

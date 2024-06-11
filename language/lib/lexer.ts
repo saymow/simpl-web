@@ -1,29 +1,9 @@
 import { LexerError } from "./errors";
 import Token from "./token";
-import TokenType from "./token-type";
+import TokenType, { Keywords } from "./token-type";
 
 class Lexer {
-  static Keywords = new Map([
-    ["and", TokenType.AND],
-    ["class", TokenType.CLASS],
-    ["else", TokenType.ELSE],
-    ["false", TokenType.FALSE],
-    ["for", TokenType.FOR],
-    ["fun", TokenType.FUN],
-    ["if", TokenType.IF],
-    ["nil", TokenType.NIL],
-    ["or", TokenType.OR],
-    ["print", TokenType.PRINT],
-    ["return", TokenType.RETURN],
-    ["true", TokenType.TRUE],
-    ["var", TokenType.VAR],
-    ["while", TokenType.WHILE],
-    ["break", TokenType.BREAK],
-    ["switch", TokenType.SWITCH],
-    ["case", TokenType.CASE],
-    ["default", TokenType.DEFAULT],
-    ["error", TokenType.ERROR],
-  ]);
+  static Keywords = Keywords;
 
   private source: string;
   private tokens: Token[];
@@ -207,7 +187,10 @@ class Lexer {
   }
 
   private string() {
-    while (this.peek() != '"' && !this.atEnd()) {
+    while (
+      !this.atEnd() &&
+      (this.peek() != '"' || this.peekPrevious() == "\\")
+    ) {
       if (this.advance() === "\n") this.line++;
     }
 
@@ -217,17 +200,20 @@ class Lexer {
     }
 
     this.advance();
-    this.addToken(
-      TokenType.STRING,
-      this.unscapeStr(this.source.substring(this.start + 1, this.current - 1))
+
+    const str = this.unscapeStr(
+      this.source.substring(this.start + 1, this.current - 1)
     );
+
+    this.addToken(TokenType.STRING, str);
   }
 
   private unscapeStr(str: string) {
     return str
       .replace(/\\n/g, "\n")
       .replace(/\\r/g, "\r")
-      .replace(/\\t/g, "\t");
+      .replace(/\\t/g, "\t")
+      .replace(/\\"/g, '"');
   }
 
   private addToken(tokenType: TokenType, literal?: any) {
@@ -246,6 +232,11 @@ class Lexer {
 
   private peek() {
     return this.source[this.current];
+  }
+
+  private peekPrevious() {
+    if (this.current === 0) return;
+    return this.source[this.current - 1];
   }
 
   private match(char: string) {
