@@ -18,6 +18,7 @@ import { TokenError } from "./errors";
 import { bindTokens } from "./helpers";
 import { Terminal, TerminalIn, TerminalOut } from "./interfaces";
 import { makeSnippet } from "./snippets";
+import GithubCorner from "react-github-corner";
 
 const mockSystem = () => ({
   input: async () => "test",
@@ -153,6 +154,7 @@ function App() {
         terminal={terminal}
         isLoading={isLoading}
       />
+      <GithubCorner href="https://github.com/saymow/simpl-web" />
     </main>
   );
 }
