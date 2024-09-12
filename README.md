@@ -2,7 +2,7 @@
 
 <br>
 
-<p>&nbsp;&nbsp;&nbsp;&nbsp; Simpl web is a basic <a href="https://imantung.medium.com/tree-walk-interpreter-b33fe5c19a63" target="_blank">Tree-Walk script language</a> with arrays, structs, closure, I/O, and so on. You can play with <a href="https://simpl-web-programming-language.vercel.app/" target="_blank">here</a>.</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; Simpl web is a basic <a href="https://imantung.medium.com/tree-walk-interpreter-b33fe5c19a63" target="_blank">Tree-Walk script language</a> version of the <a href="https://github.com/saymow/simpl" target="_blank">Simpl programming language</a>  with arrays, structs, closure, I/O, and so on. You can play with <a href="https://simpl-web-programming-language.vercel.app/" target="_blank">its online IDE</a>.</p>
 
 ## Playground
 
